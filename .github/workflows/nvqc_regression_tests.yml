@@ -44,7 +44,6 @@ env:
   # NGC nv-quantum organization: pnyjrcojiblh
   NGC_QUANTUM_ORG: pnyjrcojiblh
   NGC_QUANTUM_TEAM: cuda-quantum
-  NVQC_FUNCTION_ID: 3bfa0342-7d2a-4f1b-8e81-b6608d28ca7d
   # <Backend>:<GPU Type>:<Instance Type>:<Min Instances>:<Max Instances>
   NGC_NVQC_DEPLOYMENT_SPEC: NVCFInternal:A100:Standard_ND96amsr_A100_v4_1x:1:1
   # If vars below are changed, it is recommended to also update the
@@ -108,7 +107,6 @@ jobs:
         run: |
           echo "### Submit to NVQC" >> $GITHUB_STEP_SUMMARY
           export NVQC_API_KEY="${{ secrets.NVQC_SERVICE_KEY }}"
-          export NVQC_FUNCTION_ID="$NVQC_FUNCTION_ID"
           set +e # Allow script to keep going through errors
           test_err_sum=0
           # Test all NVQPP execution tests
@@ -313,7 +311,6 @@ jobs:
           echo "### Submit to NVQC from Python wheels" >> $GITHUB_STEP_SUMMARY
           python_version=${{ inputs.python_version || env.python_version }}
           export NVQC_API_KEY="${{ secrets.NVQC_SERVICE_KEY }}"
-          export NVQC_FUNCTION_ID="$NVQC_FUNCTION_ID"
           set +e # Allow script to keep going through errors
           python$python_version -m pip install pytest
           test_err_sum=0
