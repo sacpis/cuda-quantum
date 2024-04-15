@@ -107,6 +107,7 @@ jobs:
         run: |
           echo "### Submit to NVQC" >> $GITHUB_STEP_SUMMARY
           export NVQC_API_KEY="${{ secrets.NVQC_SERVICE_KEY }}"
+          export NVQC_NCA_ID="${{ secrets.NVQC_NCA_ID }}"
           set +e # Allow script to keep going through errors
           test_err_sum=0
           # Test all NVQPP execution tests
@@ -311,6 +312,7 @@ jobs:
           echo "### Submit to NVQC from Python wheels" >> $GITHUB_STEP_SUMMARY
           python_version=${{ inputs.python_version || env.python_version }}
           export NVQC_API_KEY="${{ secrets.NVQC_SERVICE_KEY }}"
+          export NVQC_NCA_ID="${{ secrets.NVQC_NCA_ID }}"
           set +e # Allow script to keep going through errors
           python$python_version -m pip install pytest
           test_err_sum=0
