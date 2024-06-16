@@ -5,10 +5,10 @@
  * This source code and the accompanying materials are made available under    *
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
+#include <iostream>
 #include <pybind11/functional.h>
 #include <pybind11/stl.h>
 #include <regex>
-#include <iostream>
 
 #include "py_optimizer.h"
 
@@ -128,13 +128,13 @@ static std::string remove_comments(const std::string &source) {
   return result;
 }
 
-std::string remove_print_statements(const std::string& source) {
-    std::regex print_regex(R"((^\s*print\(.*\)\s*$))", std::regex_constants::multiline);
-    return std::regex_replace(source, print_regex, "");
+std::string remove_print_statements(const std::string &source) {
+  std::regex print_regex(R"((^\s*print\(.*\)\s*$))",
+                         std::regex_constants::multiline);
+  return std::regex_replace(source, print_regex, "");
 }
 
-static std::string get_source_code(const py::function &func) {
-  // Get the source code
+std::string fetch_function_source(const py::function &func) {
   py::object inspect = py::module::import("inspect");
   py::object source_code;
   try {
@@ -143,12 +143,74 @@ static std::string get_source_code(const py::function &func) {
     throw std::runtime_error("Failed to get source code: " +
                              std::string(e.what()));
   }
+  return source_code.cast<std::string>();
+}
 
-  std::string source = source_code.cast<std::string>();
-  strip_leading_whitespace(source);
-  source = remove_comments(source);
-  source = remove_print_statements(source);
-  return remove_comments(source);
+py::object parse_source_to_ast(const std::string &source) {
+  py::object ast = py::module::import("ast");
+  return ast.attr("parse")(source);
+}
+
+std::vector<std::string> fetch_function_definitions(py::object &node,
+                                                    py::object &ast_module) {
+  std::vector<std::string> function_sources;
+
+  if (py::isinstance(node, ast_module.attr("FunctionDef"))) {
+    py::object func_name = node.attr("name");
+    std::string func_source = fetch_function_source(node);
+    function_sources.push_back(func_source);
+  }
+
+  for (auto child : node.attr("_fields")) {
+    py::object child_node = node.attr(py::str(child));
+    if (!child_node.is_none()) {
+      if (py::isinstance<py::list>(child_node)) {
+        for (auto sub_child : child_node) {
+          py::object sub_child_object =
+              py::reinterpret_borrow<py::object>(sub_child);
+          auto sub_function_sources =
+              fetch_function_definitions(sub_child_object, ast_module);
+          function_sources.insert(function_sources.end(),
+                                  sub_function_sources.begin(),
+                                  sub_function_sources.end());
+        }
+      } else {
+        auto sub_function_sources =
+            fetch_function_definitions(child_node, ast_module);
+        function_sources.insert(function_sources.end(),
+                                sub_function_sources.begin(),
+                                sub_function_sources.end());
+      }
+    }
+  }
+
+  return function_sources;
+}
+
+static std::string get_source_code(const py::function &func) {
+  // Get the source code of the given function
+  std::string source_code = fetch_function_source(func);
+
+  // Parse the source code into an AST
+  py::object ast_module = py::module::import("ast");
+  py::object ast_tree = parse_source_to_ast(source_code);
+
+  // Fetch all function definitions recursively
+  std::vector<std::string> function_sources =
+      fetch_function_definitions(ast_tree, ast_module);
+
+  // Combine all source code
+  std::string combined_source_code;
+  for (const auto &func_src : function_sources) {
+    combined_source_code += func_src + "\n";
+  }
+
+  // Strip leading whitespace, remove comments, and print statements
+  strip_leading_whitespace(combined_source_code);
+  combined_source_code = remove_comments(combined_source_code);
+  combined_source_code = remove_print_statements(combined_source_code);
+
+  return combined_source_code;
 }
 
 static std::string get_imports() {
