@@ -11,7 +11,16 @@ from .utils import __isBroadcast, __createArgumentSet
 from ..mlir.dialects import quake, cc
 
 
+def __unset_noise_model(noise_model):
+    if noise_model is not None:
+        cudaq_runtime.unset_noise()
+
+
 def __broadcastObserve(kernel, spin_operator, *args, shots_count=0):
+    """Handles the broadcasting of the observe operation across multiple
+    argument sets. It sets up the execution context simulates the kernel for
+    each iteration, and accumulates results.
+    """
     argSet = __createArgumentSet(*args)
     N = len(argSet)
     results = []
@@ -74,20 +83,23 @@ Returns:
         raise RuntimeError('observe specification violated for \'' +
                            kernel.name + '\': ' + validityCheck[1])
 
-    # Handle parallel execution use cases
-    if execution != None:
-        return cudaq_runtime.observe_parallel(kernel,
-                                              spin_operator,
-                                              *args,
-                                              execution=execution,
-                                              shots_count=shots_count,
-                                              noise_model=noise_model)
-
-    if noise_model != None:
+    if noise_model is not None:
         cudaq_runtime.set_noise(noise_model)
 
+    # Handle parallel execution use cases
+    if execution is not None:
+        result = cudaq_runtime.observe_parallel(kernel,
+                                                spin_operator,
+                                                *args,
+                                                execution=execution,
+                                                shots_count=shots_count,
+                                                noise_model=noise_model)
+
+        __unset_noise_model(noise_model)
+
+        return result
+
     # Process spin_operator if its a list
-    localOp = spin_operator
     localOp = cudaq_runtime.SpinOperator()
     if isinstance(spin_operator, list):
         for o in spin_operator:
@@ -118,31 +130,31 @@ Returns:
         cudaq_runtime.resetExecutionContext()
 
         expVal = ctx.getExpectationValue()
-        if expVal == None:
-            sum = 0.0
+        if expVal is None:
+            sum_exp_val = 0.0
 
             def computeExpVal(term):
-                nonlocal sum
+                nonlocal sum_exp_val
                 if term.is_identity():
-                    sum += term.get_coefficient().real
+                    sum_exp_val += term.get_coefficient().real
                 else:
-                    sum += res.expectation(
+                    sum_exp_val += res.expectation(
                         term.to_string(False)) * term.get_coefficient().real
 
             localOp.for_each_term(computeExpVal)
-            expVal = sum
+            expVal = sum_exp_val
 
         observeResult = cudaq_runtime.ObserveResult(expVal, localOp, res)
         if not isinstance(spin_operator, list):
+            __unset_noise_model(noise_model)
             return observeResult
 
-        results = []
-        for op in spin_operator:
-            results.append(
-                cudaq_runtime.ObserveResult(observeResult.expectation(op), op,
-                                            observeResult.counts(op)))
+        results = [
+            cudaq_runtime.ObserveResult(observeResult.expectation(op), op,
+                                        observeResult.counts(op))
+            for op in spin_operator
+        ]
 
-    if noise_model != None:
-        cudaq_runtime.unset_noise()
+    __unset_noise_model(noise_model)
 
     return results

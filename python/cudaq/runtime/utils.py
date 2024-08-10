@@ -21,13 +21,12 @@ def __isBroadcast(kernel, *args):
     # kernel could be a PyKernel or PyKernelDecorator
     if isinstance(kernel, PyKernel):
         argTypes = kernel.mlirArgTypes
-        if len(argTypes) == 0 or len(args) == 0:
+        if not argTypes or not args:
             return False
 
         # Quick check, if we have a 2d array anywhere, we know this is a broadcast
-        isDefinitelyBroadcast = True in [
-            hasattr(arg, "shape") and len(arg.shape) == 2 for arg in args
-        ]
+        isDefinitelyBroadcast = any(
+            hasattr(arg, "shape") and len(arg.shape) == 2 for arg in args)
 
         if isDefinitelyBroadcast:
             # Error check, did the user pass a single value for any of the other arguments
@@ -39,30 +38,27 @@ def __isBroadcast(kernel, *args):
 
         firstArg = args[0]
         firstArgTypeIsStdvec = cc.StdvecType.isinstance(argTypes[0])
-        if (isinstance(firstArg, list) or
-                isinstance(firstArg, List)) and not firstArgTypeIsStdvec:
+        if isinstance(firstArg, (list, List)) and not firstArgTypeIsStdvec:
             return True
 
         if hasattr(firstArg, "shape"):
-            shape = firstArg.shape
-            if len(shape) == 1 and not firstArgTypeIsStdvec:
+            if firstArg.ndim == 1 and not firstArgTypeIsStdvec:
                 return True
 
-            if len(shape) == 2:
+            if firstArg.ndim == 2:
                 return True
 
         return False
 
     elif isinstance(kernel, PyKernelDecorator):
         argTypes = kernel.signature
-        if len(argTypes) == 0 or len(args) == 0:
+        if not argTypes or not args:
             return False
 
         # Quick check, if we have a 2d array anywhere, we know this
         # is a broadcast
-        isDefinitelyBroadcast = True in [
-            hasattr(arg, "shape") and len(arg.shape) == 2 for arg in args
-        ]
+        isDefinitelyBroadcast = any(
+            hasattr(arg, "shape") and len(arg.shape) == 2 for arg in args)
 
         if isDefinitelyBroadcast:
             # Error check, did the user pass a single value for any of the other arguments
@@ -75,29 +71,24 @@ def __isBroadcast(kernel, *args):
         firstArg = args[0]
         firstArgType = next(iter(argTypes))
         checkList = [
-            list, np.ndarray, List, List[float], List[complex], List[int]
-        ]
-        checkList.append([
+            list, np.ndarray, List, List[float], List[complex], List[int],
             'list', 'np.ndarray', 'List', 'List[float]', 'List[complex]',
             'List[int]'
-        ])
+        ]
         ## [PYTHON_VERSION_FIX]
         if sys.version_info >= (3, 9):
             checkList.extend(
-                [list[float], list[complex], list[int], list[bool]])
-            checkList.extend(
-                ['list[float]', 'list[complex]', 'list[int]', 'list[bool]'])
+                [list[float], list[complex], list[int], list[bool],
+                 'list[float]', 'list[complex]', 'list[int]', 'list[bool]'])
         firstArgTypeIsStdvec = argTypes[firstArgType] in checkList
-        if (isinstance(firstArg, list) or
-                isinstance(firstArg, List)) and not firstArgTypeIsStdvec:
+        if isinstance(firstArg, (list, List)) and not firstArgTypeIsStdvec:
             return True
 
         if hasattr(firstArg, "shape"):
-            shape = firstArg.shape
-            if len(shape) == 1 and not firstArgTypeIsStdvec:
+            if firstArg.ndim == 1 and not firstArgTypeIsStdvec:
                 return True
 
-            if len(shape) == 2:
+            if firstArg.ndim == 2:
                 return True
 
         return False
@@ -105,20 +96,10 @@ def __isBroadcast(kernel, *args):
 
 def __createArgumentSet(*args):
     nArgSets = len(args[0])
-    argSet = []
-    for j in range(nArgSets):
-        currentArgs = [0 for i in range(len(args))]
-        for i, arg in enumerate(args):
-
-            if isinstance(arg, list) or isinstance(arg, List):
-                currentArgs[i] = arg[j]
-
-            if hasattr(arg, "tolist"):
-                shape = arg.shape
-                if len(shape) == 2:
-                    currentArgs[i] = arg[j].tolist()
-                else:
-                    currentArgs[i] = arg.tolist()[j]
-
-        argSet.append(tuple(currentArgs))
+    argSet = [
+        tuple(arg[j].tolist() if hasattr(arg, "tolist") and arg.ndim == 2 else
+              arg[j] if isinstance(arg, (list, List)) else arg[j]
+              for arg in args)
+        for j in range(nArgSets)
+    ]
     return argSet
