@@ -35,16 +35,28 @@ def __isFirstArgTypeStdVec(kernel, argTypes):
     elif isinstance(kernel, PyKernelDecorator):
         firstArgType = next(iter(argTypes))
         checkList = [
-            list, np.ndarray, List, List[float], List[complex], List[int],
-            'list', 'np.ndarray', 'List', 'List[float]', 'List[complex]',
-            'List[int]'
+            list,
+            np.ndarray,
+            List,
+            List[float],
+            List[complex],
+            List[int],
+            'list',
+            'np.ndarray',
+            'List',
+            'List[float]',
+            'List[complex]',
+            'List[int]',
+            ## [PYTHON_VERSION_FIX] sys.version_info >= (3, 9)
+            list[float],
+            list[complex],
+            list[int],
+            list[bool],
+            'list[float]',
+            'list[complex]',
+            'list[int]',
+            'list[bool]'
         ]
-        ## [PYTHON_VERSION_FIX]
-        if sys.version_info >= (3, 9):
-            checkList.extend([
-                list[float], list[complex], list[int], list[bool],
-                'list[float]', 'list[complex]', 'list[int]', 'list[bool]'
-            ])
         isFirstArgTypeStdVec = argTypes[firstArgType] in checkList
 
     return isFirstArgTypeStdVec
