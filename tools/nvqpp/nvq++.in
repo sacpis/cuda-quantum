@@ -569,7 +569,7 @@ while [ $# -ne 0 ]; do
 	*.o | *.so | *.bundle)
 		OBJS="${OBJS} $1"
 		;;
-	*.cpp | *.cc)
+	*.cpp | *.cc | *.cxx)
 		SRCS="${SRCS} $1"
 		;;
 	*.a | *.dylib)
