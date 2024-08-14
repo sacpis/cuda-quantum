@@ -59,6 +59,7 @@ add_subdirectory(algorithms)
 add_subdirectory(platform)
 add_subdirectory(builder)
 add_subdirectory(domains)
+add_subdirectory(dynamics)
 
 install(TARGETS ${LIBRARY_NAME} EXPORT cudaq-targets DESTINATION lib)
 
