@@ -4,8 +4,6 @@ from abc import ABC, abstractmethod
 from typing import Generic, Iterable, Sequence, TypeVar, Mapping
 from numpy.typing import NDArray
 
-from .expressions import ProductOperator, OperatorSum
-from .schedule import Schedule
 from .helpers import _OperatorHelpers, NumericType
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
 
@@ -341,47 +339,3 @@ class _SpinArithmetics(OperatorArithmetics[cudaq_runtime.SpinOperator |
                 values of type ElementaryOperator or ScalarOperator.
         """
         self._kwargs = kwargs
-
-
-class ArithmeticOperation:
-    """
-    Represents an arithmetic operation that is a list of lists, where the inner list
-    represents a product of operators, and the outer list represents a sum of those products.
-    """
-
-    def __init__(self, operations: list[list[ProductOperator]]) -> None:
-        """
-        Initializes the ArithmeticOperation with a list of operations.
-
-        Arguments:
-            operations: A list of lists where each inner list represents a product
-                        of operators, and the outer list represents a sum of those products.
-        """
-        self.operations = operations
-
-    def evaluate(self, schedule: Schedule, operator_sum: OperatorSum,
-                 dimensions: Mapping[int, int],
-                 **kwargs) -> list[NDArray[numpy.complexfloating]]:
-        """
-        Evaluate the operator sum for each step in the schedule.
-
-        Arguments:
-            schedule: An instance of the Schedule class that iterates over the steps.
-            operator_sum: The OperatorSum instance that this ArithmeticOperation is associated with.
-            dimensions: A mapping that specifies the number of levels (dimensions) of each degree of
-                        freedom that the operator acts on.
-            **kwargs: Additional keyword arguments needed to evaluate the operators.
-
-        Returns:
-            A list of matrix representations of the operator sum at each step in the schedule.
-        """
-        results = []
-        for params in schedule:
-            result = operator_sum.__class__([
-                sum(
-                    prod.to_matrix(dimensions, **params, **kwargs)
-                    for prod in product)
-                for product in self.operations
-            ]).to_matrix(dimensions, **params, **kwargs)
-            results.append(result)
-        return results

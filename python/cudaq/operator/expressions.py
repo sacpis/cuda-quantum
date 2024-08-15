@@ -4,7 +4,6 @@ from typing import Any, Callable, Generator, Iterable, Mapping, Optional, Sequen
 from numpy.typing import NDArray
 
 from .schedule import Schedule
-from .manipulation import ArithmeticOperation
 from .helpers import _OperatorHelpers, NumericType
 from .manipulation import MatrixArithmetics, OperatorArithmetics, PrettyPrint, _SpinArithmetics
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
@@ -265,9 +264,10 @@ class OperatorSum:
     def __rsub__(self: OperatorSum, other: Any) -> OperatorSum:
         return (-1 * self) + other  # Operator addition is commutative.
 
-    def evaluate_schedule(self, schedule: Schedule, dimensions: Mapping[int,
-                                                                        int],
-                          **kwargs) -> list[NDArray[numpy.complexfloating]]:
+    def evaluate_schedule(
+            self, schedule: Schedule,
+            dimensions: Mapping[int,
+                                int]) -> list[NDArray[numpy.complexfloating]]:
         """
         Evaluate the operator sum across a given schedule using an ArithmeticOperation.
 
@@ -275,15 +275,16 @@ class OperatorSum:
             schedule: An instance of the Schedule class that iterates over the steps.
             dimensions: A mapping that specifies the number of levels (dimensions) of each degree of
                         freedom that the operator acts on.
-            **kwargs: Additional keyword arguments needed to evaluate the operators.
 
         Returns:
             A list of matrix representations of the operator sum at each step in the schedule.
         """
-        arithmetic_operator = ArithmeticOperation(
-            [[term] for term in self._terms])
-        return arithmetic_operator.evaluate(schedule, self, dimensions,
-                                            **kwargs)
+        result = []
+        for parameters in schedule:
+            arithmetic_operator = ArithmeticOperation(
+                [[term] for term in self._terms])
+            result.append(arithmetic_operator.evaluate(parameters, dimensions))
+        return result
 
 
 class ProductOperator(OperatorSum):
@@ -1012,6 +1013,50 @@ class ScalarOperator(ProductOperator):
 
     def __rsub__(self: ScalarOperator, other: Any) -> ScalarOperator:
         return self._compose(other, lambda v1, v2: v2 - v1)
+
+
+class ArithmeticOperation:
+    """
+    Represents an arithmetic operation that is a list of lists, where the inner list
+    represents a product of operators, and the outer list represents a sum of those products.
+    """
+
+    def __init__(self, operations: list[list[ProductOperator]]):
+        """
+        Initializes the ArithmeticOperation with a list of operations.
+
+        Arguments:
+            operations: A list of lists where each inner list represents a product
+                        of operators, and the outer list represents a sum of those products.
+        """
+        self.operations = operations
+
+    def evaluate(
+            self, parameters: Mapping[str, Any],
+            dimensions: Mapping[int, int]) -> NDArray[numpy.complexfloating]:
+        """
+        Evaluate the operator sum for each step in the schedule.
+
+        Arguments:
+            parameters: A dictionary mapping parameters names (as strings) to their respective values.
+            dimensions: A mapping that specifies the number of levels (dimensions) of each degree of
+                        freedom that the operator acts on.
+
+        Returns:
+            The resulting matrix of the evaluated arithmetic operation, adding the effects of all operators within the defined operation structure.
+        """
+        result = None
+        for product_list in self.operations:
+            term_result = product_list[0].to_matrix(dimensions, **parameters)
+            for product_op in product_list[1:]:
+                matrix = product_op.to_matrix(dimensions, **parameters)
+                term_result = numpy.dot(term_result, matrix)
+
+            if result is None:
+                result = term_result
+            else:
+                result += term_result
+        return result
 
 
 # Doc strings for type alias are not supported in Python.
