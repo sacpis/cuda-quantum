@@ -1,9 +1,10 @@
 from __future__ import annotations
 import numpy, scipy, sys, uuid
+from numpy.typing import NDArray
 from typing import Callable, Iterable, Mapping, Optional, Sequence
 
 from .expressions import Operator
-from .helpers import _OperatorHelpers
+from .helpers import _OperatorHelpers, NumericType
 from .schedule import Schedule
 from ..kernel.register_op import register_operation
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
@@ -12,24 +13,30 @@ from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
 from ..kernel.kernel_builder import PyKernel, make_kernel
 from ..runtime.observe import observe
 
-def _register_evolution_kernels(hamiltonian: Operator, schedule: Schedule) -> Generator[(str, Mapping[str, NumericType])]:
-    # Evolution kernels can only be defined for qubits.
+def _compute_step_matrix(hamiltonian: Operator, parameters: Mapping[str, NumericType]) -> NDArray[complexfloating]:
+    # FIXME: Evolution kernels can only be defined for qubits.
     dimensions = dict([(i, 2) for i in hamiltonian.degrees])
-    # We could make operators hashable and try to use that to do some kernel caching, 
-    # but there is no guarantee that if the hash is equal, the operator is equal.
-    # Overall it feels like a better choice to just take a uuid here.
-    kernel_base_name = "".join(filter(str.isalnum, str(uuid.uuid4())))
-    for step_idx, parameters in enumerate(schedule):
-        kernel_name = f"evolve_{kernel_base_name}_{step_idx}"
-        op_matrix = hamiltonian.to_matrix(dimensions, **parameters)
-        # FIXME: Use GPU acceleration for matrix manipulations if possible.
-        # Alternative/possibly better: do the same thing we'll do for hardware
-        # and decompose directly into gates.
-        evolution_matrix = scipy.linalg.expm(-1j * op_matrix)
-        register_operation(kernel_name, evolution_matrix)
-        yield kernel_name, parameters
+    op_matrix = hamiltonian.to_matrix(dimensions, **parameters)
+    # FIXME: Use approximative approach (series expansion, integrator), 
+    # and maybe use GPU acceleration for matrix manipulations if it makes sense.
+    return scipy.linalg.expm(-1j * op_matrix)
 
-def _evolution_kernel(num_qubits: int, operation_names: Iterable[str]) -> PyKernel:
+# FIXME: move to C++
+def _evolution_kernel(num_qubits: int, 
+                      compute_step_matrix: Callable[[Mapping[str, NumericType]], NDArray[numpy.complexfloating]], 
+                      schedule: Iterable[Mapping[str, NumericType]],
+                      split_into_steps = False) -> Generator[PyKernel]:
+    kernel_base_name = "".join(filter(str.isalnum, str(uuid.uuid4())))
+    def register_operations():
+        for step_idx, parameters in enumerate(schedule):
+            # We could make operators hashable and try to use that to do some kernel caching, 
+            # but there is no guarantee that if the hash is equal, the operator is equal.
+            # Overall it feels like a better choice to just take a uuid here.
+            operation_name = f"evolve_{kernel_base_name}_{step_idx}"
+            register_operation(operation_name, compute_step_matrix(parameters))
+            yield operation_name
+    operation_names = register_operations()
+
     evolution, initial_state = make_kernel(cudaq_runtime.State)
     qs = evolution.qalloc(initial_state)
     for operation_name in operation_names:
@@ -37,23 +44,12 @@ def _evolution_kernel(num_qubits: int, operation_names: Iterable[str]) -> PyKern
         # FIXME: It would be nice if a registered operation could take a vector of qubits?
         targets = [qs[i] for i in range(num_qubits)]
         evolution.__getattr__(f"{operation_name}")(*targets)
-    return evolution
+        if split_into_steps:
+            yield evolution
+            evolution, initial_state = make_kernel(cudaq_runtime.State)
+            qs = evolution.qalloc(initial_state)
+    if not split_into_steps: yield evolution
 
-def _create_kernel(name: str, 
-                   hamiltonian: Operator, 
-                   schedule: Schedule) -> tuple[PyKernel, Mapping[str, NumericType]]:
-    evolution = _register_evolution_kernels(hamiltonian, schedule)
-    operation_names = []
-    for operation_name, parameters in evolution:
-        operation_names.append(operation_name)
-    return _evolution_kernel(len(hamiltonian.degrees), operation_names), parameters
-
-def _create_kernels(name: str, 
-                    hamiltonian: Operator, 
-                    schedule: Schedule) -> Generator[tuple[PyKernel, Mapping[str, NumericType]]]:
-    evolution = _register_evolution_kernels(hamiltonian, schedule)
-    for op_idx, (operation_name, parameters) in enumerate(evolution):
-        yield _evolution_kernel(len(hamiltonian.degrees), [operation_name]), parameters
 
 # Top level API for the CUDA-Q master equation solver.
 def evolve(hamiltonian: Operator, 
@@ -110,20 +106,24 @@ def evolve(hamiltonian: Operator,
     if len(collapse_operators) > 0:
         raise ValueError("collapse operators can only be defined when using the nvidia-dynamics target")
 
+    num_qubits = len(hamiltonian.degrees)
+    parameters = [mapping for mapping in schedule]
+    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, step_parameters)
+
     # FIXME: deal with a sequence of initial states
     if store_intermediate_results:
-        evolution = _create_kernels("time_evolution", hamiltonian, schedule)
+        evolution = _evolution_kernel(num_qubits, compute_step_matrix, parameters, split_into_steps = True)
         kernels, observable_spinops = [], []
-        for kernel, parameters in evolution:
+        for step_idx, kernel in enumerate(evolution):
             kernels.append(kernel)
-            observable_spinops.append([lambda: op._to_spinop(dimensions, **parameters) for op in observables])
+            observable_spinops.append([lambda: op._to_spinop(dimensions, **parameters[step_idx]) for op in observables])
         if len(observables) == 0: return cudaq_runtime.evolve(initial_state, kernels)
         return cudaq_runtime.evolve(initial_state, kernels, observable_spinops)
     else:
-        kernel, parameters = _create_kernel("time_evolution", hamiltonian, schedule)
+        kernel = next(_evolution_kernel(num_qubits, compute_step_matrix, parameters))
         if len(observables) == 0: return cudaq_runtime.evolve(initial_state, kernel)
         # FIXME: permit to compute expectation values for operators defined as matrix
-        observable_spinops = [lambda: op._to_spinop(dimensions, **parameters) for op in observables]
+        observable_spinops = [lambda: op._to_spinop(dimensions, **parameters[-1]) for op in observables]
         return cudaq_runtime.evolve(initial_state, kernel, observable_spinops)
 
 def evolve_async(hamiltonian: Operator, 
@@ -160,19 +160,23 @@ def evolve_async(hamiltonian: Operator,
     if len(collapse_operators) > 0:
         raise ValueError("collapse operators can only be defined when using the nvidia-dynamics target")
 
+    num_qubits = len(hamiltonian.degrees)
+    parameters = [mapping for mapping in schedule]
+    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, step_parameters)
+
     # FIXME: deal with a sequence of initial states
     if store_intermediate_results:
-        evolution = _create_kernels("time_evolution", hamiltonian, schedule)
+        evolution = _evolution_kernel(num_qubits, compute_step_matrix, parameters, split_into_steps = True)
         kernels, observable_spinops = [], []
-        for kernel, parameters in evolution:
+        for step_idx, kernel in enumerate(evolution):
             kernels.append(kernel)
-            observable_spinops.append([lambda: op._to_spinop(dimensions, **parameters) for op in observables])
+            observable_spinops.append([lambda: op._to_spinop(dimensions, **parameters[step_idx]) for op in observables])
         if len(observables) == 0: return cudaq_runtime.evolve_async(initial_state, kernels)
         return cudaq_runtime.evolve_async(initial_state, kernels, observable_spinops)
     else:
-        kernel, parameters = _create_kernel("time_evolution", hamiltonian, schedule)
+        kernel = next(_evolution_kernel(num_qubits, compute_step_matrix, parameters))
         if len(observables) == 0: return cudaq_runtime.evolve_async(initial_state, kernel)
         # FIXME: permit to compute expectation values for operators defined as matrix
-        observable_spinops = [lambda: op._to_spinop(dimensions, **parameters) for op in observables]
+        observable_spinops = [lambda: op._to_spinop(dimensions, **parameters[-1]) for op in observables]
         return cudaq_runtime.evolve_async(initial_state, kernel, observable_spinops)
 
