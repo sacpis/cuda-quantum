@@ -1,13 +1,15 @@
 from __future__ import annotations
 import numpy, scipy, sys, uuid
-from typing import Callable, Mapping, Optional, Sequence
+from typing import Callable, Iterable, Mapping, Optional, Sequence
 
 from .expressions import Operator
 from .helpers import _OperatorHelpers
 from .schedule import Schedule
 from ..kernel.register_op import register_operation
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
-from ..kernel.kernel_decorator import PyKernelDecorator
+# FIXME: PyKernelDecorator is documented but not accessible in the API due to shadowing by the kernel module.
+#from ..kernel.kernel_decorator import PyKernelDecorator
+from ..kernel.kernel_builder import PyKernel, make_kernel
 from ..runtime.observe import observe
 
 def _register_evolution_kernels(hamiltonian: Operator, schedule: Schedule) -> Generator[(str, Mapping[str, NumericType])]:
@@ -27,42 +29,31 @@ def _register_evolution_kernels(hamiltonian: Operator, schedule: Schedule) -> Ge
         register_operation(kernel_name, evolution_matrix)
         yield kernel_name, parameters
 
+def _evolution_kernel(num_qubits: int, operation_names: Iterable[str]) -> PyKernel:
+    evolution, initial_state = make_kernel(cudaq_runtime.State)
+    qs = evolution.qalloc(initial_state)
+    for operation_name in operation_names:
+        # FIXME: #(*qs) causes infinite loop
+        # FIXME: It would be nice if a registered operation could take a vector of qubits?
+        targets = [qs[i] for i in range(num_qubits)]
+        evolution.__getattr__(f"{operation_name}")(*targets)
+    return evolution
+
 def _create_kernel(name: str, 
                    hamiltonian: Operator, 
-                   schedule: Schedule) -> tuple[PyKernelDecorator, Mapping[str, NumericType]]:
+                   schedule: Schedule) -> tuple[PyKernel, Mapping[str, NumericType]]:
     evolution = _register_evolution_kernels(hamiltonian, schedule)
-    num_qubits = len(hamiltonian.degrees)
-    srcCode = f"def {name}(init_state: cudaq.State):\n"
-    srcCode += f"\tqs = cudaq.qvector(init_state)\n"
+    operation_names = []
     for operation_name, parameters in evolution:
-        # FIXME: It would be nice if a registered operation could take a vector of qubits.
-        arguments = [f"qs[{i}]" for i in range(num_qubits)]
-        srcCode += f"\t{operation_name}({', '.join(arguments)})\n"
-    # FIXME: PyKernelDecorator is documented but not accessible in the API due to shadowing by the kernel module.
-    # See also https://stackoverflow.com/questions/6810999/how-to-determine-file-function-and-line-number
-    kernel = PyKernelDecorator("evolution_kernel",
-                               kernelName = name,
-                               funcSrc = srcCode,
-                               signature = { "init_state": cudaq_runtime.State },
-                               location = (__file__, sys._getframe().f_lineno))
-    return kernel, parameters
+        operation_names.append(operation_name)
+    return _evolution_kernel(len(hamiltonian.degrees), operation_names), parameters
 
 def _create_kernels(name: str, 
                     hamiltonian: Operator, 
-                    schedule: Schedule) -> Generator[tuple[PyKernelDecorator, Mapping[str, NumericType]]]:
+                    schedule: Schedule) -> Generator[tuple[PyKernel, Mapping[str, NumericType]]]:
     evolution = _register_evolution_kernels(hamiltonian, schedule)
-    num_qubits = len(hamiltonian.degrees)
     for op_idx, (operation_name, parameters) in enumerate(evolution):
-        srcCode = f"def {name}_{op_idx}(init_state: cudaq.State):\n"
-        srcCode += f"\tqs = cudaq.qvector(init_state)\n"
-        arguments = [f"qs[{i}]" for i in range(num_qubits)]
-        srcCode += f"\t{operation_name}({', '.join(arguments)})\n"
-        kernel = PyKernelDecorator(f"evolution_kernel",
-                                   kernelName = f"{name}_{op_idx}",
-                                   funcSrc = srcCode,
-                                   signature = { "init_state": cudaq_runtime.State },
-                                   location = (__file__, sys._getframe().f_lineno))
-        yield kernel, parameters
+        yield _evolution_kernel(len(hamiltonian.degrees), [operation_name]), parameters
 
 # Top level API for the CUDA-Q master equation solver.
 def evolve(hamiltonian: Operator, 
