@@ -141,6 +141,10 @@ definitions:
         items:
           $ref: '#/definitions/operator'
         description: Sequence of operators for computing expectation values. Optional for "evolve" execution context.
+      storeIntermediateResults:
+        type: boolean
+        description: If true, store results after each step. Optional for "evolve" execution context.
+        example: "false"
 
   ResultExecutionContext:
     type: object
@@ -181,7 +185,7 @@ definitions:
         description: Optional computed expectation value.
       simulationData:
         type: object 
-        description: Underlying simulation data when using "extract-state" execution context.
+        description: Underlying simulation data when using "extract-state" or "evolve" execution context.
         properties: 
           dim:
             type: array
@@ -242,12 +246,12 @@ definitions:
     properties:
       final_state:
         type: object
-        $ref: '#/definitions/state'
+        $ref: '#/definitions/simulationData' # Using simulationData for state
         description: The final quantum state after evolution.
       intermediate_states:
         type: array
         items:
-          $ref: '#/definitions/state'
+          $ref: '#/definitions/simulationData' # Using simulationData for state
         description: The sequence of states after each step in the evolution, including the final state.
       final_expectation:
         type: array
