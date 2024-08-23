@@ -37,25 +37,14 @@ class OperatorSum:
         Helper function used to compute the operator hash and equality.
         """
         def canonicalize_product(prod: ProductOperator) -> tuple[ScalarOperator | ElementaryOperator]:
-            all_degrees = [degree for op in prod._operators for degree in op._degrees]
             scalars = [op for op in prod._operators if isinstance(op, ScalarOperator)]
-            non_scalars = [op for op in prod._operators if not isinstance(op, ScalarOperator)]
-            if len(all_degrees) == len(frozenset(all_degrees)):
-                # Each operator acts on different degrees of freedom; they 
-                # hence commute and can be reordered arbitrarily.
-                non_scalars.sort(key = lambda op: op._degrees)
-            else:
-                # Some degrees exist multiple times; order the scalars, identities and zeros, 
-                # but do not otherwise try to reorder terms.
-                zero_ops = (op for op in non_scalars if op._id == "zero")
-                identity_ops = (op for op in non_scalars if op._id == "identity")
-                non_commuting = (op for op in non_scalars if op._id != "zero" and op._id != "identity")
-                non_scalars = [
-                    *sorted(zero_ops, key = lambda op: op._degrees), 
-                    *sorted(identity_ops, key = lambda op: op._degrees), 
-                    *non_commuting]
-            if len(scalars) > 1: return (math.prod(scalars), *non_scalars)
-            else: return (*scalars, *non_scalars)
+            non_scalars = sorted(
+                [op for op in prod._operators if not isinstance(op, ScalarOperator)],
+                key=lambda op: (op._id, op._degrees)
+            )
+            if len(scalars) > 1:
+                return (math.prod(scalars), *non_scalars)
+            return (*scalars, *non_scalars)
         # Operator addition is commutative and terms can hence be arbitrarily reordered.
         return sorted((canonicalize_product(term) for term in self._terms), key = lambda ops: str(ProductOperator(ops)))
 

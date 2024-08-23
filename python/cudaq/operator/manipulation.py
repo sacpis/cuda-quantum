@@ -3,6 +3,7 @@ import numpy, re # type: ignore
 from abc import ABC, abstractmethod
 from typing import Generic, Iterable, Sequence, TypeVar
 from numpy.typing import NDArray
+from functools import lru_cache
 
 from .helpers import _OperatorHelpers, NumericType
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
@@ -83,6 +84,12 @@ class MatrixArithmetics(OperatorArithmetics['MatrixArithmetics.Evaluated']):
             """
             return self._matrix
 
+    @lru_cache(maxsize=None)
+    def _compute_permutation(self, op_degrees, canon_degrees):
+        states = _OperatorHelpers.generate_all_states(canon_degrees, self._dimensions)
+        reordering = [canon_degrees.index(deg) for deg in op_degrees]
+        return [states.index(''.join(state[i] for i in reordering)) for state in states]
+
     def _canonicalize(self: MatrixArithmetics, op_matrix: NDArray[numpy.complexfloating], op_degrees: Iterable[int]) -> tuple[NDArray[numpy.complexfloating], tuple[int]]:
         """
         Given a matrix representation that acts on the given degrees or freedom, 
@@ -93,19 +100,14 @@ class MatrixArithmetics(OperatorArithmetics['MatrixArithmetics.Evaluated']):
             of freedom in canonical order.
         """
         canon_degrees = _OperatorHelpers.canonicalize_degrees(op_degrees)
-        if op_degrees != canon_degrees:
-            # There may be a more efficient way, but I needed something correct first.
-            states = _OperatorHelpers.generate_all_states(canon_degrees, self._dimensions)
-            indices = dict([(d, idx) for idx, d in enumerate(canon_degrees)])
-            reordering = [indices[op_degree] for op_degree in op_degrees]
-            # [degrees[i] for i in reordering] produces op_degrees
-            op_states = [''.join([state[i] for i in reordering]) for state in states]
-            state_indices = dict([(state, idx) for idx, state in enumerate(states)])
-            permutation = [state_indices[op_state] for op_state in op_states]
-            # [states[i] for i in permutation] produces op_states
-            _OperatorHelpers.permute_matrix(op_matrix, permutation)
+        if op_degrees == canon_degrees:
             return op_matrix, canon_degrees
+
+        permutation = self._compute_permutation(tuple(op_degrees), tuple(canon_degrees))
+        # [states[i] for i in permutation] produces op_states
+        _OperatorHelpers.permute_matrix(op_matrix, permutation)
         return op_matrix, canon_degrees
+
 
     def tensor(self: MatrixArithmetics, op1: MatrixArithmetics.Evaluated, op2: MatrixArithmetics.Evaluated) -> MatrixArithmetics.Evaluated:
         """
@@ -114,7 +116,7 @@ class MatrixArithmetics(OperatorArithmetics['MatrixArithmetics.Evaluated']):
         """
         assert len(frozenset(op1.degrees).intersection(op2.degrees)) == 0, \
             "Operators should not have common degrees of freedom."
-        op_degrees = [*op1.degrees, *op2.degrees]
+        op_degrees = op1.degrees + op2.degrees
         op_matrix = numpy.kron(op1.matrix, op2.matrix)
         new_matrix, new_degrees = self._canonicalize(op_matrix, op_degrees)
         return MatrixArithmetics.Evaluated(new_degrees, new_matrix)
@@ -169,9 +171,9 @@ class PrettyPrint(OperatorArithmetics[str]):
 
     def tensor(self, op1: str, op2: str) -> str:
         def add_parens(str_value: str):
-            outer_str = re.sub(r'\(.+?\)', '', str_value)
-            if " + " in outer_str or " * " in outer_str: return f"({str_value})"
-            else: return str_value
+            if any(op in str_value for op in (" + ", " * ")):
+                return f"({str_value})"
+            return str_value
         return f"{add_parens(op1)} x {add_parens(op2)}"
 
     def mul(self, op1: str, op2: str) -> str:

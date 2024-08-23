@@ -40,7 +40,7 @@ def _evolution_kernel(num_qubits: int,
     for operation_name in operation_names:
         # FIXME: #(*qs) causes infinite loop
         # FIXME: It would be nice if a registered operation could take a vector of qubits?
-        targets = [qs[i] for i in range(num_qubits)]
+        targets = qs[:num_qubits]
         evolution.__getattr__(f"{operation_name}")(*targets)
         if split_into_steps:
             yield evolution
@@ -105,14 +105,14 @@ def evolve(hamiltonian: Operator,
         raise ValueError("collapse operators can only be defined when using the nvidia-dynamics target")
 
     num_qubits = len(hamiltonian.degrees)
-    parameters = [mapping for mapping in schedule]
+    parameters = list(schedule)
     observable_spinops = [lambda step_parameters: op._to_spinop(dimensions, **step_parameters) for op in observables]
     compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, dimensions, step_parameters)
 
     # FIXME: deal with a sequence of initial states
     if store_intermediate_results:
         evolution = _evolution_kernel(num_qubits, compute_step_matrix, parameters, split_into_steps = True)
-        kernels = [kernel for kernel in evolution]
+        kernels = list(evolution)
         if len(observables) == 0: return cudaq_runtime.evolve(initial_state, kernels)
         return cudaq_runtime.evolve(initial_state, kernels, parameters, observable_spinops)
     else:
