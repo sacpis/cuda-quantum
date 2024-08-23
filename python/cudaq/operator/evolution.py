@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy, scipy, sys, uuid
 from numpy.typing import NDArray
 from typing import Callable, Iterable, Mapping, Optional, Sequence
+import cupy as cp
 
 from .expressions import Operator
 from .helpers import _OperatorHelpers, NumericType
@@ -13,11 +14,15 @@ from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
 from ..kernel.kernel_builder import PyKernel, make_kernel
 from ..runtime.observe import observe
 
-def _compute_step_matrix(hamiltonian: Operator, dimensions: Mapping[int, int], parameters: Mapping[str, NumericType]) -> NDArray[complexfloating]:
+def _compute_step_matrix(hamiltonian: Operator, dimensions: Mapping[int, int], parameters: Mapping[str, NumericType], use_gpu: bool = False) -> NDArray[complexfloating]:
     op_matrix = hamiltonian.to_matrix(dimensions, **parameters)
-    # FIXME: Use approximative approach (series expansion, integrator), 
-    # and maybe use GPU acceleration for matrix manipulations if it makes sense.
-    return scipy.linalg.expm(-1j * op_matrix)
+    op_matrix = -1j * op_matrix
+
+    if use_gpu:
+        op_matrix_gpu = cp.array(op_matrix)
+        return cp.asnumpy(cp.exp(op_matrix_gpu))
+    # FIXME: Use approximative approach (series expansion, integrator)
+    return scipy.linalg.expm(op_matrix)
 
 # FIXME: move to C++
 def _evolution_kernel(num_qubits: int, 
@@ -106,8 +111,8 @@ def evolve(hamiltonian: Operator,
 
     num_qubits = len(hamiltonian.degrees)
     parameters = list(schedule)
-    observable_spinops = [lambda step_parameters: op._to_spinop(dimensions, **step_parameters) for op in observables]
-    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, dimensions, step_parameters)
+    observable_spinops = (lambda step_parameters: op._to_spinop(dimensions, **step_parameters) for op in observables)
+    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, dimensions, step_parameters, True)
 
     # FIXME: deal with a sequence of initial states
     if store_intermediate_results:
@@ -158,7 +163,7 @@ def evolve_async(hamiltonian: Operator,
     num_qubits = len(hamiltonian.degrees)
     parameters = [mapping for mapping in schedule]
     observable_spinops = [lambda step_parameters: op._to_spinop(dimensions, **step_parameters) for op in observables]
-    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, dimensions, step_parameters)
+    compute_step_matrix = lambda step_parameters: _compute_step_matrix(hamiltonian, dimensions, step_parameters, True)
 
     # FIXME: deal with a sequence of initial states
     if store_intermediate_results:
