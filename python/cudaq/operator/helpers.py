@@ -1,30 +1,36 @@
-import inspect, itertools, numpy, os, re, sys # type: ignore
+import inspect, itertools, numpy, os, re, sys  # type: ignore
 from typing import Any, Callable, Iterable, Mapping, Optional, Sequence
 from numpy.typing import NDArray
 
 from ..mlir._mlir_libs._quakeDialects import cudaq_runtime
 
-if (3, 11) <= sys.version_info: NumericType = SupportsComplex
-else: NumericType = numpy.complexfloating | complex | float | int
+if (3, 11) <= sys.version_info:
+    NumericType = SupportsComplex
+else:
+    NumericType = numpy.complexfloating | complex | float | int
+
 
 class _OperatorHelpers:
 
     @staticmethod
-    def aggregate_parameters(parameter_mappings: Iterable[Mapping[str, str]]) -> Mapping[str, str]:
+    def aggregate_parameters(
+            parameter_mappings: Iterable[Mapping[str,
+                                                 str]]) -> Mapping[str, str]:
         """
         Helper function used by all operator classes to return a mapping with the
         used parameters and their respective description as defined in a doc comment.
         """
-        param_descriptions : dict[str,str] = {}
+        param_descriptions: dict[str, str] = {}
         for descriptions in parameter_mappings:
             for key, new_desc in descriptions.items():
                 existing_desc = param_descriptions.get(key, "")
                 if existing_desc and new_desc:
-                    param_descriptions[key] = f'{existing_desc}{os.linesep}---{os.linesep}{new_desc}'
+                    param_descriptions[
+                        key] = f'{existing_desc}{os.linesep}---{os.linesep}{new_desc}'
                 elif new_desc:
                     param_descriptions[key] = new_desc
         return param_descriptions
-    
+
     @staticmethod
     def parameter_docs(param_name: str, docs: Optional[str]) -> str:
         """
@@ -43,17 +49,22 @@ class _OperatorHelpers:
         # the fly seems fine.
         def keyword_pattern(word):
             return r"(?:^\s*" + word + ":\s*\r?\n)"
-        def param_pattern(param_name): 
+
+        def param_pattern(param_name):
             return r"(?:^\s*" + param_name + r"\s*(\(.*\))?:)\s*(.*)$"
 
         param_docs = ""
-        try: # Make sure failing to retrieve docs never cases an error.
-            split = re.split(keyword_pattern("Arguments|Args"), docs, flags=re.MULTILINE)
+        try:  # Make sure failing to retrieve docs never cases an error.
+            split = re.split(keyword_pattern("Arguments|Args"),
+                             docs,
+                             flags=re.MULTILINE)
             if len(split) == 2:
-                match = re.search(param_pattern(param_name), split[1], re.MULTILINE)
+                match = re.search(param_pattern(param_name), split[1],
+                                  re.MULTILINE)
                 if match is not None:
                     param_docs = match.group(2) + split[1][match.end(2):]
-                    match = re.search(param_pattern("\S*?"), param_docs, re.MULTILINE)
+                    match = re.search(param_pattern("\S*?"), param_docs,
+                                      re.MULTILINE)
                     if match is not None:
                         param_docs = param_docs[:match.start(0)]
                     param_docs = re.sub(r'\s+', ' ', param_docs)
@@ -61,9 +72,10 @@ class _OperatorHelpers:
         except Exception:
             return ""
 
-
     @staticmethod
-    def args_from_kwargs(fct: Callable, **kwargs: Any) -> tuple[Sequence[Any], Mapping[str, Any]]:
+    def args_from_kwargs(
+            fct: Callable,
+            **kwargs: Any) -> tuple[Sequence[Any], Mapping[str, Any]]:
         """
         Extracts the positional argument and keyword only arguments 
         for the given function from the passed kwargs. 
@@ -71,35 +83,42 @@ class _OperatorHelpers:
         arg_spec = inspect.getfullargspec(fct)
         signature = inspect.signature(fct)
         if arg_spec.varargs is not None:
-            raise ValueError("cannot extract arguments for a function with a *args argument")
+            raise ValueError(
+                "cannot extract arguments for a function with a *args argument")
         consumes_kwargs = arg_spec.varkw is not None
         if consumes_kwargs:
-            kwargs = kwargs.copy() # We will modify and return a copy
+            kwargs = kwargs.copy()  # We will modify and return a copy
 
         def find_in_kwargs(arg_name: str) -> Any:
-            # Try to get the argument from the kwargs passed during operator 
+            # Try to get the argument from the kwargs passed during operator
             # evaluation.
             arg_value = kwargs.pop(arg_name, None)
             if arg_value is None:
-                # If no suitable keyword argument was defined, check if the 
+                # If no suitable keyword argument was defined, check if the
                 # generator defines a default value for this argument.
                 arg_value = signature.parameters[arg_name].default
                 if arg_value is inspect.Parameter.empty:
                     raise ValueError(f'missing keyword argument: {arg_name}')
             return arg_value
 
-        extracted_args = [find_in_kwargs(arg_name) for arg_name in arg_spec.args]
+        extracted_args = [
+            find_in_kwargs(arg_name) for arg_name in arg_spec.args
+        ]
         if consumes_kwargs:
             return extracted_args, kwargs
         elif len(arg_spec.kwonlyargs) > 0:
-            # If we can't pass all remaining kwargs, 
+            # If we can't pass all remaining kwargs,
             # we need to create a separate dictionary for kwonlyargs.
-            kwonlyargs = {arg_name: find_in_kwargs(arg_name) for arg_name in arg_spec.kwonlyargs}
+            kwonlyargs = {
+                arg_name: find_in_kwargs(arg_name)
+                for arg_name in arg_spec.kwonlyargs
+            }
             return extracted_args, kwonlyargs
         return extracted_args, {}
 
     @staticmethod
-    def generate_all_states(degrees: Sequence[int], dimensions: Mapping[int, int]) -> tuple[str]:
+    def generate_all_states(degrees: Sequence[int],
+                            dimensions: Mapping[int, int]) -> tuple[str]:
         """
         Generates all possible states for the given dimensions ordered according to 
         the sequence of degrees (ordering is relevant if dimensions differ).
@@ -108,11 +127,16 @@ class _OperatorHelpers:
             return ()
         states = [[str(state)] for state in range(dimensions[degrees[0]])]
         for d in degrees[1:]:
-            states = [current + [str(state)] for current in states for state in range(dimensions[degrees[d]])]
+            states = [
+                current + [str(state)]
+                for current in states
+                for state in range(dimensions[degrees[d]])
+            ]
         return tuple((''.join(state) for state in states))
 
     @staticmethod
-    def permute_matrix(matrix: NDArray[numpy.complexfloating], permutation: Iterable[int]) -> None:
+    def permute_matrix(matrix: NDArray[numpy.complexfloating],
+                       permutation: Iterable[int]) -> None:
         """
         Permutes the given matrix according to the given permutation.
         If states is the current order of vector entries on which the given matrix
@@ -123,16 +147,22 @@ class _OperatorHelpers:
         matrix[:] = matrix[permutation, :][:, permutation]
 
     @staticmethod
-    def cmatrix_to_nparray(cmatrix: cudaq_runtime.ComplexMatrix) -> NDArray[numpy.complexfloating]:
+    def cmatrix_to_nparray(
+            cmatrix: cudaq_runtime.ComplexMatrix
+    ) -> NDArray[numpy.complexfloating]:
         """
         Converts a `cudaq.ComplexMatrix` to the corresponding numpy array.
         """
         # FIXME: implement conversion in py_matrix.cpp instead and ensure consistency with numpy.array -> ComplexMatrix
-        return numpy.array([[cmatrix[row, col] for col in range(cmatrix.num_columns())] for row in range(cmatrix.num_rows())], dtype = numpy.complex128)
+        return numpy.array(
+            [[cmatrix[row, col]
+              for col in range(cmatrix.num_columns())]
+             for row in range(cmatrix.num_rows())],
+            dtype=numpy.complex128)
 
     @staticmethod
     def canonicalize_degrees(degrees: Iterable[int]) -> tuple[int]:
         """
         Returns the degrees sorted in canonical order.
         """
-        return tuple(sorted(degrees, reverse = True))
+        return tuple(sorted(degrees, reverse=True))
