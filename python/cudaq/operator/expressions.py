@@ -17,9 +17,7 @@ class OperatorSum:
     they provide methods to convert them to data types that can.
     """
 
-    # FIXME: implement a caching mechanism for to_matrix
-
-    __slots__ = ['_terms']
+    __slots__ = ['_terms', '_cache']
 
     def __init__(self: OperatorSum,
                  terms: Iterable[ProductOperator] = []) -> None:
@@ -34,6 +32,7 @@ class OperatorSum:
         self._terms = tuple(terms)
         if len(self._terms) == 0:
             self._terms = (ProductOperator((ScalarOperator.const(0),)),)
+        self._cache = {}
 
     def _canonical_terms(
         self: OperatorSum
@@ -167,7 +166,17 @@ class OperatorSum:
             if isinstance(spin_op, (complex, float, int)): return numpy.array([spin_op], dtype=numpy.complex128)
             else: return _OperatorHelpers.cmatrix_to_nparray(spin_op.to_matrix())
         '''
-        return self._evaluate(MatrixArithmetics(dimensions, **kwargs)).matrix
+        cache_key = (tuple(dimensions.items()), tuple(kwargs.items()))
+
+        if cache_key in self._cache:
+            return self._cache[cache_key]
+
+        result = self._evaluate(MatrixArithmetics(dimensions, **kwargs)).matrix
+        self._cache[cache_key] = result
+        return result
+
+    def clear_cache(self: OperatorSum) -> None:
+        self._cache.clear()
 
     # To be removed/replaced. We need to be able to pass general operators to cudaq.observe.
     def _to_spinop(
@@ -192,56 +201,77 @@ class OperatorSum:
 
     def __mul__(self: OperatorSum, other: Any) -> OperatorSum:
         if type(other) == OperatorSum:
-            return OperatorSum((self_term * other_term
-                                for self_term in self._terms
-                                for other_term in other._terms))
+            result = OperatorSum((self_term * other_term
+                                  for self_term in self._terms
+                                  for other_term in other._terms))
         elif isinstance(other, OperatorSum) or isinstance(
                 other, (complex, float, int)):
-            return OperatorSum((self_term * other for self_term in self._terms))
-        return NotImplemented
+            result = OperatorSum(
+                (self_term * other for self_term in self._terms))
+        else:
+            return NotImplemented
+        result.clear_cache()
+        return result
 
     def __truediv__(self: OperatorSum, other: Any) -> OperatorSum:
         if type(other) == ScalarOperator or isinstance(other,
                                                        (complex, float, int)):
-            return OperatorSum((term / other for term in self._terms))
-        return NotImplemented
+            result = OperatorSum((term / other for term in self._terms))
+        else:
+            return NotImplemented
+        result.clear_cache()
+        return result
 
     def __add__(self: OperatorSum, other: Any) -> OperatorSum:
         if type(other) == OperatorSum:
-            return OperatorSum((*self._terms, *other._terms))
+            result = OperatorSum((*self._terms, *other._terms))
         elif isinstance(other, (complex, float, int)):
             other_term = ProductOperator((ScalarOperator.const(other),))
-            return OperatorSum((*self._terms, other_term))
+            result = OperatorSum((*self._terms, other_term))
         elif type(
                 other
         ) == ScalarOperator:  # Elementary and product operators are handled by their classes.
-            return OperatorSum((*self._terms, ProductOperator((other,))))
-        return NotImplemented
+            result = OperatorSum((*self._terms, ProductOperator((other,))))
+        else:
+            return NotImplemented
+        result.clear_cache()
+        return result
 
     def __sub__(self: OperatorSum, other: Any) -> OperatorSum:
-        return self + (-1 * other)
+        result = self + (-1 * other)
+        result.clear_cache()
+        return result
 
     def __rmul__(self: OperatorSum, other: Any) -> OperatorSum:
         if isinstance(other, (complex, float, int)):
-            return OperatorSum((self_term * other for self_term in self._terms))
+            result = OperatorSum(
+                (self_term * other for self_term in self._terms))
         elif type(other) == ProductOperator:
-            return OperatorSum((other,)) * self
+            result = OperatorSum((other,)) * self
         elif type(other) == ScalarOperator or type(other) == ElementaryOperator:
-            return OperatorSum((ProductOperator((other,)),)) * self
-        return NotImplemented
+            result = OperatorSum((ProductOperator((other,)),)) * self
+        else:
+            return NotImplemented
+        result.clear_cache()
+        return result
 
     def __radd__(self: OperatorSum, other: Any) -> OperatorSum:
         if isinstance(other, (complex, float, int)):
             other_term = ProductOperator((ScalarOperator.const(other),))
-            return OperatorSum((other_term, *self._terms))
+            result = OperatorSum((other_term, *self._terms))
         elif type(
                 other
         ) == ScalarOperator:  # Elementary and product operators are handled by their classes.
-            return OperatorSum((ProductOperator((other,)), *self._terms))
-        return NotImplemented
+            result = OperatorSum((ProductOperator((other,)), *self._terms))
+        else:
+            return NotImplemented
+        result.clear_cache()
+        return result
 
     def __rsub__(self: OperatorSum, other: Any) -> OperatorSum:
-        return (-1 * self) + other  # Operator addition is commutative.
+        result = (-1 * self) + other  # Operator addition is commutative.
+        result.clear_cache()
+        return result
 
 
 class ProductOperator(OperatorSum):
