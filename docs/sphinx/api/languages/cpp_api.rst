@@ -192,6 +192,47 @@ Utilities
 .. doxygentypedef:: cudaq::real 
 
 .. doxygenfunction:: cudaq::range(std::size_t)
+
+Dynamics 
+=========
+
+.. doxygenclass:: cudaq::EvolveResult
+    :members:
+
+.. doxygenclass:: cudaq::AsyncEvolveResult
+    :members:
+
+.. doxygenclass:: cudaq::OperatorSum
+    :members:
+
+.. doxygenclass:: cudaq::ProductOperator
+    :members:
+
+.. doxygenclass:: cudaq::ScalarOperator
+    :members:
+
+.. doxygenclass:: cudaq::ElementaryOperator
+    :members:
+
+.. doxygenclass:: cudaq::OperatorArithmetics
+    :members:
+
+.. doxygenclass:: cudaq::MatrixArithmetics
+    :members:
+
+.. doxygenclass:: cudaq::Schedule
+    :members:
+
+.. doxygenclass:: cudaq::operators
+    :members:
+
+.. doxygenclass:: cudaq::pauli
+    :members:
+
+.. doxygenfunction:: cudaq::evolve
+
+.. doxygenfunction:: cudaq::evolve_async
+
     
 Namespaces 
 ===========
