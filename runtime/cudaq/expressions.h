@@ -2,6 +2,7 @@
 #include "matrix.h"
 
 #include <map>
+#include <functional>
 
 namespace cudaq {
 
@@ -13,10 +14,6 @@ class ScalarOperator : public ProductOperator {};
 /// @brief Object used to give an error if a Definition of an elementary
 /// operator is instantiated by other means than the `define` class method.
 class Definition {
-protected:
-  std::string m_id;
-  // more members ...
-
 public:
   // Constructor.
   Definition();
@@ -24,11 +21,28 @@ public:
   // Destructor.
   ~Definition();
 
-  // Setter.
+  std::string m_id;
+  std::vector<int> m_expected_dimensions;
+  // The user-provided generator function should take a vector of ints for the dimensions,
+  // and a vector of complex doubles for the parameters.
+  std::function<void(std::vector<int>, std::complex<double>)> m_generator;
+  // I don't think we need to hold onto concrete values of this parameter metadata
+  // in C++, unlike in python where it's a map we keep track of. I think?
+  // std::vector<std::complex<double>> m_parameters;
+  // int m_parameter_count;
+
+  // Convenience setter.
   template <typename Func>
   void create_definition(std::string operator_id,
                          std::vector<int> expected_dimensions, Func create) {
+    // TODO: reproduce `with_dimension_check` from python ...
+    // TODO: figure out parameters (can't pass along docstring like python)
     // set protected members ...
+    m_id = operator_id;
+    m_expected_dimensions = expected_dimensions;
+    m_generator = [&](std::vector<int> expected_dimensions, std::vector<std::complex<double>> parameters){ 
+      return create(expected_dimensions, parameters);
+    };
   }
 };
 
@@ -114,11 +128,11 @@ public:
   ///      short), if the operator acts
   ///     on multiple degrees of freedom.
   /// FIXME: Leaving the generalized definition implementation for last.
-  // template <typename Func>
-  // void define(std::string operator_id, std::vector<int> expected_dimensions,
-  //             Func create) {
-
-  // }
+  template <typename Func>
+  void define(std::string operator_id, std::vector<int> expected_dimensions,
+              Func create) {
+    // todo ...
+  }
 
   /// Attributes.
 
@@ -131,7 +145,10 @@ public:
   /// order.
   std::vector<int> degrees;
   /// @brief A map of the paramter names to their concrete, complex values.
-  std::map<std::string, std::complex<double>> parameters;
+  /// TODO: Will use positional arguments instead of keyword, so this should
+  /// just be a vector of the parameter values, where the order will never change.
+  // std::map<std::string, std::complex<double>> parameters;
+  std::vector<std::complex<double>> parameters;
   std::string id;
 
   // /// @brief Creates a representation of the operator as `pauli_word` that
