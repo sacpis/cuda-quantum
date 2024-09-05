@@ -229,9 +229,15 @@ Dynamics
 .. doxygenclass:: cudaq::pauli
     :members:
 
-.. doxygenfunction:: cudaq::evolve
+.. doxygenfunction:: cudaq::evolve(Operator hamiltonian, std::map<int,int> dimensions, Schedule schedule, bool store_intermediate_states)
 
-.. doxygenfunction:: cudaq::evolve_async
+.. doxygenfunction:: cudaq::evolve(Operator hamiltonian, std::map<int,int> dimensions, Schedule schedule, std::vector<Operator> collapse_operators, std::vector<Operator> observables, bool store_intermediate_states)
+
+.. doxygenfunction:: cudaq::evolve(Operator hamiltonian, std::map<int,int> dimensions, Schedule schedule, state initial_state, std::vector<Operator> collapse_operators, std::vector<Operator> observables, bool store_intermediate_states)
+
+.. doxygenfunction:: cudaq::evolve(Operator hamiltonian, std::map<int,int> dimensions, Schedule schedule, std::vector<state> initial_states, std::vector<Operator> collapse_operators, std::vector<Operator> observables, bool store_intermediate_states)
+
+.. .. doxygenfunction:: cudaq::evolve_async
 
     
 Namespaces 
