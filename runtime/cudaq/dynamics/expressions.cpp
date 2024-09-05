@@ -10,7 +10,13 @@ namespace cudaq {
 //   m_terms = terms;
 // }
 
+Definition::Definition() {}
 
+Definition::~Definition() {}
+
+ElementaryOperator::ElementaryOperator(std::string operator_id,
+                                       std::vector<int> degrees)
+    : id(operator_id), degrees(degrees) {}
 
 // TODO:
 // (1) Elementary Operators
@@ -41,9 +47,5 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
 //   }
 //   return ElementaryOperator(op_id, degrees);
 // }
-
-
-
-
 
 } // namespace cudaq
