@@ -23,28 +23,30 @@ class ProductOperator(OperatorSum);
 class ScalarOperator(ProductOperator);
 class ElementaryOperator(ProductOperator);
 
-
 // class EvolveResult;
 // class AsyncEvolveResult;
 
 // class EvolveResult {
 // public:
 //   /// @brief Constructor given just the system state.
-//   /// @arg state : The final state of the quantum system after time evolution.
-//   EvolveResult(state state);
+//   /// @arg state : The final state of the quantum system after time
+//   evolution. EvolveResult(state state);
 
 //   /// @brief Constructor given the system state and expectation.
-//   /// @arg state : The final state of the quantum system after time evolution.
+//   /// @arg state : The final state of the quantum system after time
+//   evolution.
 //   /// @arg expectation : The final expectation values after time evolution.
 //   EvolveResult(state state, std::vector<std::complex<double>> expectation);
 
 //   /// @brief Constructor given a sequence of quantum states.
-//   /// @arg states : The state of the quantum system at each discrete time step
+//   /// @arg states : The state of the quantum system at each discrete time
+//   step
 //   ///               during evolution.
 //   EvolveResult(std::vector<state> states);
 
 //   /// @brief Constructor given a sequence of quantum states and expectations.
-//   /// @arg states : The state of the quantum system at each discrete time step
+//   /// @arg states : The state of the quantum system at each discrete time
+//   step
 //   ///               during evolution.
 //   /// @arg expectations : The expectation values of the at each time step.
 //   EvolveResult(std::vector<state> &states,
@@ -52,7 +54,8 @@ class ElementaryOperator(ProductOperator);
 
 //   // Attributes on the class.
 
-//   /// @brief Stores the final state of the quantum system produced by a call to
+//   /// @brief Stores the final state of the quantum system produced by a call
+//   to
 //   /// `cudaq::evolve`.
 //   state final_state;
 
@@ -64,14 +67,18 @@ class ElementaryOperator(ProductOperator);
 
 //   /// @brief Stores all intermediate states, meaning the state of the system
 //   /// after each time step in a defined schedule, produced by a call to
-//   /// `cudaq::evolve`. This includes the final state. This value is null unless
+//   /// `cudaq::evolve`. This includes the final state. This value is null
+//   unless
 //   /// requested in the call to `cudaq::evolve`.
 //   std::vector<state> &intermediate_states;
 
-//   /// @brief Stores the expectation values at each step in the schedule produced
-//   /// by a call to `cudaq::evolve`, including the final expectation values. Each
+//   /// @brief Stores the expectation values at each step in the schedule
+//   produced
+//   /// by a call to `cudaq::evolve`, including the final expectation values.
+//   Each
 //   /// expectation value corresponds to one observable provided in the
-//   /// `cudaq.evolve` call. This value is null if no observables were provided,
+//   /// `cudaq.evolve` call. This value is null if no observables were
+//   provided,
 //   /// or if it wasn't requested in the call to `cudaq::evolve`.
 //   std::vector<std::vector<std::complex<double>>> expectation_values;
 // };
@@ -79,14 +86,17 @@ class ElementaryOperator(ProductOperator);
 // class AsyncEvolveResult {
 
 // public:
-//   /// @brief Create a class instance that can be used to retrieve the evolution
+//   /// @brief Create a class instance that can be used to retrieve the
+//   evolution
 //   /// result produced from the asynchronous execution, `cudaq::evolve_async`.
-//   /// It models a future-like type whose `cudaq::EvolveResult` may be accessed
+//   /// It models a future-like type whose `cudaq::EvolveResult` may be
+//   accessed
 //   /// via an invocation of the `get` method.
 //   AsyncEvolveResult();
 
 //   /// @brief Retrieve the `cudaq::EvolveResult` from the asynchronous evolve
-//   /// execution. This causes the current thread to wait until the time evolution
+//   /// execution. This causes the current thread to wait until the time
+//   evolution
 //   /// execution has completed.
 //   EvolveResult get();
 
@@ -99,9 +109,11 @@ class ElementaryOperator(ProductOperator);
 // // class ScalarOperator(ProductOperator);
 // // class ElementaryOperator(ProductOperator);
 
-// // /// @brief Represents an operator expression consisting of a sum of terms, where
+// // /// @brief Represents an operator expression consisting of a sum of terms,
+// where
 // // /// each term is a product of elementary and scalar operators. Operator
-// // /// expressions cannot be used within quantum kernels, but they provide methods
+// // /// expressions cannot be used within quantum kernels, but they provide
+// methods
 // // /// to convert them to data types that can.
 // // class OperatorSum {
 
@@ -148,7 +160,8 @@ class ElementaryOperator(ProductOperator);
 // //   OperatorSum operator+=(ElementaryOperator other);
 // //   OperatorSum operator-=(ElementaryOperator other);
 // //   OperatorSum operator*=(ElementaryOperator other);
-// //   /// @brief  True, if the other value is an OperatorSum with equivalent terms,
+// //   /// @brief  True, if the other value is an OperatorSum with equivalent
+// terms,
 // //   /// and False otherwise. The equality takes into account that operator
 // //   /// addition is commutative, as is the product of two operators if they
 // //   /// act on different degrees of freedom.
@@ -156,7 +169,8 @@ class ElementaryOperator(ProductOperator);
 // //   /// account, and does not try to reorder terms blockwise; it may hence
 // //   /// evaluate to False, even if two operators in reality are the same.
 // //   /// If the equality evaluates to True, on the other hand, the operators
-// //   /// are guaranteed to represent the same transformation for all arguments.
+// //   /// are guaranteed to represent the same transformation for all
+// arguments.
 // //   bool operator==(OperatorSum other);
 
 // //   /// @brief Return the OperatorSum as a string.
@@ -164,16 +178,20 @@ class ElementaryOperator(ProductOperator);
 
 // //   /// @brief Return the `OperatorSum` as a matrix.
 // //   /// @arg  `dimensions` : A mapping that specifies the number of levels,
-// //   ///                      that is, the dimension of each degree of freedom
-// //   ///                      that the operator acts on. Example for two, 2-level
+// //   ///                      that is, the dimension of each degree of
+// freedom
+// //   ///                      that the operator acts on. Example for two,
+// 2-level
 // //   ///                      degrees of freedom: `{0:2, 1:2}`.
-// //   /// @arg `parameters` : A map of the paramter names to their concrete, complex
+// //   /// @arg `parameters` : A map of the paramter names to their concrete,
+// complex
 // //   /// values.
 // //   complex_matrix
 // //   to_matrix(std::map<int, int> dimensions,
 // //             std::map<std::string, std::complex<double>> parameters);
 
-// //   /// @brief Creates a representation of the operator as a `cudaq::pauli_word`
+// //   /// @brief Creates a representation of the operator as a
+// `cudaq::pauli_word`
 // //   /// that can be passed as an argument to quantum kernels.
 // //   pauli_word to_pauli_word();
 
@@ -183,25 +201,32 @@ class ElementaryOperator(ProductOperator);
 // //   /// order.
 // //   std::vector<int> degrees;
 
-// //   /// @brief A map of the paramter names to their concrete, complex values.
+// //   /// @brief A map of the paramter names to their concrete, complex
+// values.
 // //   std::map<std::string, std::complex<double>> parameters;
 // // };
 
 // // /// @brief Represents an operator expression consisting of a product of
-// // /// elementary and scalar operators. Operator expressions cannot be used within
-// // /// quantum kernels, but they provide methods to convert them to data types that
+// // /// elementary and scalar operators. Operator expressions cannot be used
+// within
+// // /// quantum kernels, but they provide methods to convert them to data
+// types that
 // // /// can.
 // // class ProductOperator {
 
-// //   /// @brief Constructor for an operator expression that represents a product
+// //   /// @brief Constructor for an operator expression that represents a
+// product
 // //   /// of elementary operators.
-// //   /// @arg atomic_operators : The operators of which to compute the product when
+// //   /// @arg atomic_operators : The operators of which to compute the
+// product when
 // //   ///                         evaluating the operator expression.
 // //   ProductOperator(std::vector<ElementaryOperator> atomic_operators);
 
-// //   /// @brief Constructor for an operator expression that represents a product
+// //   /// @brief Constructor for an operator expression that represents a
+// product
 // //   /// of e scalar operators.
-// //   /// @arg atomic_operators : The operators of which to compute the product when
+// //   /// @arg atomic_operators : The operators of which to compute the
+// product when
 // //   ///                         evaluating the operator expression.
 // //   ProductOperator(std::vector<ScalarOperator> atomic_operators);
 
@@ -248,7 +273,8 @@ class ElementaryOperator(ProductOperator);
 // //   OperatorSum operator-=(ElementaryOperator other);
 // //   ProductOperator operator*(ElementaryOperator other);
 // //   ProductOperator operator*=(ElementaryOperator other);
-// //   /// @brief True, if the other value is an OperatorSum with equivalent terms,
+// //   /// @brief True, if the other value is an OperatorSum with equivalent
+// terms,
 // //   ///  and False otherwise. The equality takes into account that operator
 // //   ///  addition is commutative, as is the product of two operators if they
 // //   ///  act on different degrees of freedom.
@@ -256,7 +282,8 @@ class ElementaryOperator(ProductOperator);
 // //   ///  account, and does not try to reorder terms blockwise; it may hence
 // //   ///  evaluate to False, even if two operators in reality are the same.
 // //   ///  If the equality evaluates to True, on the other hand, the operators
-// //   ///  are guaranteed to represent the same transformation for all arguments.
+// //   ///  are guaranteed to represent the same transformation for all
+// arguments.
 // //   bool operator==(ProductOperator other);
 
 // //   /// @brief Return the `ProductOperator` as a string.
@@ -264,16 +291,20 @@ class ElementaryOperator(ProductOperator);
 
 // //   /// @brief Return the `OperatorSum` as a matrix.
 // //   /// @arg  `dimensions` : A mapping that specifies the number of levels,
-// //   ///                      that is, the dimension of each degree of freedom
-// //   ///                      that the operator acts on. Example for two, 2-level
+// //   ///                      that is, the dimension of each degree of
+// freedom
+// //   ///                      that the operator acts on. Example for two,
+// 2-level
 // //   ///                      degrees of freedom: `{0:2, 1:2}`.
-// //   /// @arg `parameters` : A map of the paramter names to their concrete, complex
+// //   /// @arg `parameters` : A map of the paramter names to their concrete,
+// complex
 // //   /// values.
 // //   complex_matrix to_matrix(
 // //       std::map<int, int> dimensions,
 // //       std::map<std::string, std::complex<double>> parameters);
 
-// //   /// @brief Creates a representation of the operator as a `cudaq::pauli_word`
+// //   /// @brief Creates a representation of the operator as a
+// `cudaq::pauli_word`
 // //   /// that can be passed as an argument to quantum kernels.
 // //   pauli_word to_pauli_word();
 
@@ -281,15 +312,18 @@ class ElementaryOperator(ProductOperator);
 // //   /// order.
 // //   std::vector<int> degrees;
 
-// //   /// @brief A map of the paramter names to their concrete, complex values.
+// //   /// @brief A map of the paramter names to their concrete, complex
+// values.
 // //   std::map<std::string, std::complex<double>> parameters;
 // // };
 
 // // class ScalarOperator {
 
 // //   /// @brief Constructor.
-// //   /// @arg generator: The value of the scalar operator as a function of its
-// //   /// parameters. The generator may take any number of complex-valued arguments
+// //   /// @arg generator: The value of the scalar operator as a function of
+// its
+// //   /// parameters. The generator may take any number of complex-valued
+// arguments
 // //   /// and must return a number.
 // //   ScalarOperator(Callable generator,
 // //                  std::map<std::string, std::complex<double>> parameters);
@@ -359,22 +393,29 @@ class ElementaryOperator(ProductOperator);
 
 // //   /// @brief Return the `OperatorSum` as a matrix.
 // //   /// @arg  `dimensions` : A mapping that specifies the number of levels,
-// //   ///                      that is, the dimension of each degree of freedom
-// //   ///                      that the operator acts on. Example for two, 2-level
+// //   ///                      that is, the dimension of each degree of
+// freedom
+// //   ///                      that the operator acts on. Example for two,
+// 2-level
 // //   ///                      degrees of freedom: `{0:2, 1:2}`.
-// //   /// @arg `parameters` : A map of the paramter names to their concrete, complex
+// //   /// @arg `parameters` : A map of the paramter names to their concrete,
+// complex
 // //   /// values.
 // //   complex_matrix to_matrix(
 // //       std::map<int, int> dimensions,
 // //       std::map<std::string, std::complex<double>> parameters);
 
-// //   /// @brief Creates a representation of the operator as `pauli_word` that can
+// //   /// @brief Creates a representation of the operator as `pauli_word` that
+// can
 // //   /// be passed as an argument to quantum kernels.
 // //   pauli_word to_pauli_word ovveride();
 
-// //   /// @brief The number of levels, that is the dimension, for each degree of
-// //   /// freedom in canonical order that the operator acts on. A value of zero or
-// //   /// less indicates that the operator is defined for any dimension of that
+// //   /// @brief The number of levels, that is the dimension, for each degree
+// of
+// //   /// freedom in canonical order that the operator acts on. A value of
+// zero or
+// //   /// less indicates that the operator is defined for any dimension of
+// that
 // //   /// degree.
 // //   std::vector<int> dimensions;
 // //   /// @brief The degrees of freedom that the operator acts on in canonical
@@ -423,7 +464,8 @@ class ElementaryOperator(ProductOperator);
 // //   OperatorSum operator-=(ElementaryOperator other);
 // //   ProductOperator operator*(ElementaryOperator other);
 // //   ProductOperator operator*=(ElementaryOperator other);
-// //   /// @brief True, if the other value is an elementary operator with the same id
+// //   /// @brief True, if the other value is an elementary operator with the
+// same id
 // //   /// acting on the same degrees of freedom, and False otherwise.
 // //   bool operator==(ElementaryOperator other);
 
@@ -432,58 +474,83 @@ class ElementaryOperator(ProductOperator);
 
 // //   /// @brief Return the `ElementaryOperator` as a matrix.
 // //   /// @arg  `dimensions` : A mapping that specifies the number of levels,
-// //   ///                      that is, the dimension of each degree of freedom
-// //   ///                      that the operator acts on. Example for two, 2-level
+// //   ///                      that is, the dimension of each degree of
+// freedom
+// //   ///                      that the operator acts on. Example for two,
+// 2-level
 // //   ///                      degrees of freedom: `{0:2, 1:2}`.
 // //   complex_matrix to_matrix(std::map<int, int> dimensions);
 
 // //   ElementaryOperator identity(int degree);
 // //   ElementaryOperator zero(int degree);
 
-// //   /// @brief Adds the definition of an elementary operator with the given id to
-// //   /// the class. After definition, an the defined elementary operator can be
-// //   /// instantiated by providing the operator id as well as the degree(s) of
-// //   /// freedom that it acts on. An elementary operator is a parameterized object
-// //   /// acting on certain degrees of freedom. To evaluate an operator, for example
-// //   /// to compute its matrix, the level, that is the dimension, for each degree
+// //   /// @brief Adds the definition of an elementary operator with the given
+// id to
+// //   /// the class. After definition, an the defined elementary operator can
+// be
+// //   /// instantiated by providing the operator id as well as the degree(s)
+// of
+// //   /// freedom that it acts on. An elementary operator is a parameterized
+// object
+// //   /// acting on certain degrees of freedom. To evaluate an operator, for
+// example
+// //   /// to compute its matrix, the level, that is the dimension, for each
+// degree
 // //   /// of freedom it acts on must be provided, as well as all additional
-// //   /// parameters. Additional parameters must be provided in the form of keyword
-// //   /// arguments. Note: The dimensions passed during operator evaluation are
-// //   /// automatically validated against the expected dimensions specified during
+// //   /// parameters. Additional parameters must be provided in the form of
+// keyword
+// //   /// arguments. Note: The dimensions passed during operator evaluation
+// are
+// //   /// automatically validated against the expected dimensions specified
+// during
 // //   /// definition - the `create` function does not need to do this.
-// //   /// @arg operator_id : A string that uniquely identifies the defined operator.
+// //   /// @arg operator_id : A string that uniquely identifies the defined
+// operator.
 // //   /// @arg expected_dimensions : Defines the number of levels, that is the
 // //   /// dimension,
-// //   ///      for each degree of freedom in canonical (that is sorted) order. A
-// //   ///      negative or zero value for one (or more) of the expected dimensions
+// //   ///      for each degree of freedom in canonical (that is sorted) order.
+// A
+// //   ///      negative or zero value for one (or more) of the expected
+// dimensions
 // //   ///      indicates that the operator is defined for any dimension of the
 // //   ///      corresponding degree of freedom.
-// //   /// @arg create : Takes any number of complex-valued arguments and returns the
-// //   ///      matrix representing the operator in canonical order. If the matrix
-// //   ///      can be defined for any number of levels for one or more degree of
+// //   /// @arg create : Takes any number of complex-valued arguments and
+// returns the
+// //   ///      matrix representing the operator in canonical order. If the
+// matrix
+// //   ///      can be defined for any number of levels for one or more degree
+// of
 // //   ///      freedom, the `create` function must take an argument called
-// //   ///      `dimension` (or `dim` for short), if the operator acts on a single
-// //   ///      degree of freedom, and an argument called `dimensions` (or `dims` for
+// //   ///      `dimension` (or `dim` for short), if the operator acts on a
+// single
+// //   ///      degree of freedom, and an argument called `dimensions` (or
+// `dims` for
 // //   ///      short), if the operator acts
 // //   ///     on multiple degrees of freedom.
-// //   void define(std::string operator_id, std::vector<int> expected_dimensions,
+// //   void define(std::string operator_id, std::vector<int>
+// expected_dimensions,
 // //               Callable create);
 
 // //   /// Attributes.
 
-// //   /// @brief The number of levels, that is the dimension, for each degree of
-// //   /// freedom in canonical order that the operator acts on. A value of zero or
-// //   /// less indicates that the operator is defined for any dimension of that
+// //   /// @brief The number of levels, that is the dimension, for each degree
+// of
+// //   /// freedom in canonical order that the operator acts on. A value of
+// zero or
+// //   /// less indicates that the operator is defined for any dimension of
+// that
 // //   /// degree.
 // //   std::vector<int> expected_dimensions;
 // //   /// @brief The degrees of freedom that the operator acts on in canonical
 // //   /// order.
 // //   std::vector<int> degrees;
-// //   /// @brief A map of the paramter names to their concrete, complex values.
+// //   /// @brief A map of the paramter names to their concrete, complex
+// values.
 // //   std::map<std::string, std::complex<double>> parameters;
 // //   std::string id;
 
-// //   /// @brief Creates a representation of the operator as `pauli_word` that can
+// //   /// @brief Creates a representation of the operator as `pauli_word` that
+// can
 // //   /// be passed as an argument to quantum kernels.
 // //   pauli_word to_pauli_word ovveride();
 // // };
@@ -493,7 +560,8 @@ class ElementaryOperator(ProductOperator);
 // /// @brief FIXME
 // class MatrixArithmetics(OperatorArithmetics);
 
-// /// @brief Create a schedule for evaluating an operator expression at different
+// /// @brief Create a schedule for evaluating an operator expression at
+// different
 // /// steps.
 // class Schedule {
 // public:
@@ -511,12 +579,16 @@ class ElementaryOperator(ProductOperator);
 //   Schedule(pointer ptr) : m_ptr(ptr) {}
 
 //   /// @brief Constructor.
-//   /// @arg steps: The sequence of steps in the schedule. Restricted to a vector
+//   /// @arg steps: The sequence of steps in the schedule. Restricted to a
+//   vector
 //   /// of complex values.
-//   /// @arg parameters: A sequence of strings representing the parameter names of
+//   /// @arg parameters: A sequence of strings representing the parameter names
+//   of
 //   /// an operator expression.
-//   /// @arg value_function: A function that takes the name of a parameter as well
-//   /// as an additional value ("step") of arbitrary type as argument and returns
+//   /// @arg value_function: A function that takes the name of a parameter as
+//   well
+//   /// as an additional value ("step") of arbitrary type as argument and
+//   returns
 //   /// the complex value for that parameter at the given step.
 //   Schedule(std::vector<std::complex<double>> steps,
 //            std::vector<std::string> parameters, Callable value_function);
@@ -576,8 +648,8 @@ class ElementaryOperator(ProductOperator);
 //   ElementaryOperator squeeze(int degree);
 //   /// @brief Constant Operator.
 //   ScalarOperator constant(NumericType value);
-//   /// @brief Identity Operator given a single degree of freedom. May act on any d-level qudit.
-//   ElementaryOperator identity(int degree);
+//   /// @brief Identity Operator given a single degree of freedom. May act on
+//   any d-level qudit. ElementaryOperator identity(int degree);
 //   /// @brief Identity Operator given multiple degrees of freedom.
 //   ProductOperator identity(std::vector<int> degrees);
 //   /// @brief Zero Operator given a single degree of freedom.
@@ -606,73 +678,90 @@ class ElementaryOperator(ProductOperator);
 // // New CUDA-Q API functions.
 // /// @brief The minimal call to `cudaq::evolve`.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
-// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int> dimensions,
+// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int>
+// dimensions,
 //                            Schedule schedule,
 //                            bool store_intermediate_states = false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
-// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int> dimensions,
+// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int>
+// dimensions,
 //                            Schedule schedule,
 //                            std::vector<Operator> collapse_operators={},
 //                            std::vector<Operator> observables={},
 //                            bool store_intermediate_states = false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
-// /// @arg initial_state: The initial quantum state for the system to evolve from.
+// /// @arg initial_state: The initial quantum state for the system to evolve
+// from.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
-// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int> dimensions,
+// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int>
+// dimensions,
 //                            Schedule schedule, state initial_state,
 //                            std::vector<Operator> collapse_operators={},
 //                            std::vector<Operator> observables={},
 //                            bool store_intermediate_states = false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg initial_states: A list of initial quantum states for the system to
 // /// evolve from. Will result in multiple, independent time evolutions.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
-// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int> dimensions,
-//                            Schedule schedule, std::vector<state> initial_states,
-//                            std::vector<Operator> collapse_operators={},
-//                            std::vector<Operator> observables={},
-//                            bool store_intermediate_states = false);
+// EvolveResult cudaq::evolve(Operator hamiltonian, std::map<int, int>
+// dimensions,
+//                            Schedule schedule, std::vector<state>
+//                            initial_states, std::vector<Operator>
+//                            collapse_operators={}, std::vector<Operator>
+//                            observables={}, bool store_intermediate_states =
+//                            false);
 
 // // New CUDA-Q API functions.
 // /// @brief The minimal call to `cudaq::evolve`.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg store_intermediate_states: Store the state of the system at each
@@ -680,62 +769,78 @@ class ElementaryOperator(ProductOperator);
 // AsyncEvolveResult cudaq::evolve_async(Operator hamiltonian,
 //                                       std::map<int, int> dimensions,
 //                                       Schedule schedule,
-//                                       bool store_intermediate_states = false);
+//                                       bool store_intermediate_states =
+//                                       false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
 // AsyncEvolveResult cudaq::evolve_async(Operator hamiltonian,
 //                                       std::map<int, int> dimensions,
 //                                       Schedule schedule,
-//                                       std::vector<Operator> collapse_operators={},
+//                                       std::vector<Operator>
+//                                       collapse_operators={},
 //                                       std::vector<Operator> observables={},
-//                                       bool store_intermediate_states = false);
+//                                       bool store_intermediate_states =
+//                                       false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
-// /// @arg initial_state: The initial quantum state for the system to evolve from.
+// /// @arg initial_state: The initial quantum state for the system to evolve
+// from.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
 // AsyncEvolveResult cudaq::evolve_async(Operator hamiltonian,
 //                                       std::map<int, int> dimensions,
 //                                       Schedule schedule, state initial_state,
-//                                       std::vector<Operator> collapse_operators={},
+//                                       std::vector<Operator>
+//                                       collapse_operators={},
 //                                       std::vector<Operator> observables={},
-//                                       bool store_intermediate_states = false);
+//                                       bool store_intermediate_states =
+//                                       false);
 
-// /// @brief Evolve the system in time, provided a set of collapse operators and
+// /// @brief Evolve the system in time, provided a set of collapse operators
+// and
 // /// observables to take the expectation value with respect to.
 // /// @arg hamiltonian: The hamiltonian to evolve in time.
-// /// @arg dimensions: A mapping that specifies the number of levels, that is, the
+// /// @arg dimensions: A mapping that specifies the number of levels, that is,
+// the
 // /// dimension of each degree of freedom that the operator acts on.
 // /// @arg schedule: The discrete time schedule to apply time evolution over.
 // /// @arg initial_states: A list of initial quantum states for the system to
 // /// evolve from. Will result in multiple, independent time evolutions.
 // /// @arg collapse_operators
-// /// @arg observables: Operators to take the expectation value of the system with
+// /// @arg observables: Operators to take the expectation value of the system
+// with
 // /// respect to.
 // /// @arg store_intermediate_states: Store the state of the system at each
 // /// discrete time step of evolution. Default is set to false.
 // AsyncEvolveResult cudaq::evolve_async(
 //     Operator hamiltonian, std::map<int, int> dimensions, Schedule schedule,
-//     std::vector<state> initial_states, std::vector<Operator> collapse_operators={},
-//     std::vector<Operator> observables={}, bool store_intermediate_states = false);
+//     std::vector<state> initial_states, std::vector<Operator>
+//     collapse_operators={}, std::vector<Operator> observables={}, bool
+//     store_intermediate_states = false);
 
 // // Internal facing.
 // class PauliWordConversion(OperatorArithmetics);
