@@ -5,10 +5,10 @@
 
 namespace cudaq {
 
-// class OperatorSum;
-// class ProductOperator(OperatorSum);
-// class ScalarOperator(ProductOperator);
-// class ElementaryOperator(ProductOperator);
+class OperatorSum;
+class OperatorSum {};
+class ProductOperator : public OperatorSum {};
+class ScalarOperator : public ProductOperator {};
 
 /// @brief Object used to give an error if a Definition of an elementary operator is
 /// instantiated by other means than the `define` class method.
@@ -33,7 +33,7 @@ public:
 
 };
 
-class ElementaryOperator {
+class ElementaryOperator : public ProductOperator {
 private:
   std::map<std::string, Definition> m_ops;
 
@@ -46,34 +46,34 @@ public:
   // / @arg degrees : the degrees of freedom that the operator acts upon.
   ElementaryOperator(std::string operator_id, std::vector<int> degrees);
 
-  // // Arithmetic overloads against all other operator types.
-  // OperatorSum operator+(OperatorSum other);
-  // OperatorSum operator-(OperatorSum other);
-  // OperatorSum operator+=(OperatorSum other);
-  // OperatorSum operator-=(OperatorSum other);
-  // ProductOperator operator*(OperatorSum other);
-  // ProductOperator operator*=(OperatorSum other);
-  // OperatorSum operator+(ScalarOperator other);
-  // OperatorSum operator-(ScalarOperator other);
-  // OperatorSum operator+=(ScalarOperator other);
-  // OperatorSum operator-=(ScalarOperator other);
-  // ProductOperator operator*(ScalarOperator other);
-  // ProductOperator operator*=(ScalarOperator other);
-  // OperatorSum operator+(ProductOperator other);
-  // OperatorSum operator-(ProductOperator other);
-  // OperatorSum operator+=(ProductOperator other);
-  // OperatorSum operator-=(ProductOperator other);
-  // ProductOperator operator*(ProductOperator other);
-  // ProductOperator operator*=(ProductOperator other);
-  // OperatorSum operator+(ElementaryOperator other);
-  // OperatorSum operator-(ElementaryOperator other);
-  // OperatorSum operator+=(ElementaryOperator other);
-  // OperatorSum operator-=(ElementaryOperator other);
-  // ProductOperator operator*(ElementaryOperator other);
-  // ProductOperator operator*=(ElementaryOperator other);
-  // /// @brief True, if the other value is an elementary operator with the same id
-  // /// acting on the same degrees of freedom, and False otherwise.
-  // bool operator==(ElementaryOperator other);
+  // Arithmetic overloads against all other operator types.
+  OperatorSum operator+(OperatorSum other);
+  OperatorSum operator-(OperatorSum other);
+  OperatorSum operator+=(OperatorSum other);
+  OperatorSum operator-=(OperatorSum other);
+  ProductOperator operator*(OperatorSum other);
+  ProductOperator operator*=(OperatorSum other);
+  OperatorSum operator+(ScalarOperator other);
+  OperatorSum operator-(ScalarOperator other);
+  OperatorSum operator+=(ScalarOperator other);
+  OperatorSum operator-=(ScalarOperator other);
+  ProductOperator operator*(ScalarOperator other);
+  ProductOperator operator*=(ScalarOperator other);
+  OperatorSum operator+(ProductOperator other);
+  OperatorSum operator-(ProductOperator other);
+  OperatorSum operator+=(ProductOperator other);
+  OperatorSum operator-=(ProductOperator other);
+  ProductOperator operator*(ProductOperator other);
+  ProductOperator operator*=(ProductOperator other);
+  OperatorSum operator+(ElementaryOperator other);
+  OperatorSum operator-(ElementaryOperator other);
+  OperatorSum operator+=(ElementaryOperator other);
+  OperatorSum operator-=(ElementaryOperator other);
+  ProductOperator operator*(ElementaryOperator other);
+  ProductOperator operator*=(ElementaryOperator other);
+  /// @brief True, if the other value is an elementary operator with the same id
+  /// acting on the same degrees of freedom, and False otherwise.
+  bool operator==(ElementaryOperator other);
 
   /// @brief Return the `ElementaryOperator` as a string.
   std::string to_string() const;
@@ -145,7 +145,7 @@ public:
 /// each term is a product of elementary and scalar operators. Operator
 /// expressions cannot be used within quantum kernels, but they provide methods
 /// to convert them to data types that can.
-class OperatorSum {
+// class OperatorSum {
 
 // private:
 //   std::vector<ProductOperator> m_terms;
@@ -234,13 +234,13 @@ class OperatorSum {
 
 //   /// @brief A map of the paramter names to their concrete, complex values.
 //   std::map<std::string, std::complex<double>> parameters;
-};
+// };
 
 /// @brief Represents an operator expression consisting of a product of
 /// elementary and scalar operators. Operator expressions cannot be used within
 /// quantum kernels, but they provide methods to convert them to data types that
 /// can.
-class ProductOperator {
+// class ProductOperator {
 
 //   /// @brief Constructor for an operator expression that represents a product
 //   /// of elementary operators.
@@ -334,9 +334,9 @@ class ProductOperator {
 
 //   /// @brief A map of the paramter names to their concrete, complex values.
 //   std::map<std::string, std::complex<double>> parameters;
-};
+// };
 
-class ScalarOperator {
+// class ScalarOperator {
 
   // /// @brief Constructor.
   // /// @arg generator: The value of the scalar operator as a function of its
@@ -439,7 +439,7 @@ class ScalarOperator {
   // /// The function can take any number of complex-valued arguments
   // /// and returns a number.
   // Callable generator;
-};
+// };
 
 
 } // namespace cudaq
