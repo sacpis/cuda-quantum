@@ -1,8 +1,8 @@
 #include "cudaq/qis/state.h"
 #include "matrix.h"
 
-#include <map>
 #include <functional>
+#include <map>
 
 namespace cudaq {
 
@@ -12,7 +12,8 @@ class ProductOperator : public OperatorSum {};
 class ScalarOperator : public ProductOperator {};
 
 /// @brief Object used to give an error if a Definition of an elementary
-/// operator is instantiated by other means than the `define` class method.
+/// or scalar operator is instantiated by other means than the `define`
+/// class method.
 class Definition {
 public:
   // Constructor.
@@ -23,26 +24,31 @@ public:
 
   std::string m_id;
   std::vector<int> m_expected_dimensions;
-  // The user-provided generator function should take a vector of ints for the dimensions,
-  // and a vector of complex doubles for the parameters.
-  std::function<void(std::vector<int>, std::complex<double>)> m_generator;
-  // I don't think we need to hold onto concrete values of this parameter metadata
-  // in C++, unlike in python where it's a map we keep track of. I think?
+  // The user-provided generator function should take a variable number of
+  // complex doubles for the parameters. It should return a
+  // `cudaq::complex_matrix` type representing the operator matrix.
+  std::function<complex_matrix(std::complex<double>)> m_generator;
+  // I don't think we need to hold onto concrete values of this parameter
+  // metadata in C++, unlike in python where it's a map we keep track of. I
+  // think? 
   // std::vector<std::complex<double>> m_parameters;
   // int m_parameter_count;
 
-  // Convenience setter.
-  template <typename Func>
-  void create_definition(std::string operator_id,
-                         std::vector<int> expected_dimensions, Func create) {
+  // Convenience setter. May be able to just move this to the constructor
+  // now that we've restricted the function signature and no longer need
+  // a template on this function.
+  void create_definition(
+      std::string operator_id, std::vector<int> expected_dimensions,
+      std::function<complex_matrix(std::complex<double>)> create) {
     // TODO: reproduce `with_dimension_check` from python ...
     // TODO: figure out parameters (can't pass along docstring like python)
-    // set protected members ...
     m_id = operator_id;
     m_expected_dimensions = expected_dimensions;
-    m_generator = [&](std::vector<int> expected_dimensions, std::vector<std::complex<double>> parameters){ 
-      return create(expected_dimensions, parameters);
-    };
+    // m_generator = create;
+    // m_generator = [&](std::vector<int> expected_dimensions,
+    // std::vector<std::complex<double>> parameters){
+    //   return create(expected_dimensions, parameters);
+    // };
   }
 };
 
@@ -98,8 +104,8 @@ public:
   ///                      degrees of freedom: `{0:2, 1:2}`.
   complex_matrix to_matrix(std::map<int, int> dimensions);
 
-  ElementaryOperator identity(int degree);
-  ElementaryOperator zero(int degree);
+  static ElementaryOperator identity(int degree);
+  static ElementaryOperator zero(int degree);
 
   /// @brief Adds the definition of an elementary operator with the given id to
   /// the class. After definition, an the defined elementary operator can be
@@ -127,11 +133,16 @@ public:
   ///      degree of freedom, and an argument called `dimensions` (or `dims` for
   ///      short), if the operator acts
   ///     on multiple degrees of freedom.
-  /// FIXME: Leaving the generalized definition implementation for last.
   template <typename Func>
   void define(std::string operator_id, std::vector<int> expected_dimensions,
               Func create) {
-    // todo ...
+    if (m_ops.find(operator_id) != m_ops.end()) {
+      // todo: make a nice error message to say op already exists
+      throw;
+    }
+    auto defn = Definition();
+    defn.create_definition(operator_id, degrees, create);
+    m_ops[operator_id] = defn;
   }
 
   /// Attributes.
@@ -146,14 +157,16 @@ public:
   std::vector<int> degrees;
   /// @brief A map of the paramter names to their concrete, complex values.
   /// TODO: Will use positional arguments instead of keyword, so this should
-  /// just be a vector of the parameter values, where the order will never change.
+  /// just be a vector of the parameter values, where the order will never
+  /// change.
   // std::map<std::string, std::complex<double>> parameters;
+  /// @brief In C++, I believe we will simply restrict the user-provided
+  /// function to only take a vector of complex values.
   std::vector<std::complex<double>> parameters;
   std::string id;
 
   // /// @brief Creates a representation of the operator as `pauli_word` that
-  // can
-  // /// be passed as an argument to quantum kernels.
+  // can be passed as an argument to quantum kernels.
   // pauli_word to_pauli_word ovveride();
 };
 
