@@ -19,10 +19,13 @@ using Func =
 
 class callback_function {
 private:
-  // The function we are optimizing
+  // The user provided callback function that takes the degrees of
+  // freedom and a vector of complex parameters.
   Func _callback_func;
 
 public:
+  callback_function() = default;
+
   template <typename Callable>
   callback_function(Callable &&callable) {
     static_assert(std::is_invocable_v<Callable, std::vector<int>,
@@ -44,6 +47,12 @@ public:
 /// class method.
 class Definition {
 public:
+  // // Constructor.
+  // Definition() = default;
+
+  // // Destructor.
+  // ~Definition() = default;
+
   // Constructor.
   Definition();
 
@@ -65,15 +74,16 @@ public:
   // Convenience setter. May be able to just move this to the constructor
   // now that we've restricted the function signature and no longer need
   // a template on this function.
-  template <typename Callable>
   void create_definition(std::string operator_id,
                          std::vector<int> expected_dimensions,
-                         Callable create) {
+                         callback_function &&create) {
     // TODO: reproduce `with_dimension_check` from python ...
     m_id = operator_id;
     m_expected_dimensions = expected_dimensions;
     m_generator = callback_function(create);
-  }
+    // just testing that we can call this fine.
+    m_generator({},{});
+  };
 };
 
 class ElementaryOperator : public ProductOperator {
