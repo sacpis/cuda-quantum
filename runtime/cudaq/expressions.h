@@ -14,8 +14,8 @@ class ScalarOperator : public ProductOperator {};
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
 // concrete parameter values.
-using Func =
-    std::function<complex_matrix(std::vector<int>, std::vector<std::complex<double>>)>;
+using Func = std::function<complex_matrix(std::vector<int>,
+                                          std::vector<std::complex<double>>)>;
 
 class callback_function {
 private:
@@ -47,12 +47,6 @@ public:
 /// class method.
 class Definition {
 public:
-  // // Constructor.
-  // Definition() = default;
-
-  // // Destructor.
-  // ~Definition() = default;
-
   // Constructor.
   Definition();
 
@@ -65,11 +59,6 @@ public:
   // complex doubles for the parameters. It should return a
   // `cudaq::complex_matrix` type representing the operator matrix.
   callback_function m_generator;
-  // I don't think we need to hold onto concrete values of this parameter
-  // metadata in C++, unlike in python where it's a map we keep track of. I
-  // think?
-  // std::vector<std::complex<double>> m_parameters;
-  // int m_parameter_count;
 
   // Convenience setter. May be able to just move this to the constructor
   // now that we've restricted the function signature and no longer need
@@ -81,8 +70,6 @@ public:
     m_id = operator_id;
     m_expected_dimensions = expected_dimensions;
     m_generator = callback_function(create);
-    // just testing that we can call this fine.
-    m_generator({},{});
   };
 };
 
@@ -136,7 +123,13 @@ public:
   ///                      that is, the dimension of each degree of freedom
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0:2, 1:2}`.
-  complex_matrix to_matrix(std::map<int, int> dimensions);
+  complex_matrix to_matrix(std::vector<int> degrees,
+                           std::vector<std::complex<double>> parameters);
+
+  /// FIXME Return the `ElementaryOperator`, given that it doesn't need
+  /// any parameters or degrees. Just using this for convenience testing
+  /// right now, should revisit if we need this moving forward.
+  complex_matrix to_matrix();
 
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);

@@ -16,8 +16,8 @@ namespace cudaq {
 // (1) Elementary Operators
 // (2) Scalar Operators
 
-Definition::Definition() {};
-Definition::~Definition() {};
+Definition::Definition(){};
+Definition::~Definition(){};
 
 ElementaryOperator::ElementaryOperator(std::string operator_id,
                                        std::vector<int> degrees)
@@ -47,11 +47,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
       std::cout << "\ndone\n";
       return mat;
     };
-    // TODO: Create these through `ElementaryOperator::define`
-    // instead of directly through the `Definition` class.
-    auto defn = Definition();
-    defn.create_definition(op_id, degrees, func);
-    op.m_ops[op_id] = defn;
+    op.define(op_id, degrees, func);
   }
   return op;
 }
@@ -70,13 +66,20 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
       std::cout << "\ndone\n";
       return mat;
     };
-    // TODO: Create these through `ElementaryOperator::define`
-    // instead of directly through the `Definition` class.
-    auto defn = Definition();
-    defn.create_definition(op_id, degrees, func);
-    op.m_ops[op_id] = defn;
+    op.define(op_id, degrees, func);
   }
   return op;
+}
+
+complex_matrix
+ElementaryOperator::to_matrix(std::vector<int> degrees,
+                              std::vector<std::complex<double>> parameters) {
+  return m_ops[id].m_generator(degrees, parameters);
+}
+
+// delete me
+complex_matrix ElementaryOperator::to_matrix() {
+  return m_ops[id].m_generator({}, {});
 }
 
 } // namespace cudaq

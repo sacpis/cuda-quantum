@@ -14,6 +14,9 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   auto op_id = cudaq::ElementaryOperator::identity(2);
   auto op_zero = cudaq::ElementaryOperator::zero(2);
 
+  op_id.to_matrix({},{});
+  op_zero.to_matrix({},{});
+
   // Trying different sizes and just visually confirming for now.
   cudaq::ElementaryOperator::identity(3);
   cudaq::ElementaryOperator::zero(3);
