@@ -1,7 +1,7 @@
 #include "cudaq/qis/state.h"
 #include "matrix.h"
 
-// #include <functional>
+#include <functional>
 #include <map>
 
 namespace cudaq {
@@ -11,16 +11,39 @@ class OperatorSum {};
 class ProductOperator : public OperatorSum {};
 class ScalarOperator : public ProductOperator {};
 
+// Limit the signature of the users callback function to accept a vector of ints
+// for the degree of freedom dimensions, and a vector of complex doubles for the
+// concrete parameter values.
+using Func =
+    std::function<complex_matrix(std::vector<int>, std::vector<std::complex<double>>)>;
+
+class callback_function {
+private:
+  // The function we are optimizing
+  Func _callback_func;
+
+public:
+  template <typename Callable>
+  callback_function(Callable &&callable) {
+    static_assert(std::is_invocable_v<Callable, std::vector<int>,
+                                      std::vector<std::complex<double>>>,
+                  "Invalid callback function. Must have signature double(const "
+                  "std::vector<int>, "
+                  "std::vector<std::complex<double>>)");
+    _callback_func = std::move(callable);
+  }
+
+  complex_matrix operator()(std::vector<int> degrees,
+                            std::vector<std::complex<double>> parameters) {
+    return _callback_func(degrees, parameters);
+  }
+};
+
 /// @brief Object used to give an error if a Definition of an elementary
 /// or scalar operator is instantiated by other means than the `define`
 /// class method.
 class Definition {
 public:
-  // Limit the signature of the users callback function to accept a vector of ints
-  // for the degree of freedom dimensions, and a vector of complex doubles for the
-  // concrete parameter values.
-  using Func = std::function<complex_matrix(std::vector<int>, std::complex<double>)>;
-
   // Constructor.
   Definition();
 
@@ -32,7 +55,7 @@ public:
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
   // `cudaq::complex_matrix` type representing the operator matrix.
-  Func m_generator;
+  callback_function m_generator;
   // I don't think we need to hold onto concrete values of this parameter
   // metadata in C++, unlike in python where it's a map we keep track of. I
   // think?
@@ -42,12 +65,14 @@ public:
   // Convenience setter. May be able to just move this to the constructor
   // now that we've restricted the function signature and no longer need
   // a template on this function.
+  template <typename Callable>
   void create_definition(std::string operator_id,
-                         std::vector<int> expected_dimensions, Func create) {
+                         std::vector<int> expected_dimensions,
+                         Callable create) {
     // TODO: reproduce `with_dimension_check` from python ...
     m_id = operator_id;
     m_expected_dimensions = expected_dimensions;
-    m_generator = create;
+    m_generator = callback_function(create);
   }
 };
 

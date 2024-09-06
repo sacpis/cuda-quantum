@@ -47,9 +47,9 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
       std::cout << "\ndone\n";
       return mat;
     };
-    auto defn = Definition();
-    defn.create_definition(op_id, degrees, func);
-    op.m_ops[op_id] = defn;
+    // auto defn = Definition();
+    // defn.create_definition(op_id, degrees, func);
+    // op.m_ops[op_id] = defn;
   }
   return op;
 }
