@@ -70,6 +70,8 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
       std::cout << "\ndone\n";
       return mat;
     };
+    // TODO: Create these through `ElementaryOperator::define`
+    // instead of directly through the `Definition` class.
     auto defn = Definition();
     defn.create_definition(op_id, degrees, func);
     op.m_ops[op_id] = defn;

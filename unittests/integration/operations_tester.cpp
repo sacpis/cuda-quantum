@@ -21,3 +21,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   cudaq::ElementaryOperator::identity(4);
   cudaq::ElementaryOperator::zero(4);
 }
+
+TEST(ExpressionTester, checkCustomElementaryOps) {
+  // pass
+}
