@@ -90,7 +90,7 @@ ScalarOperator::ScalarOperator(std::complex<double> value) {
 }
 
 std::complex<double>
-ScalarOperator::to_value(std::vector<std::complex<double>> parameters) {
+ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
   return generator(parameters);
 }
 

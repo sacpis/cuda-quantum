@@ -248,6 +248,9 @@ public:
   ScalarOperator(std::complex<double> value);
 
   // Arithmetic overloads against all other operator types.
+  /// TODO: It makes sense to wait to support addition against ints
+  /// and doubles until the callback function can return them. Going
+  /// ahead with just complex values for now.
   ScalarOperator operator+(int other);
   ScalarOperator operator-(int other);
   ScalarOperator operator+=(int other);
@@ -264,6 +267,7 @@ public:
   ScalarOperator operator*=(double other);
   ScalarOperator operator/(double other);
   ScalarOperator operator/=(double other);
+  //
   ScalarOperator operator+(std::complex<double> other);
   ScalarOperator operator-(std::complex<double> other);
   ScalarOperator operator+=(std::complex<double> other);
@@ -309,7 +313,7 @@ public:
   /// @brief Return the scalar operator as a concrete complex value.
   /// @FIXME: Can update the signature of this once we support generalized
   /// function arguments.
-  std::complex<double> to_value(std::vector<std::complex<double>> parameters);
+  std::complex<double> evaluate(std::vector<std::complex<double>> parameters);
 
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.

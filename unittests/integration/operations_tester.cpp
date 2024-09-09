@@ -88,10 +88,10 @@ TEST(ExpressionTester, checkScalarOps) {
   // From concrete values.
   {
     /// @FIXME: Can remove the {} once the signature issues are handled.
-    auto got_value_0 = cudaq::ScalarOperator(want_value_0).to_value({});
-    auto got_value_1 = cudaq::ScalarOperator(want_value_1).to_value({});
-    auto got_value_2 = cudaq::ScalarOperator(want_value_2).to_value({});
-    auto got_value_3 = cudaq::ScalarOperator(want_value_3).to_value({});
+    auto got_value_0 = cudaq::ScalarOperator(want_value_0).evaluate({});
+    auto got_value_1 = cudaq::ScalarOperator(want_value_1).evaluate({});
+    auto got_value_2 = cudaq::ScalarOperator(want_value_2).evaluate({});
+    auto got_value_3 = cudaq::ScalarOperator(want_value_3).evaluate({});
 
     EXPECT_NEAR(std::abs(want_value_0), std::abs(got_value_0), 1e-5);
     EXPECT_NEAR(std::abs(want_value_1), std::abs(got_value_1), 1e-5);
@@ -105,10 +105,10 @@ TEST(ExpressionTester, checkScalarOps) {
     auto function = [](std::vector<std::complex<double>> vec) {
       return vec[0];
     };
-    auto got_value_0 = cudaq::ScalarOperator(function).to_value({want_value_0});
-    auto got_value_1 = cudaq::ScalarOperator(function).to_value({want_value_1});
-    auto got_value_2 = cudaq::ScalarOperator(function).to_value({want_value_2});
-    auto got_value_3 = cudaq::ScalarOperator(function).to_value({want_value_3});
+    auto got_value_0 = cudaq::ScalarOperator(function).evaluate({want_value_0});
+    auto got_value_1 = cudaq::ScalarOperator(function).evaluate({want_value_1});
+    auto got_value_2 = cudaq::ScalarOperator(function).evaluate({want_value_2});
+    auto got_value_3 = cudaq::ScalarOperator(function).evaluate({want_value_3});
 
     EXPECT_NEAR(std::abs(want_value_0), std::abs(got_value_0), 1e-5);
     EXPECT_NEAR(std::abs(want_value_1), std::abs(got_value_1), 1e-5);
