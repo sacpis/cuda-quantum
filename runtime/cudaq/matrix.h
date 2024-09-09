@@ -69,6 +69,9 @@ public:
   /// @brief Return the element at the row `i` and column `j`.
   value_type &operator()(std::size_t i, std::size_t j) const;
 
+  /// @brief Check for equality between two complex matrices.
+  bool operator==(complex_matrix &other);
+
   /// @brief Return the minimal eigenvalue for this matrix.
   value_type minimal_eigenvalue() const;
 

@@ -99,6 +99,12 @@ complex_matrix::value_type &complex_matrix::operator()(std::size_t i,
   return map(i, j);
 }
 
+bool complex_matrix::operator==(complex_matrix &other) {
+  Eigen::Map<Eigen::MatrixXcd> _self(internalData, nRows, nCols);
+  Eigen::Map<Eigen::MatrixXcd> _other(other.data(), nRows, nCols);
+  return (_self == _other);
+}
+
 std::vector<complex_matrix::value_type> complex_matrix::eigenvalues() const {
   Eigen::Map<Eigen::MatrixXcd> map(internalData, nRows, nCols);
   if (map.isApprox(map.adjoint())) {
