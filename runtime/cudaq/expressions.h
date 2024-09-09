@@ -9,7 +9,8 @@ namespace cudaq {
 class OperatorSum;
 class OperatorSum {};
 class ProductOperator : public OperatorSum {};
-class ScalarOperator : public ProductOperator {};
+class ScalarOperator;
+class ElementaryOperator;
 
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
@@ -30,7 +31,7 @@ public:
   callback_function(Callable &&callable) {
     static_assert(std::is_invocable_v<Callable, std::vector<int>,
                                       std::vector<std::complex<double>>>,
-                  "Invalid callback function. Must have signature double(const "
+                  "Invalid callback function. Must have signature double("
                   "std::vector<int>, "
                   "std::vector<std::complex<double>>)");
     _callback_func = std::move(callable);
@@ -39,6 +40,35 @@ public:
   complex_matrix operator()(std::vector<int> degrees,
                             std::vector<std::complex<double>> parameters) {
     return _callback_func(degrees, parameters);
+  }
+};
+
+/// @FIXME: In reality, this should be able to return any scalar type,
+/// including ints, doubles, etc.
+using scalarFunc =
+    std::function<std::complex<double>(std::vector<std::complex<double>>)>;
+
+class scalar_callback_function {
+private:
+  // The user provided callback function that takes a vector of
+  // complex parameters.
+  scalarFunc _callback_func;
+
+public:
+  scalar_callback_function() = default;
+
+  template <typename Callable>
+  scalar_callback_function(Callable &&callable) {
+    static_assert(
+        std::is_invocable_v<Callable, std::vector<std::complex<double>>>,
+        "Invalid callback function. Must have signature double("
+        "std::vector<std::complex<double>>)");
+    _callback_func = std::move(callable);
+  }
+
+  std::complex<double>
+  operator()(std::vector<std::complex<double>> parameters) {
+    return _callback_func(parameters);
   }
 };
 
@@ -178,18 +208,121 @@ public:
   /// order.
   std::vector<int> degrees;
   /// @brief A map of the paramter names to their concrete, complex values.
-  /// TODO: Will use positional arguments instead of keyword, so this should
-  /// just be a vector of the parameter values, where the order will never
-  /// change.
+  /// This will be enabled once we can handle generalized callback function
+  /// arguments.
+  /// @FIXME: Not needed until generalizing the function arguments.
   // std::map<std::string, std::complex<double>> parameters;
-  /// @brief In C++, I believe we will simply restrict the user-provided
-  /// function to only take a vector of complex values.
-  std::vector<std::complex<double>> parameters;
   std::string id;
 
   // /// @brief Creates a representation of the operator as `pauli_word` that
   // can be passed as an argument to quantum kernels.
   // pauli_word to_pauli_word ovveride();
+};
+
+class ScalarOperator : public ProductOperator {
+public:
+  /// @brief Constructor.
+  /// @arg generator: The value of the scalar operator as a function of its
+  /// parameters. The generator may take any number of complex-valued arguments
+  /// and must return a number.
+  /// @arg parameters :
+  /// @FIXME: Taking parameters as a vector until generalized function args
+  /// are sorted out.
+  template <typename Callable>
+  ScalarOperator(Callable &&create,
+                 std::map<std::string, std::complex<double>> parameters) {
+    generator = scalar_callback_function(create);
+    parameters = parameters;
+  }
+
+  /// @brief Constructor that just takes a callback function with no
+  /// arguments.
+  template <typename Callable>
+  ScalarOperator(Callable &&create) {
+    generator = scalar_callback_function(create);
+  }
+
+  /// @brief Constructor that just takes and returns a complex double value.
+  /// @NOTE: This replicates the behavior of the python `ScalarOperator::const`
+  /// without the need for an extra member function.
+  ScalarOperator(std::complex<double> value);
+
+  // Arithmetic overloads against all other operator types.
+  ScalarOperator operator+(int other);
+  ScalarOperator operator-(int other);
+  ScalarOperator operator+=(int other);
+  ScalarOperator operator-=(int other);
+  ScalarOperator operator*(int other);
+  ScalarOperator operator*=(int other);
+  ScalarOperator operator/(int other);
+  ScalarOperator operator/=(int other);
+  ScalarOperator operator+(double other);
+  ScalarOperator operator-(double other);
+  ScalarOperator operator+=(double other);
+  ScalarOperator operator-=(double other);
+  ScalarOperator operator*(double other);
+  ScalarOperator operator*=(double other);
+  ScalarOperator operator/(double other);
+  ScalarOperator operator/=(double other);
+  ScalarOperator operator+(std::complex<double> other);
+  ScalarOperator operator-(std::complex<double> other);
+  ScalarOperator operator+=(std::complex<double> other);
+  ScalarOperator operator-=(std::complex<double> other);
+  ScalarOperator operator*(std::complex<double> other);
+  ScalarOperator operator*=(std::complex<double> other);
+  ScalarOperator operator/(std::complex<double> other);
+  ScalarOperator operator/=(std::complex<double> other);
+  ScalarOperator operator+(OperatorSum other);
+  ScalarOperator operator-(OperatorSum other);
+  ScalarOperator operator+=(OperatorSum other);
+  ScalarOperator operator-=(OperatorSum other);
+  ScalarOperator operator*(OperatorSum other);
+  ScalarOperator operator*=(OperatorSum other);
+  ScalarOperator operator/(OperatorSum other);
+  ScalarOperator operator/=(OperatorSum other);
+  ScalarOperator operator+(ScalarOperator other);
+  ScalarOperator operator-(ScalarOperator other);
+  ScalarOperator operator+=(ScalarOperator other);
+  ScalarOperator operator-=(ScalarOperator other);
+  ScalarOperator operator*(ScalarOperator other);
+  ScalarOperator operator*=(ScalarOperator other);
+  ScalarOperator operator/(ScalarOperator other);
+  ScalarOperator operator/=(ScalarOperator other);
+  ScalarOperator pow(ScalarOperator other);
+  ScalarOperator operator+(ProductOperator other);
+  ScalarOperator operator-(ProductOperator other);
+  ScalarOperator operator+=(ProductOperator other);
+  ScalarOperator operator-=(ProductOperator other);
+  ScalarOperator operator*(ProductOperator other);
+  ScalarOperator operator*=(ProductOperator other);
+  ScalarOperator operator/(ProductOperator other);
+  ScalarOperator operator/=(ProductOperator other);
+  ScalarOperator operator+(ElementaryOperator other);
+  ScalarOperator operator-(ElementaryOperator other);
+  ScalarOperator operator+=(ElementaryOperator other);
+  ScalarOperator operator-=(ElementaryOperator other);
+  ScalarOperator operator*(ElementaryOperator other);
+  ScalarOperator operator*=(ElementaryOperator other);
+  ScalarOperator operator/(ElementaryOperator other);
+  ScalarOperator operator/=(ElementaryOperator other);
+
+  /// @brief Return the scalar operator as a concrete complex value.
+  /// @FIXME: Can update the signature of this once we support generalized
+  /// function arguments.
+  std::complex<double> to_value(std::vector<std::complex<double>> parameters);
+
+  // /// @brief Returns true if other is a scalar operator with the same
+  // /// generator.
+  // bool operator==(ScalarOperator other);
+
+  /// A map of the paramter names to their concrete, complex
+  /// values.
+  std::map<std::string, std::complex<double>> parameters;
+
+  /// @brief The function that generates the value of the scalar operator.
+  /// The function can take any number of complex-valued arguments
+  /// and returns a number.
+  scalar_callback_function generator;
 };
 
 /// @brief Represents an operator expression consisting of a sum of terms, where
@@ -396,112 +529,6 @@ public:
 
 //   /// @brief A map of the paramter names to their concrete, complex values.
 //   std::map<std::string, std::complex<double>> parameters;
-// };
-
-// class ScalarOperator {
-
-// /// @brief Constructor.
-// /// @arg generator: The value of the scalar operator as a function of its
-// /// parameters. The generator may take any number of complex-valued arguments
-// /// and must return a number.
-// ScalarOperator(Callable generator,
-//                std::map<std::string, std::complex<double>> parameters);
-
-// // Arithmetic overloads against all other operator types.
-// ScalarOperator operator+(int other);
-// ScalarOperator operator-(int other);
-// ScalarOperator operator+=(int other);
-// ScalarOperator operator-=(int other);
-// ScalarOperator operator*(int other);
-// ScalarOperator operator*=(int other);
-// ScalarOperator operator/(int other);
-// ScalarOperator operator/=(int other);
-// ScalarOperator operator+(double other);
-// ScalarOperator operator-(double other);
-// ScalarOperator operator+=(double other);
-// ScalarOperator operator-=(double other);
-// ScalarOperator operator*(double other);
-// ScalarOperator operator*=(double other);
-// ScalarOperator operator/(double other);
-// ScalarOperator operator/=(double other);
-// ScalarOperator operator+(std::complex<double> other);
-// ScalarOperator operator-(std::complex<double> other);
-// ScalarOperator operator+=(std::complex<double> other);
-// ScalarOperator operator-=(std::complex<double> other);
-// ScalarOperator operator*(std::complex<double> other);
-// ScalarOperator operator*=(std::complex<double> other);
-// ScalarOperator operator/(std::complex<double> other);
-// ScalarOperator operator/=(std::complex<double> other);
-// ScalarOperator operator+(OperatorSum other);
-// ScalarOperator operator-(OperatorSum other);
-// ScalarOperator operator+=(OperatorSum other);
-// ScalarOperator operator-=(OperatorSum other);
-// ScalarOperator operator*(OperatorSum other);
-// ScalarOperator operator*=(OperatorSum other);
-// ScalarOperator operator/(OperatorSum other);
-// ScalarOperator operator/=(OperatorSum other);
-// ScalarOperator operator+(ScalarOperator other);
-// ScalarOperator operator-(ScalarOperator other);
-// ScalarOperator operator+=(ScalarOperator other);
-// ScalarOperator operator-=(ScalarOperator other);
-// ScalarOperator operator*(ScalarOperator other);
-// ScalarOperator operator*=(ScalarOperator other);
-// ScalarOperator operator/(ScalarOperator other);
-// ScalarOperator operator/=(ScalarOperator other);
-// ScalarOperator pow(ScalarOperator other);
-// ScalarOperator operator+(ProductOperator other);
-// ScalarOperator operator-(ProductOperator other);
-// ScalarOperator operator+=(ProductOperator other);
-// ScalarOperator operator-=(ProductOperator other);
-// ScalarOperator operator*(ProductOperator other);
-// ScalarOperator operator*=(ProductOperator other);
-// ScalarOperator operator/(ProductOperator other);
-// ScalarOperator operator/=(ProductOperator other);
-// ScalarOperator operator+(ElementaryOperator other);
-// ScalarOperator operator-(ElementaryOperator other);
-// ScalarOperator operator+=(ElementaryOperator other);
-// ScalarOperator operator-=(ElementaryOperator other);
-// ScalarOperator operator*(ElementaryOperator other);
-// ScalarOperator operator*=(ElementaryOperator other);
-// ScalarOperator operator/(ElementaryOperator other);
-// ScalarOperator operator/=(ElementaryOperator other);
-
-// /// @brief Returns true if other is a scalar operator with the same
-// /// generator.
-// bool operator==(ScalarOperator other);
-
-// /// @brief Return the `OperatorSum` as a matrix.
-// /// @arg  `dimensions` : A mapping that specifies the number of levels,
-// ///                      that is, the dimension of each degree of freedom
-// ///                      that the operator acts on. Example for two, 2-level
-// ///                      degrees of freedom: `{0:2, 1:2}`.
-// /// @arg `parameters` : A map of the paramter names to their concrete,
-// complex
-// /// values.
-// complex_matrix to_matrix(
-//     std::map<int, int> dimensions,
-//     std::map<std::string, std::complex<double>> parameters);
-
-// /// @brief Creates a representation of the operator as `pauli_word` that can
-// /// be passed as an argument to quantum kernels.
-// pauli_word to_pauli_word ovveride();
-
-// /// @brief The number of levels, that is the dimension, for each degree of
-// /// freedom in canonical order that the operator acts on. A value of zero or
-// /// less indicates that the operator is defined for any dimension of that
-// /// degree.
-// std::vector<int> dimensions;
-// /// @brief The degrees of freedom that the operator acts on in canonical
-// /// order.
-// std::vector<int> degrees;
-// /// A map of the paramter names to their concrete, complex
-// /// values.
-// std::map<std::string, std::complex<double>> parameters;
-
-// /// @brief The function that generates the value of the scalar operator.
-// /// The function can take any number of complex-valued arguments
-// /// and returns a number.
-// Callable generator;
 // };
 
 } // namespace cudaq
