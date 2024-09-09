@@ -31,12 +31,12 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   // is a static method that creates a new ElementaryOperator (which
   // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    // Issue: we need a capture lambda here, but we want to store
-    // this as a std::function member on the Definition class. This
-    // is explicitly not allowed, however, so I will need to think of
-    // a workaround.
     auto func = [&](std::vector<int> none,
                     std::vector<std::complex<double>> _none) {
+      // Need to set the degree via the op itself because the
+      // argument to the outer function goes out of scope when
+      // the user invokes this later on via, e.g, `to_matrix()`.
+      auto degree = op.degrees[0];
       auto mat = complex_matrix(degree, degree);
       // Build up the identity matrix.
       for (std::size_t i = 0; i < degree; i++) {
@@ -44,7 +44,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << "done\n\n";
       return mat;
     };
     op.define(op_id, degrees, func);
@@ -59,6 +59,10 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
     auto func = [&](std::vector<int> none,
                     std::vector<std::complex<double>> _none) {
+      // Need to set the degree via the op itself because the
+      // argument to the outer function goes out of scope when
+      // the user invokes this later on via, e.g, `to_matrix()`.
+      auto degree = op.degrees[0];
       auto mat = complex_matrix(degree, degree);
       mat.set_zero();
       std::cout << "dumping the complex mat: \n";
@@ -75,11 +79,6 @@ complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
                               std::vector<std::complex<double>> parameters) {
   return m_ops[id].m_generator(degrees, parameters);
-}
-
-// delete me
-complex_matrix ElementaryOperator::to_matrix() {
-  return m_ops[id].m_generator({}, {});
 }
 
 } // namespace cudaq

@@ -126,11 +126,6 @@ public:
   complex_matrix to_matrix(std::vector<int> degrees,
                            std::vector<std::complex<double>> parameters);
 
-  /// FIXME Return the `ElementaryOperator`, given that it doesn't need
-  /// any parameters or degrees. Just using this for convenience testing
-  /// right now, should revisit if we need this moving forward.
-  complex_matrix to_matrix();
-
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);
 
@@ -172,7 +167,7 @@ public:
     m_ops[operator_id] = defn;
   }
 
-  /// Attributes.
+  // Attributes.
 
   /// @brief The number of levels, that is the dimension, for each degree of
   /// freedom in canonical order that the operator acts on. A value of zero or

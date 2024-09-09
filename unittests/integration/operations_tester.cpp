@@ -14,15 +14,18 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   auto op_id = cudaq::ElementaryOperator::identity(2);
   auto op_zero = cudaq::ElementaryOperator::zero(2);
 
-  op_id.to_matrix({},{});
-  op_zero.to_matrix({},{});
+  auto op_mat = op_id.to_matrix({},{});
+  auto id_mat = op_zero.to_matrix({},{});
 
-  // Trying different sizes and just visually confirming for now.
-  cudaq::ElementaryOperator::identity(3);
-  cudaq::ElementaryOperator::zero(3);
+  op_mat.dump();
+  id_mat.dump();
 
-  cudaq::ElementaryOperator::identity(4);
-  cudaq::ElementaryOperator::zero(4);
+  // // Trying different sizes and just visually confirming for now.
+  // cudaq::ElementaryOperator::identity(3);
+  // cudaq::ElementaryOperator::zero(3);
+
+  // cudaq::ElementaryOperator::identity(4);
+  // cudaq::ElementaryOperator::zero(4);
 }
 
 TEST(ExpressionTester, checkCustomElementaryOps) {
