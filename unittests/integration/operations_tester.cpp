@@ -70,3 +70,49 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
 TEST(ExpressionTester, checkCustomElementaryOps) {
   // pass
 }
+
+TEST(ExpressionTester, checkScalarOps) {
+
+  /// TODO: Test the following overload once we have general
+  /// parameters support:
+  /*
+    ScalarOperator(Callable &&create,
+                 std::map<std::string, std::complex<double>> parameters) {
+  */
+
+  std::complex<double> want_value_0 = 0.0 + 0.0;
+  std::complex<double> want_value_1 = 0.0 + 1.0;
+  std::complex<double> want_value_2 = 2.0 + 0.0;
+  std::complex<double> want_value_3 = 2.0 + 1.0;
+
+  // From concrete values.
+  {
+    /// @FIXME: Can remove the {} once the signature issues are handled.
+    auto got_value_0 = cudaq::ScalarOperator(want_value_0).evaluate({});
+    auto got_value_1 = cudaq::ScalarOperator(want_value_1).evaluate({});
+    auto got_value_2 = cudaq::ScalarOperator(want_value_2).evaluate({});
+    auto got_value_3 = cudaq::ScalarOperator(want_value_3).evaluate({});
+
+    EXPECT_NEAR(std::abs(want_value_0), std::abs(got_value_0), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_1), std::abs(got_value_1), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_2), std::abs(got_value_2), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_3), std::abs(got_value_3), 1e-5);
+  }
+
+  // From a lambda function.
+  /// TODO: Can test different signatures once that is supported.
+  {
+    auto function = [](std::vector<std::complex<double>> vec) {
+      return vec[0];
+    };
+    auto got_value_0 = cudaq::ScalarOperator(function).evaluate({want_value_0});
+    auto got_value_1 = cudaq::ScalarOperator(function).evaluate({want_value_1});
+    auto got_value_2 = cudaq::ScalarOperator(function).evaluate({want_value_2});
+    auto got_value_3 = cudaq::ScalarOperator(function).evaluate({want_value_3});
+
+    EXPECT_NEAR(std::abs(want_value_0), std::abs(got_value_0), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_1), std::abs(got_value_1), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_2), std::abs(got_value_2), 1e-5);
+    EXPECT_NEAR(std::abs(want_value_3), std::abs(got_value_3), 1e-5);
+  }
+}
