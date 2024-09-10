@@ -1,4 +1,5 @@
 #include "cudaq/qis/state.h"
+#include "definition.h"
 #include "matrix.h"
 
 #include <functional>
@@ -11,37 +12,6 @@ class OperatorSum {};
 class ProductOperator : public OperatorSum {};
 class ScalarOperator;
 class ElementaryOperator;
-
-// Limit the signature of the users callback function to accept a vector of ints
-// for the degree of freedom dimensions, and a vector of complex doubles for the
-// concrete parameter values.
-using Func = std::function<complex_matrix(std::vector<int>,
-                                          std::vector<std::complex<double>>)>;
-
-class callback_function {
-private:
-  // The user provided callback function that takes the degrees of
-  // freedom and a vector of complex parameters.
-  Func _callback_func;
-
-public:
-  callback_function() = default;
-
-  template <typename Callable>
-  callback_function(Callable &&callable) {
-    static_assert(std::is_invocable_v<Callable, std::vector<int>,
-                                      std::vector<std::complex<double>>>,
-                  "Invalid callback function. Must have signature double("
-                  "std::vector<int>, "
-                  "std::vector<std::complex<double>>)");
-    _callback_func = std::move(callable);
-  }
-
-  complex_matrix operator()(std::vector<int> degrees,
-                            std::vector<std::complex<double>> parameters) {
-    return _callback_func(degrees, parameters);
-  }
-};
 
 /// @FIXME: In reality, this should be able to return any scalar type,
 /// including ints, doubles, etc.
@@ -70,37 +40,6 @@ public:
   operator()(std::vector<std::complex<double>> parameters) {
     return _callback_func(parameters);
   }
-};
-
-/// @brief Object used to give an error if a Definition of an elementary
-/// or scalar operator is instantiated by other means than the `define`
-/// class method.
-class Definition {
-public:
-  // Constructor.
-  Definition();
-
-  // Destructor.
-  ~Definition();
-
-  std::string m_id;
-  std::vector<int> m_expected_dimensions;
-  // The user-provided generator function should take a variable number of
-  // complex doubles for the parameters. It should return a
-  // `cudaq::complex_matrix` type representing the operator matrix.
-  callback_function m_generator;
-
-  // Convenience setter. May be able to just move this to the constructor
-  // now that we've restricted the function signature and no longer need
-  // a template on this function.
-  void create_definition(std::string operator_id,
-                         std::vector<int> expected_dimensions,
-                         callback_function &&create) {
-    // TODO: reproduce `with_dimension_check` from python ...
-    m_id = operator_id;
-    m_expected_dimensions = expected_dimensions;
-    m_generator = callback_function(create);
-  };
 };
 
 class ElementaryOperator : public ProductOperator {
@@ -154,7 +93,7 @@ public:
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0:2, 1:2}`.
   complex_matrix to_matrix(std::vector<int> degrees,
-                           std::vector<std::complex<double>> parameters);
+                           std::vector<VariantArg> parameters);
 
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);

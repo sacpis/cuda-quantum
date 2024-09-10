@@ -11,7 +11,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ctad-maybe-unsupported")
 set(INTERFACE_POSITION_INDEPENDENT_CODE ON)
 
 set(CUDAQ_OPS_SRC
-  expressions.cpp schedule.cpp
+  expressions.cpp schedule.cpp definition.cpp
 )
 
 add_library(${LIBRARY_NAME} SHARED ${CUDAQ_OPS_SRC})

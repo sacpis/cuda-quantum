@@ -647,7 +647,7 @@ class ElementaryOperator(ProductOperator);
 //   /// @brief Squeeze Operator.
 //   ElementaryOperator squeeze(int degree);
 //   /// @brief Constant Operator.
-//   ScalarOperator constant(NumericType value);
+//   ScalarOperator constant(VariantArg value);
 //   /// @brief Identity Operator given a single degree of freedom. May act on
 //   any d-level qudit. ElementaryOperator identity(int degree);
 //   /// @brief Identity Operator given multiple degrees of freedom.
