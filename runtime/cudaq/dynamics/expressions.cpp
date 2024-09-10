@@ -92,4 +92,17 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
   }
 }
 
+/// @FIXME: The below function signature can be updated once
+/// we support generalized function arguments.
+/// @brief Constructor that just takes and returns a complex double value.
+ScalarOperator::ScalarOperator(std::complex<double> value) {
+  auto func = [&](std::vector<std::complex<double>> _none) { return value; };
+  generator = func;
+}
+
+std::complex<double>
+ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
+  return generator(parameters);
+}
+
 } // namespace cudaq
