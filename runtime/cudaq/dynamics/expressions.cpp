@@ -1,5 +1,5 @@
 #include "cudaq/expressions.h"
-
+// #include "cudaq/definition.h"
 #include "common/EigenDense.h"
 
 #include <iostream>
@@ -16,8 +16,8 @@ namespace cudaq {
 // (1) Elementary Operators
 // (2) Scalar Operators
 
-Definition::Definition(){};
-Definition::~Definition(){};
+// Definition::Definition(){};
+// Definition::~Definition(){};
 
 ElementaryOperator::ElementaryOperator(std::string operator_id,
                                        std::vector<int> degrees)
@@ -31,8 +31,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   // is a static method that creates a new ElementaryOperator (which
   // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none,
-                    std::vector<std::complex<double>> _none) {
+    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -40,7 +39,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
       auto mat = complex_matrix(degree, degree);
       // Build up the identity matrix.
       for (std::size_t i = 0; i < degree; i++) {
-        mat(i, i) = 1.0 + 0.0j;
+        mat(i, i) = 1.0 + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -57,8 +56,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   std::vector<int> degrees = {degree};
   auto op = ElementaryOperator(op_id, degrees);
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none,
-                    std::vector<std::complex<double>> _none) {
+    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -77,7 +75,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
 
 complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
-                              std::vector<std::complex<double>> parameters) {
+                              std::vector<VariantArg> parameters) {
   return m_ops[id].m_generator(degrees, parameters);
 }
 
