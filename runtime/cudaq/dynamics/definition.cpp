@@ -27,9 +27,9 @@ void Definition::create_definition(const std::string &operator_id,
   m_generator = std::move(create);
 }
 
-complex_matrix
+ReturnType
 Definition::generate_matrix(const std::vector<int> &degrees,
-                            const std::vector<NumericType> &parameters) const {
+                            const std::vector<VariantArg> &parameters) const {
   return m_generator(degrees, parameters);
 }
 

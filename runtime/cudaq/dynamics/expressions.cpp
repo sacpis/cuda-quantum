@@ -31,7 +31,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   // is a static method that creates a new ElementaryOperator (which
   // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<NumericType> _none) {
+    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -56,7 +56,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   std::vector<int> degrees = {degree};
   auto op = ElementaryOperator(op_id, degrees);
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<NumericType> _none) {
+    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -75,8 +75,21 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
 
 complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
-                              std::vector<NumericType> parameters) {
-  return m_ops[id].m_generator(degrees, parameters);
+                              std::vector<VariantArg> parameters) {
+  ReturnType result = m_ops[id].m_generator(degrees, parameters);
+
+  if (std::holds_alternative<complex_matrix>(result)) {
+    // Move the complex_matrix from the variant, which avoids copying
+    return std::move(std::get<complex_matrix>(result));
+  } else {
+    // if it's a scalar, convert the scalar to a 1x1 matrix
+    std::complex<double> scalar = std::get<std::complex<double>>(result);
+
+    cudaq::complex_matrix scalar_matrix(1, 1);
+    scalar_matrix(0, 0) = scalar;
+
+    return scalar_matrix;
+  }
 }
 
 } // namespace cudaq

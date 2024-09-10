@@ -18,14 +18,16 @@ namespace cudaq {
 
 using NumericType = std::variant<int, double, std::complex<double>>;
 
-using NumericType =
+using ReturnType = std::variant<complex_matrix, std::complex<double>>;
+
+using VariantArg =
     std::variant<NumericType, std::vector<NumericType>, std::string>;
 
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
 // concrete parameter values.
 using Func =
-    std::function<complex_matrix(std::vector<int>, std::vector<NumericType>)>;
+    std::function<ReturnType(std::vector<int>, std::vector<VariantArg>)>;
 
 class callback_function {
 private:
@@ -39,16 +41,16 @@ public:
   template <typename Callable>
   callback_function(Callable &&callable) {
     static_assert(
-        std::is_invocable_r_v<complex_matrix, Callable, std::vector<int>,
-                              std::vector<NumericType>>,
-        "Invalid callback function. Must have signature double(const "
+        std::is_invocable_r_v<ReturnType, Callable, std::vector<int>,
+                              std::vector<VariantArg>>,
+        "Invalid callback function. Must have signature ReturnType(const "
         "std::vector<int>, "
-        "std::vector<NumericType>)");
+        "std::vector<VariantArg>)");
     _callback_func = std::forward<Callable>(callable);
   }
 
-  complex_matrix operator()(std::vector<int> degrees,
-                            std::vector<NumericType> parameters) const {
+  ReturnType operator()(std::vector<int> degrees,
+                        std::vector<VariantArg> parameters) const {
     return _callback_func(std::move(degrees), std::move(parameters));
   }
 };
@@ -77,9 +79,8 @@ public:
                          callback_function &&create);
 
   // To call the generator function
-  complex_matrix
-  generate_matrix(const std::vector<int> &degrees,
-                  const std::vector<NumericType> &parameters) const;
+  ReturnType generate_matrix(const std::vector<int> &degrees,
+                             const std::vector<VariantArg> &parameters) const;
 
 private:
   // Member variables
