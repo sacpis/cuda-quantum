@@ -63,7 +63,7 @@ public:
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0:2, 1:2}`.
   complex_matrix to_matrix(std::vector<int> degrees,
-                           std::vector<VariantArg> parameters);
+                           std::vector<NumericType> parameters);
 
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);

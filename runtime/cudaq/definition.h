@@ -9,22 +9,23 @@
 #include "cudaq/qis/state.h"
 #include "matrix.h"
 
+#include <complex>
 #include <functional>
 #include <string>
 #include <vector>
-#include <complex>
 
 namespace cudaq {
 
 using NumericType = std::variant<int, double, std::complex<double>>;
 
-using VariantArg = std::variant<NumericType, std::vector<NumericType>, std::string>;
+using NumericType =
+    std::variant<NumericType, std::vector<NumericType>, std::string>;
 
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
 // concrete parameter values.
-using Func = std::function<complex_matrix(std::vector<int>,
-                                          std::vector<VariantArg>)>;
+using Func =
+    std::function<complex_matrix(std::vector<int>, std::vector<NumericType>)>;
 
 class callback_function {
 private:
@@ -37,16 +38,17 @@ public:
 
   template <typename Callable>
   callback_function(Callable &&callable) {
-    static_assert(std::is_invocable_r_v<complex_matrix, Callable, std::vector<int>,
-                                      std::vector<VariantArg>>,
-                  "Invalid callback function. Must have signature double(const "
-                  "std::vector<int>, "
-                  "std::vector<VariantArg>)");
+    static_assert(
+        std::is_invocable_r_v<complex_matrix, Callable, std::vector<int>,
+                              std::vector<NumericType>>,
+        "Invalid callback function. Must have signature double(const "
+        "std::vector<int>, "
+        "std::vector<NumericType>)");
     _callback_func = std::forward<Callable>(callable);
   }
 
   complex_matrix operator()(std::vector<int> degrees,
-                            std::vector<VariantArg> parameters) const {
+                            std::vector<NumericType> parameters) const {
     return _callback_func(std::move(degrees), std::move(parameters));
   }
 };
@@ -75,11 +77,13 @@ public:
                          callback_function &&create);
 
   // To call the generator function
-  complex_matrix generate_matrix(const std::vector<int> &degrees, const std::vector<VariantArg> &parameters) const;
+  complex_matrix
+  generate_matrix(const std::vector<int> &degrees,
+                  const std::vector<NumericType> &parameters) const;
 
 private:
   // Member variables
   std::string m_id;
   std::vector<int> m_expected_dimensions;
 };
-}
+} // namespace cudaq

@@ -31,7 +31,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   // is a static method that creates a new ElementaryOperator (which
   // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
+    auto func = [&](std::vector<int> none, std::vector<NumericType> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -56,7 +56,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   std::vector<int> degrees = {degree};
   auto op = ElementaryOperator(op_id, degrees);
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
+    auto func = [&](std::vector<int> none, std::vector<NumericType> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -75,7 +75,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
 
 complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
-                              std::vector<VariantArg> parameters) {
+                              std::vector<NumericType> parameters) {
   return m_ops[id].m_generator(degrees, parameters);
 }
 
