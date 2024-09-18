@@ -273,7 +273,7 @@ TEST(ExpressionTester, checkScalarOps) {
       auto scalar_op = cudaq::ScalarOperator(want_value_0);
       scalar_op += want_value_0;
 
-      auto got_value = new_scalar_op.evaluate({});
+      auto got_value = scalar_op.evaluate({});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_0 + want_value_0),
                   1e-5);
     }
@@ -283,9 +283,10 @@ TEST(ExpressionTester, checkScalarOps) {
       auto function = [](std::vector<std::complex<double>> vec) {
         return vec[0];
       };
+      auto scalar_op = cudaq::ScalarOperator(function);
       scalar_op += want_value_1;
 
-      auto got_value = new_scalar_op.evaluate({want_value_0});
+      auto got_value = scalar_op.evaluate({want_value_0});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_0 + want_value_1),
                   1e-5);
     }
@@ -295,7 +296,7 @@ TEST(ExpressionTester, checkScalarOps) {
       auto scalar_op = cudaq::ScalarOperator(want_value_0);
       scalar_op -= want_value_0;
 
-      auto got_value = new_scalar_op.evaluate({});
+      auto got_value = scalar_op.evaluate({});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_0 - want_value_0),
                   1e-5);
     }
@@ -305,9 +306,10 @@ TEST(ExpressionTester, checkScalarOps) {
       auto function = [](std::vector<std::complex<double>> vec) {
         return vec[0];
       };
+      auto scalar_op = cudaq::ScalarOperator(function);
       scalar_op -= want_value_1;
 
-      auto got_value = new_scalar_op.evaluate({want_value_0});
+      auto got_value = scalar_op.evaluate({want_value_0});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_0 - want_value_1),
                   1e-5);
     }
@@ -317,7 +319,7 @@ TEST(ExpressionTester, checkScalarOps) {
       auto scalar_op = cudaq::ScalarOperator(want_value_2);
       scalar_op *= want_value_3;
 
-      auto got_value = new_scalar_op.evaluate({});
+      auto got_value = scalar_op.evaluate({});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_2 * want_value_3),
                   1e-5);
     }
@@ -327,9 +329,10 @@ TEST(ExpressionTester, checkScalarOps) {
       auto function = [](std::vector<std::complex<double>> vec) {
         return vec[0];
       };
+      auto scalar_op = cudaq::ScalarOperator(function);
       scalar_op *= want_value_3;
 
-      auto got_value = new_scalar_op.evaluate({want_value_2});
+      auto got_value = scalar_op.evaluate({want_value_2});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_2 * want_value_3),
                   1e-5);
     }
@@ -339,7 +342,7 @@ TEST(ExpressionTester, checkScalarOps) {
       auto scalar_op = cudaq::ScalarOperator(want_value_2);
       scalar_op /= want_value_3;
 
-      auto got_value = new_scalar_op.evaluate({});
+      auto got_value = scalar_op.evaluate({});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_2 / want_value_3),
                   1e-5);
     }
@@ -349,9 +352,10 @@ TEST(ExpressionTester, checkScalarOps) {
       auto function = [](std::vector<std::complex<double>> vec) {
         return vec[0];
       };
+      auto scalar_op = cudaq::ScalarOperator(function);
       scalar_op /= want_value_3;
 
-      auto got_value = new_scalar_op.evaluate({want_value_2});
+      auto got_value = scalar_op.evaluate({want_value_2});
       EXPECT_NEAR(std::abs(got_value), std::abs(want_value_2 / want_value_3),
                   1e-5);
     }

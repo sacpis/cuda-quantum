@@ -155,15 +155,7 @@ public:
   /// without the need for an extra member function.
   ScalarOperator(std::complex<double> value);
 
-  // // Arithmetic overloads against all other operator types.
-  // ScalarOperator operator+(std::complex<double> other);
-  // ScalarOperator operator-(std::complex<double> other);
-  // ScalarOperator operator+=(std::complex<double> other);
-  // ScalarOperator operator-=(std::complex<double> other);
-  // ScalarOperator operator*(std::complex<double> other);
-  // ScalarOperator operator*=(std::complex<double> other);
-  // ScalarOperator operator/(std::complex<double> other);
-  // ScalarOperator operator/=(std::complex<double> other);
+  // Arithmetic overloads against all other operator types.
   /// TODO: It makes sense to wait to support addition against ints
   /// and doubles until the callback function can return them. Going
   /// ahead with just complex values for now.
