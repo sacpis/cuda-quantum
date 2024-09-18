@@ -131,8 +131,8 @@ ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[0].evaluate(selfParams) +
-           returnOperator._operators_to_merge[1].evaluate({});
+    return returnOperator._operators_to_merge[0].generator(selfParams) +
+           returnOperator._operators_to_merge[1].generator({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -161,8 +161,8 @@ ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[1].evaluate({}) +
-           returnOperator._operators_to_merge[0].evaluate(selfParams);
+    return returnOperator._operators_to_merge[1].generator({}) +
+           returnOperator._operators_to_merge[0].generator(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -191,8 +191,8 @@ ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[0].evaluate(selfParams) -
-           returnOperator._operators_to_merge[1].evaluate({});
+    return returnOperator._operators_to_merge[0].generator(selfParams) -
+           returnOperator._operators_to_merge[1].generator({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -221,8 +221,8 @@ ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[1].evaluate({}) -
-           returnOperator._operators_to_merge[0].evaluate(selfParams);
+    return returnOperator._operators_to_merge[1].generator({}) -
+           returnOperator._operators_to_merge[0].generator(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -251,8 +251,8 @@ ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[0].evaluate(selfParams) *
-           returnOperator._operators_to_merge[1].evaluate({});
+    return returnOperator._operators_to_merge[0].generator(selfParams) *
+           returnOperator._operators_to_merge[1].generator({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -281,8 +281,8 @@ ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[1].evaluate({}) *
-           returnOperator._operators_to_merge[0].evaluate(selfParams);
+    return returnOperator._operators_to_merge[1].generator({}) *
+           returnOperator._operators_to_merge[0].generator(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -311,8 +311,8 @@ ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[0].evaluate(selfParams) /
-           returnOperator._operators_to_merge[1].evaluate({});
+    return returnOperator._operators_to_merge[0].generator(selfParams) /
+           returnOperator._operators_to_merge[1].generator({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -341,8 +341,8 @@ ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_merge[1].evaluate({}) /
-           returnOperator._operators_to_merge[0].evaluate(selfParams);
+    return returnOperator._operators_to_merge[1].generator({}) /
+           returnOperator._operators_to_merge[0].generator(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -370,8 +370,8 @@ void operator+=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_merge[0].evaluate(selfParams) +
-           self._operators_to_merge[1].evaluate({});
+    return self._operators_to_merge[0].generator(selfParams) +
+           self._operators_to_merge[1].generator({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -398,8 +398,8 @@ void operator-=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_merge[0].evaluate(selfParams) -
-           self._operators_to_merge[1].evaluate({});
+    return self._operators_to_merge[0].generator(selfParams) -
+           self._operators_to_merge[1].generator({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -426,8 +426,8 @@ void operator*=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_merge[0].evaluate(selfParams) *
-           self._operators_to_merge[1].evaluate({});
+    return self._operators_to_merge[0].generator(selfParams) *
+           self._operators_to_merge[1].generator({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -454,8 +454,8 @@ void operator/=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_merge[0].evaluate(selfParams) /
-           self._operators_to_merge[1].evaluate({});
+    return self._operators_to_merge[0].generator(selfParams) /
+           self._operators_to_merge[1].generator({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
