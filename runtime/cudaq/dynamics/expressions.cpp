@@ -90,21 +90,21 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
 }
 
 ScalarOperator::ScalarOperator(const ScalarOperator &other)
-    : generator(other.generator) {}
+    : generator(other.generator), m_constant_value(other.m_constant_value) {}
 ScalarOperator::ScalarOperator(ScalarOperator &other)
-    : generator(other.generator) {}
+    : generator(other.generator), m_constant_value(other.m_constant_value) {}
 ScalarOperator::ScalarOperator(ScalarOperator &&other)
-    : generator(other.generator) {}
+    : generator(other.generator), m_constant_value(other.m_constant_value) {}
 
 /// @FIXME: The below function signature can be updated once
 /// we support generalized function arguments.
 /// @brief Constructor that just takes and returns a complex double value.
 ScalarOperator::ScalarOperator(std::complex<double> value) {
-  parameters = {value};
+  m_constant_value = value;
   auto func = [&](std::vector<std::complex<double>> _none) {
-    return parameters[0];
+    return m_constant_value;
   };
-  generator = func;
+  generator = scalar_callback_function(func);
 }
 
 std::complex<double>
@@ -113,7 +113,7 @@ ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
 }
 
 // Arithmetic Operations.
-ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
+ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -135,15 +135,15 @@ ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[0].generator(selfParams) +
-           returnOperator._operators_to_compose[1].generator({});
+    return returnOperator._operators_to_compose[0].evaluate(selfParams) +
+           returnOperator._operators_to_compose[1].evaluate({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
+ScalarOperator operator+(std::complex<double> other, ScalarOperator &self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -165,15 +165,15 @@ ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].generator({}) +
-           returnOperator._operators_to_compose[0].generator(selfParams);
+    return returnOperator._operators_to_compose[1].evaluate({}) +
+           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
+ScalarOperator operator-(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -195,15 +195,15 @@ ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[0].generator(selfParams) -
-           returnOperator._operators_to_compose[1].generator({});
+    return returnOperator._operators_to_compose[0].evaluate(selfParams) -
+           returnOperator._operators_to_compose[1].evaluate({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
+ScalarOperator operator-(std::complex<double> other, ScalarOperator &self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -225,15 +225,15 @@ ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].generator({}) -
-           returnOperator._operators_to_compose[0].generator(selfParams);
+    return returnOperator._operators_to_compose[1].evaluate({}) -
+           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
+ScalarOperator operator*(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -255,15 +255,15 @@ ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[0].generator(selfParams) *
-           returnOperator._operators_to_compose[1].generator({});
+    return returnOperator._operators_to_compose[0].evaluate(selfParams) *
+           returnOperator._operators_to_compose[1].evaluate({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
+ScalarOperator operator*(std::complex<double> other, ScalarOperator &self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -285,15 +285,15 @@ ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].generator({}) *
-           returnOperator._operators_to_compose[0].generator(selfParams);
+    return returnOperator._operators_to_compose[1].evaluate({}) *
+           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
+ScalarOperator operator/(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -315,15 +315,15 @@ ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[0].generator(selfParams) /
-           returnOperator._operators_to_compose[1].generator({});
+    return returnOperator._operators_to_compose[0].evaluate(selfParams) /
+           returnOperator._operators_to_compose[1].evaluate({});
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
+ScalarOperator operator/(std::complex<double> other, ScalarOperator &self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -345,15 +345,15 @@ ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].generator({}) /
-           returnOperator._operators_to_compose[0].generator(selfParams);
+    return returnOperator._operators_to_compose[1].evaluate({}) /
+           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-void operator+=(ScalarOperator self, std::complex<double> other) {
+void operator+=(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
@@ -374,14 +374,14 @@ void operator+=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_compose[0].generator(selfParams) +
-           self._operators_to_compose[1].generator({});
+    return self._operators_to_compose[0].evaluate(selfParams) +
+           self._operators_to_compose[1].evaluate({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
 }
 
-void operator-=(ScalarOperator self, std::complex<double> other) {
+void operator-=(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
@@ -402,14 +402,14 @@ void operator-=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_compose[0].generator(selfParams) -
-           self._operators_to_compose[1].generator({});
+    return self._operators_to_compose[0].evaluate(selfParams) -
+           self._operators_to_compose[1].evaluate({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
 }
 
-void operator*=(ScalarOperator self, std::complex<double> other) {
+void operator*=(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
@@ -430,14 +430,14 @@ void operator*=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_compose[0].generator(selfParams) *
-           self._operators_to_compose[1].generator({});
+    return self._operators_to_compose[0].evaluate(selfParams) *
+           self._operators_to_compose[1].evaluate({});
   };
 
   self.generator = scalar_callback_function(newGenerator);
 }
 
-void operator/=(ScalarOperator self, std::complex<double> other) {
+void operator/=(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
@@ -458,8 +458,8 @@ void operator/=(ScalarOperator self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return self._operators_to_compose[0].generator(selfParams) /
-           self._operators_to_compose[1].generator({});
+    return self._operators_to_compose[0].evaluate(selfParams) /
+           self._operators_to_compose[1].evaluate({});
   };
 
   self.generator = scalar_callback_function(newGenerator);

@@ -130,6 +130,11 @@ public:
 };
 
 class ScalarOperator : public ProductOperator {
+private:
+  // If someone gave us a constant value, we will just return that
+  // directly to them when they call `evaluate`.
+  std::complex<double> m_constant_value;
+
 public:
   /// @brief Constructor.
   /// @arg generator: The value of the scalar operator as a function of its
@@ -222,12 +227,8 @@ public:
   // /// generator.
   // bool operator==(ScalarOperator other);
 
-  /// A map of the parameter names to their concrete, complex
-  /// values.
-  std::vector<std::complex<double>> parameters;
-
   /// @brief The function that generates the value of the scalar operator.
-  /// The function can take any number of complex-valued arguments
+  /// The function can take a vector of complex-valued arguments
   /// and returns a number.
   scalar_callback_function generator;
 
@@ -250,18 +251,18 @@ public:
   ~ScalarOperator() = default;
 };
 
-ScalarOperator operator+(ScalarOperator self, std::complex<double> other);
-ScalarOperator operator-(ScalarOperator self, std::complex<double> other);
-ScalarOperator operator*(ScalarOperator self, std::complex<double> other);
-ScalarOperator operator/(ScalarOperator self, std::complex<double> other);
-ScalarOperator operator+(std::complex<double> other, ScalarOperator self);
-ScalarOperator operator-(std::complex<double> other, ScalarOperator self);
-ScalarOperator operator*(std::complex<double> other, ScalarOperator self);
-ScalarOperator operator/(std::complex<double> other, ScalarOperator self);
-void operator+=(ScalarOperator self, std::complex<double> other);
-void operator-=(ScalarOperator self, std::complex<double> other);
-void operator*=(ScalarOperator self, std::complex<double> other);
-void operator/=(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator+(ScalarOperator &self, std::complex<double> other);
+ScalarOperator operator-(ScalarOperator &self, std::complex<double> other);
+ScalarOperator operator*(ScalarOperator &self, std::complex<double> other);
+ScalarOperator operator/(ScalarOperator &self, std::complex<double> other);
+ScalarOperator operator+(std::complex<double> other, ScalarOperator &self);
+ScalarOperator operator-(std::complex<double> other, ScalarOperator &self);
+ScalarOperator operator*(std::complex<double> other, ScalarOperator &self);
+ScalarOperator operator/(std::complex<double> other, ScalarOperator &self);
+void operator+=(ScalarOperator &self, std::complex<double> other);
+void operator-=(ScalarOperator &self, std::complex<double> other);
+void operator*=(ScalarOperator &self, std::complex<double> other);
+void operator/=(ScalarOperator &self, std::complex<double> other);
 
 /// @brief Represents an operator expression consisting of a sum of terms, where
 /// each term is a product of elementary and scalar operators. Operator
