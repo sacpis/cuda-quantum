@@ -136,18 +136,6 @@ private:
   std::complex<double> m_constant_value;
 
 public:
-  /// @brief Constructor.
-  /// @arg generator: The value of the scalar operator as a function of its
-  /// parameters. The generator may take any number of complex-valued arguments
-  /// and must return a number.
-  /// @arg parameters :
-  template <typename Callable>
-  ScalarOperator(Callable &&create,
-                 std::vector<std::complex<double>> parameters) {
-    generator = scalar_callback_function(create);
-    parameters = parameters;
-  }
-
   /// @brief Constructor that just takes a callback function with no
   /// arguments.
   template <typename Callable>
