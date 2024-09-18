@@ -237,7 +237,7 @@ public:
 
   // Only populated when we've performed arithmetic between various
   // scalar operators.
-  std::vector<ScalarOperator> _operators_to_merge;
+  std::vector<ScalarOperator> _operators_to_compose;
 
   /// NOTE: We should revisit these constructors and remove any that have
   /// become unecessary as the implementation improves.
@@ -245,7 +245,6 @@ public:
   ScalarOperator(const ScalarOperator &other) = default;
   ScalarOperator(ScalarOperator &other) = default;
   ScalarOperator(ScalarOperator &&other) = default;
-  ScalarOperator(scalar_callback_function create);
 };
 
 ScalarOperator operator+(ScalarOperator self, std::complex<double> other);
