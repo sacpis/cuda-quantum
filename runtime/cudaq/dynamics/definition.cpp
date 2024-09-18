@@ -29,7 +29,7 @@ void Definition::create_definition(const std::string &operator_id,
 
 ReturnType
 Definition::generate_matrix(const std::vector<int> &degrees,
-                            const std::vector<VariantArg> &parameters) const {
+                            const std::vector<Parameter> &parameters) const {
   return m_generator(degrees, parameters);
 }
 

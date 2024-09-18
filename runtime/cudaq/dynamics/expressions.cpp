@@ -16,9 +16,6 @@ namespace cudaq {
 // (1) Elementary Operators
 // (2) Scalar Operators
 
-// Definition::Definition(){};
-// Definition::~Definition(){};
-
 ElementaryOperator::ElementaryOperator(std::string operator_id,
                                        std::vector<int> degrees)
     : id(operator_id), degrees(degrees) {}
@@ -31,7 +28,7 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   // is a static method that creates a new ElementaryOperator (which
   // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
+    auto func = [&](std::vector<int> none, std::vector<Parameter> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -56,7 +53,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   std::vector<int> degrees = {degree};
   auto op = ElementaryOperator(op_id, degrees);
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::vector<int> none, std::vector<VariantArg> _none) {
+    auto func = [&](std::vector<int> none, std::vector<Parameter> _none) {
       // Need to set the degree via the op itself because the
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
@@ -75,7 +72,7 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
 
 complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
-                              std::vector<VariantArg> parameters) {
+                              std::vector<Parameter> parameters) {
   ReturnType result = m_ops[id].m_generator(degrees, parameters);
 
   if (std::holds_alternative<complex_matrix>(result)) {
@@ -92,17 +89,376 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
   }
 }
 
+ScalarOperator::ScalarOperator(scalar_callback_function create)
+    : generator(create) {}
+
 /// @FIXME: The below function signature can be updated once
 /// we support generalized function arguments.
 /// @brief Constructor that just takes and returns a complex double value.
 ScalarOperator::ScalarOperator(std::complex<double> value) {
-  auto func = [&](std::vector<std::complex<double>> _none) { return value; };
+  parameters = {value};
+  auto func = [&](std::vector<std::complex<double>> _none) {
+    return parameters[0];
+  };
   generator = func;
 }
 
 std::complex<double>
 ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
   return generator(parameters);
+}
+
+// Arithmetic Operations.
+ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[0].evaluate(selfParams) +
+           returnOperator._operators_to_merge[1].evaluate({});
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[1].evaluate({}) +
+           returnOperator._operators_to_merge[0].evaluate(selfParams);
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[0].evaluate(selfParams) -
+           returnOperator._operators_to_merge[1].evaluate({});
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[1].evaluate({}) -
+           returnOperator._operators_to_merge[0].evaluate(selfParams);
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[0].evaluate(selfParams) *
+           returnOperator._operators_to_merge[1].evaluate({});
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[1].evaluate({}) *
+           returnOperator._operators_to_merge[0].evaluate(selfParams);
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[0].evaluate(selfParams) /
+           returnOperator._operators_to_merge[1].evaluate({});
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_merge.push_back(self);
+  returnOperator._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return returnOperator._operators_to_merge[1].evaluate({}) /
+           returnOperator._operators_to_merge[0].evaluate(selfParams);
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
+void operator+=(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+  // Need to move the existing generating function to a new
+  // operator so that we can modify the generator in `self` in-place.
+  auto selfCopy = ScalarOperator(self.generator);
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  self._operators_to_merge.push_back(selfCopy);
+  self._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return self._operators_to_merge[0].evaluate(selfParams) +
+           self._operators_to_merge[1].evaluate({});
+  };
+
+  self.generator = scalar_callback_function(newGenerator);
+}
+
+void operator-=(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+  // Need to move the existing generating function to a new
+  // operator so that we can modify the generator in `self` in-place.
+  auto selfCopy = ScalarOperator(self.generator);
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  self._operators_to_merge.push_back(selfCopy);
+  self._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return self._operators_to_merge[0].evaluate(selfParams) -
+           self._operators_to_merge[1].evaluate({});
+  };
+
+  self.generator = scalar_callback_function(newGenerator);
+}
+
+void operator*=(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+  // Need to move the existing generating function to a new
+  // operator so that we can modify the generator in `self` in-place.
+  auto selfCopy = ScalarOperator(self.generator);
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  self._operators_to_merge.push_back(selfCopy);
+  self._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return self._operators_to_merge[0].evaluate(selfParams) *
+           self._operators_to_merge[1].evaluate({});
+  };
+
+  self.generator = scalar_callback_function(newGenerator);
+}
+
+void operator/=(ScalarOperator self, std::complex<double> other) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+  // Need to move the existing generating function to a new
+  // operator so that we can modify the generator in `self` in-place.
+  auto selfCopy = ScalarOperator(self.generator);
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  self._operators_to_merge.push_back(selfCopy);
+  self._operators_to_merge.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    return self._operators_to_merge[0].evaluate(selfParams) /
+           self._operators_to_merge[1].evaluate({});
+  };
+
+  self.generator = scalar_callback_function(newGenerator);
 }
 
 } // namespace cudaq

@@ -13,35 +13,6 @@ class ProductOperator : public OperatorSum {};
 class ScalarOperator;
 class ElementaryOperator;
 
-/// @FIXME: In reality, this should be able to return any scalar type,
-/// including ints, doubles, etc.
-using scalarFunc =
-    std::function<std::complex<double>(std::vector<std::complex<double>>)>;
-
-class scalar_callback_function {
-private:
-  // The user provided callback function that takes a vector of
-  // complex parameters.
-  scalarFunc _callback_func;
-
-public:
-  scalar_callback_function() = default;
-
-  template <typename Callable>
-  scalar_callback_function(Callable &&callable) {
-    static_assert(
-        std::is_invocable_v<Callable, std::vector<std::complex<double>>>,
-        "Invalid callback function. Must have signature double("
-        "std::vector<std::complex<double>>)");
-    _callback_func = std::move(callable);
-  }
-
-  std::complex<double>
-  operator()(std::vector<std::complex<double>> parameters) {
-    return _callback_func(parameters);
-  }
-};
-
 class ElementaryOperator : public ProductOperator {
 private:
   std::map<std::string, Definition> m_ops;
@@ -88,12 +59,12 @@ public:
   std::string to_string() const;
 
   /// @brief Return the `ElementaryOperator` as a matrix.
-  /// @arg  `dimensions` : A mapping that specifies the number of levels,
+  /// @arg  `dimensions` : A vector specifying the number of levels,
   ///                      that is, the dimension of each degree of freedom
   ///                      that the operator acts on. Example for two, 2-level
-  ///                      degrees of freedom: `{0:2, 1:2}`.
+  ///                      degrees of freedom: `{2,2}`.
   complex_matrix to_matrix(std::vector<int> degrees,
-                           std::vector<VariantArg> parameters);
+                           std::vector<Parameter> parameters);
 
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);
@@ -165,11 +136,9 @@ public:
   /// parameters. The generator may take any number of complex-valued arguments
   /// and must return a number.
   /// @arg parameters :
-  /// @FIXME: Taking parameters as a vector until generalized function args
-  /// are sorted out.
   template <typename Callable>
   ScalarOperator(Callable &&create,
-                 std::map<std::string, std::complex<double>> parameters) {
+                 std::vector<std::complex<double>> parameters) {
     generator = scalar_callback_function(create);
     parameters = parameters;
   }
@@ -186,7 +155,15 @@ public:
   /// without the need for an extra member function.
   ScalarOperator(std::complex<double> value);
 
-  // Arithmetic overloads against all other operator types.
+  // // Arithmetic overloads against all other operator types.
+  // ScalarOperator operator+(std::complex<double> other);
+  // ScalarOperator operator-(std::complex<double> other);
+  // ScalarOperator operator+=(std::complex<double> other);
+  // ScalarOperator operator-=(std::complex<double> other);
+  // ScalarOperator operator*(std::complex<double> other);
+  // ScalarOperator operator*=(std::complex<double> other);
+  // ScalarOperator operator/(std::complex<double> other);
+  // ScalarOperator operator/=(std::complex<double> other);
   /// TODO: It makes sense to wait to support addition against ints
   /// and doubles until the callback function can return them. Going
   /// ahead with just complex values for now.
@@ -206,23 +183,8 @@ public:
   ScalarOperator operator*=(double other);
   ScalarOperator operator/(double other);
   ScalarOperator operator/=(double other);
-  //
-  ScalarOperator operator+(std::complex<double> other);
-  ScalarOperator operator-(std::complex<double> other);
-  ScalarOperator operator+=(std::complex<double> other);
-  ScalarOperator operator-=(std::complex<double> other);
-  ScalarOperator operator*(std::complex<double> other);
-  ScalarOperator operator*=(std::complex<double> other);
-  ScalarOperator operator/(std::complex<double> other);
-  ScalarOperator operator/=(std::complex<double> other);
-  ScalarOperator operator+(OperatorSum other);
-  ScalarOperator operator-(OperatorSum other);
-  ScalarOperator operator+=(OperatorSum other);
-  ScalarOperator operator-=(OperatorSum other);
-  ScalarOperator operator*(OperatorSum other);
-  ScalarOperator operator*=(OperatorSum other);
-  ScalarOperator operator/(OperatorSum other);
-  ScalarOperator operator/=(OperatorSum other);
+
+  // Implement next:
   ScalarOperator operator+(ScalarOperator other);
   ScalarOperator operator-(ScalarOperator other);
   ScalarOperator operator+=(ScalarOperator other);
@@ -232,14 +194,8 @@ public:
   ScalarOperator operator/(ScalarOperator other);
   ScalarOperator operator/=(ScalarOperator other);
   ScalarOperator pow(ScalarOperator other);
-  ScalarOperator operator+(ProductOperator other);
-  ScalarOperator operator-(ProductOperator other);
-  ScalarOperator operator+=(ProductOperator other);
-  ScalarOperator operator-=(ProductOperator other);
-  ScalarOperator operator*(ProductOperator other);
-  ScalarOperator operator*=(ProductOperator other);
-  ScalarOperator operator/(ProductOperator other);
-  ScalarOperator operator/=(ProductOperator other);
+
+  // Implement after scalar operator arithmetic:
   ScalarOperator operator+(ElementaryOperator other);
   ScalarOperator operator-(ElementaryOperator other);
   ScalarOperator operator+=(ElementaryOperator other);
@@ -249,24 +205,69 @@ public:
   ScalarOperator operator/(ElementaryOperator other);
   ScalarOperator operator/=(ElementaryOperator other);
 
+  // Implement last:
+  ScalarOperator operator+(OperatorSum other);
+  ScalarOperator operator-(OperatorSum other);
+  ScalarOperator operator+=(OperatorSum other);
+  ScalarOperator operator-=(OperatorSum other);
+  ScalarOperator operator*(OperatorSum other);
+  ScalarOperator operator*=(OperatorSum other);
+  ScalarOperator operator/(OperatorSum other);
+  ScalarOperator operator/=(OperatorSum other);
+  ScalarOperator operator+(ProductOperator other);
+  ScalarOperator operator-(ProductOperator other);
+  ScalarOperator operator+=(ProductOperator other);
+  ScalarOperator operator-=(ProductOperator other);
+  ScalarOperator operator*(ProductOperator other);
+  ScalarOperator operator*=(ProductOperator other);
+  ScalarOperator operator/(ProductOperator other);
+  ScalarOperator operator/=(ProductOperator other);
+
   /// @brief Return the scalar operator as a concrete complex value.
-  /// @FIXME: Can update the signature of this once we support generalized
-  /// function arguments.
   std::complex<double> evaluate(std::vector<std::complex<double>> parameters);
 
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.
   // bool operator==(ScalarOperator other);
 
-  /// A map of the paramter names to their concrete, complex
+  /// A map of the parameter names to their concrete, complex
   /// values.
-  std::map<std::string, std::complex<double>> parameters;
+  std::vector<std::complex<double>> parameters;
 
   /// @brief The function that generates the value of the scalar operator.
   /// The function can take any number of complex-valued arguments
   /// and returns a number.
   scalar_callback_function generator;
+
+  /// NOTE: All of the below shouldn't be used by the user, but are needed to
+  /// perform arithmetic operations. Maybe there's a cleaner way to keep the
+  /// user from using them.
+
+  // Only populated when we've performed arithmetic between various
+  // scalar operators.
+  std::vector<ScalarOperator> _operators_to_merge;
+
+  /// NOTE: We should revisit these constructors and remove any that have
+  /// become unecessary as the implementation improves.
+  ScalarOperator() = default;
+  ScalarOperator(const ScalarOperator &other) = default;
+  ScalarOperator(ScalarOperator &other) = default;
+  ScalarOperator(ScalarOperator &&other) = default;
+  ScalarOperator(scalar_callback_function create);
 };
+
+ScalarOperator operator+(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator-(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator*(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator/(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator+(std::complex<double> other, ScalarOperator self);
+ScalarOperator operator-(std::complex<double> other, ScalarOperator self);
+ScalarOperator operator*(std::complex<double> other, ScalarOperator self);
+ScalarOperator operator/(std::complex<double> other, ScalarOperator self);
+void operator+=(ScalarOperator self, std::complex<double> other);
+void operator-=(ScalarOperator self, std::complex<double> other);
+void operator*=(ScalarOperator self, std::complex<double> other);
+void operator/=(ScalarOperator self, std::complex<double> other);
 
 /// @brief Represents an operator expression consisting of a sum of terms, where
 /// each term is a product of elementary and scalar operators. Operator
