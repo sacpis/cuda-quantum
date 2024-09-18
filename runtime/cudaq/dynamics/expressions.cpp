@@ -89,6 +89,13 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
   }
 }
 
+ScalarOperator::ScalarOperator(const ScalarOperator &other)
+    : generator(other.generator) {}
+ScalarOperator::ScalarOperator(ScalarOperator &other)
+    : generator(other.generator) {}
+ScalarOperator::ScalarOperator(ScalarOperator &&other)
+    : generator(other.generator) {}
+
 /// @FIXME: The below function signature can be updated once
 /// we support generalized function arguments.
 /// @brief Constructor that just takes and returns a complex double value.
@@ -351,13 +358,12 @@ void operator+=(ScalarOperator self, std::complex<double> other) {
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
   // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator selfCopy;
-  selfCopy.generator = self.generator;
+  ScalarOperator copy(self);
 
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  self._operators_to_compose.push_back(selfCopy);
+  self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
   /// FIXME: For right now, we will merge the arguments vector into one larger
@@ -380,13 +386,12 @@ void operator-=(ScalarOperator self, std::complex<double> other) {
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
   // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator selfCopy;
-  selfCopy.generator = self.generator;
+  ScalarOperator copy(self);
 
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  self._operators_to_compose.push_back(selfCopy);
+  self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
   /// FIXME: For right now, we will merge the arguments vector into one larger
@@ -409,13 +414,12 @@ void operator*=(ScalarOperator self, std::complex<double> other) {
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
   // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator selfCopy;
-  selfCopy.generator = self.generator;
+  ScalarOperator copy(self);
 
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  self._operators_to_compose.push_back(selfCopy);
+  self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
   /// FIXME: For right now, we will merge the arguments vector into one larger
@@ -438,13 +442,12 @@ void operator/=(ScalarOperator self, std::complex<double> other) {
   auto otherOperator = ScalarOperator(other);
   // Need to move the existing generating function to a new
   // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator selfCopy;
-  selfCopy.generator = self.generator;
+  ScalarOperator copy(self);
 
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  self._operators_to_compose.push_back(selfCopy);
+  self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
   /// FIXME: For right now, we will merge the arguments vector into one larger

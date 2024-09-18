@@ -242,9 +242,12 @@ public:
   /// NOTE: We should revisit these constructors and remove any that have
   /// become unecessary as the implementation improves.
   ScalarOperator() = default;
-  ScalarOperator(const ScalarOperator &other) = default;
-  ScalarOperator(ScalarOperator &other) = default;
-  ScalarOperator(ScalarOperator &&other) = default;
+  // Copy constructor.
+  ScalarOperator(const ScalarOperator &other);
+  ScalarOperator(ScalarOperator &other);
+  ScalarOperator(ScalarOperator &&other);
+
+  ~ScalarOperator() = default;
 };
 
 ScalarOperator operator+(ScalarOperator self, std::complex<double> other);
