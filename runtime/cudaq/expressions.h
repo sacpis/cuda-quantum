@@ -77,6 +77,15 @@ public:
 
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);
+  static ElementaryOperator annihilate(int degree);
+  static ElementaryOperator create(int degree);
+  static ElementaryOperator momentum(int degree);
+  static ElementaryOperator number(int degree);
+  static ElementaryOperator parity(int degree);
+  static ElementaryOperator position(int degree);
+  static ElementaryOperator squeeze(int degree, std::complex<double> amplitude);
+  static ElementaryOperator displace(int degree,
+                                     std::complex<double> amplitude);
 
   /// @brief Adds the definition of an elementary operator with the given id to
   /// the class. After definition, an the defined elementary operator can be

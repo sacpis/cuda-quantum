@@ -72,6 +72,9 @@ public:
   /// @brief Check for equality between two complex matrices.
   bool operator==(complex_matrix &other);
 
+  /// @brief Return the exponential of the matrix.
+  complex_matrix exp() const;
+
   /// @brief Return the minimal eigenvalue for this matrix.
   value_type minimal_eigenvalue() const;
 

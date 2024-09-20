@@ -12,6 +12,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#include <unsupported/Eigen/MatrixFunctions>
+
 namespace cudaq {
 
 /// @brief Hash function for an Eigen::MatrixXcd
@@ -160,6 +162,15 @@ complex_matrix complex_matrix::eigenvectors() const {
 
 complex_matrix::value_type complex_matrix::minimal_eigenvalue() const {
   return eigenvalues()[0];
+}
+
+complex_matrix complex_matrix::exp() const {
+  Eigen::Map<Eigen::MatrixXcd> _self(internalData, nRows, nCols);
+
+  Eigen::MatrixXcd ret = _self.exp();
+  complex_matrix copy(ret.rows(), ret.cols());
+  std::memcpy(copy.data(), ret.data(), sizeof(value_type) * ret.size());
+  return copy;
 }
 
 } // namespace cudaq
