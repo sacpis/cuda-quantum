@@ -1,5 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
+ * All rights reserved.                                                        *
+ *                                                                             *
+ * This source code and the accompanying materials are made available under    *
+ * the terms of the Apache License 2.0 which accompanies this distribution.    *
+ ******************************************************************************/
+
 #include "cudaq/expressions.h"
-// #include "cudaq/definition.h"
 #include "common/EigenDense.h"
 
 #include <iostream>
@@ -24,9 +31,6 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   std::string op_id = "identity";
   std::vector<int> degrees = {degree};
   auto op = ElementaryOperator(op_id, degrees);
-  // NOTE: I don't actually think I need this if here because this
-  // is a static method that creates a new ElementaryOperator (which
-  // is what's being checked now) anyways.
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
     auto func = [&](std::vector<int> none, std::vector<Parameter> _none) {
       // Need to set the degree via the op itself because the
@@ -90,7 +94,13 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
 }
 
 ScalarOperator::ScalarOperator(const ScalarOperator &other)
-    : generator(other.generator), m_constant_value(other.m_constant_value) {}
+    // : generator(other.generator), m_constant_value(other.m_constant_value) {}
+{
+  // generator = new scalar_callback_function;
+  generator = other.generator;
+  m_constant_value = other.m_constant_value;
+  std::copy(other.m_parameters.begin(), other.m_parameters.end(), std::back_inserter(m_parameters));
+}
 ScalarOperator::ScalarOperator(ScalarOperator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
 ScalarOperator::ScalarOperator(ScalarOperator &&other)
@@ -101,7 +111,9 @@ ScalarOperator::ScalarOperator(ScalarOperator &&other)
 /// @brief Constructor that just takes and returns a complex double value.
 ScalarOperator::ScalarOperator(std::complex<double> value) {
   m_constant_value = value;
+  std::cout << "\nm_constant_value = " << m_constant_value << "\n";
   auto func = [&](std::vector<std::complex<double>> _none) {
+    std::cout << "\nm_constant_value in fn call = " << m_constant_value << "\n";
     return m_constant_value;
   };
   generator = scalar_callback_function(func);
@@ -113,6 +125,38 @@ ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
 }
 
 // Arithmetic Operations.
+ScalarOperator operator+(std::complex<double> other, ScalarOperator &self) {
+  // Create an operator for the complex double value.
+  auto otherOperator = ScalarOperator(other);
+
+  // Create an operator that we will store the result in and return to
+  // the user.
+  ScalarOperator returnOperator;
+
+  // Store the previous generator functions in the new operator.
+  // This is needed as the old generator functions would effectively be
+  // lost once we leave this function scope.
+  returnOperator._operators_to_compose.push_back(self);
+  returnOperator._operators_to_compose.push_back(otherOperator);
+
+  /// FIXME: For right now, we will merge the arguments vector into one larger
+  /// vector.
+  // I think it should ideally take multiple arguments, however, in the order
+  // that the arithmetic was applied. I.e, allow someone to keep each vector for
+  // each generator packed up individually instead of concatenating them.
+  // So if they had two generator functions that took parameter vectors, now
+  // they would have two arguments to this new generator function.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// NOTE: This fails the unit test if I reverse the order of the evaluate
+    /// calls???
+    return returnOperator._operators_to_compose[0].evaluate(selfParams) +
+           returnOperator._operators_to_compose[1].evaluate({});
+  };
+
+  returnOperator.generator = scalar_callback_function(newGenerator);
+  return returnOperator;
+}
+
 ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
@@ -137,36 +181,6 @@ ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
     return returnOperator._operators_to_compose[0].evaluate(selfParams) +
            returnOperator._operators_to_compose[1].evaluate({});
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator+(std::complex<double> other, ScalarOperator &self) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].evaluate({}) +
-           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
@@ -285,9 +299,22 @@ ScalarOperator operator*(std::complex<double> other, ScalarOperator &self) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    // std::cout << "\n\nfirst value = " <<
+    // returnOperator._operators_to_compose[1].evaluate({}) << "\n"; std::cout
+    // << "second value = " <<
+    // returnOperator._operators_to_compose[0].evaluate(selfParams) << "\n";
+    // std::cout << "product = " <<
+    // returnOperator._operators_to_compose[1].evaluate({}) *
+    // returnOperator._operators_to_compose[0].evaluate(selfParams) << "\n\n\n";
+    std::cout << "\naccessing via evaluate = "
+              << returnOperator._operators_to_compose[1].evaluate({}) << "\n";
+    std::cout << "\naccessing via generator = "
+              << returnOperator._operators_to_compose[1].generator({}) << "\n";
     return returnOperator._operators_to_compose[1].evaluate({}) *
            returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
+
+  // newGenerator({});
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;

@@ -1,8 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
+ * All rights reserved.                                                        *
+ *                                                                             *
+ * This source code and the accompanying materials are made available under    *
+ * the terms of the Apache License 2.0 which accompanies this distribution.    *
+ ******************************************************************************/
+
 #include "cudaq/qis/state.h"
 #include "definition.h"
 #include "matrix.h"
 
 #include <functional>
+#include <iostream>
 #include <map>
 
 namespace cudaq {
@@ -134,6 +143,10 @@ private:
   // If someone gave us a constant value, we will just return that
   // directly to them when they call `evaluate`.
   std::complex<double> m_constant_value;
+  /// FIXME: For some reason, the existence of this parameter
+  /// is the only thing keeping the memory of `m_constant_value` from
+  /// being scrambled in our arithmetic operations???
+  std::vector<std::complex<double>> m_parameters;
 
 public:
   /// @brief Constructor that just takes a callback function with no
@@ -234,9 +247,20 @@ public:
   // Copy constructor.
   ScalarOperator(const ScalarOperator &other);
   ScalarOperator(ScalarOperator &other);
+  // Move constructor.
   ScalarOperator(ScalarOperator &&other);
 
+  ScalarOperator &operator=(ScalarOperator &other) {
+    std::cout << "calling assignment operator\n";
+    generator = other.generator;
+    m_constant_value = other.m_constant_value;
+    return *this;
+  }
+
   ~ScalarOperator() = default;
+
+  // REMOVEME: just using for testing:
+  // std::complex<double> get_val() { return m_constant_value; };
 };
 
 ScalarOperator operator+(ScalarOperator &self, std::complex<double> other);

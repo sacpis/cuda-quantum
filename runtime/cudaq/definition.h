@@ -79,6 +79,11 @@ public:
         "std::vector<std::complex<double>>)");
     _callback_func = std::forward<Callable>(callable);
   }
+  
+  scalar_callback_function& operator=(const scalar_callback_function &other) {
+    _callback_func = std::move(other._callback_func);
+    return *this;
+  }
 
   std::complex<double>
   operator()(std::vector<std::complex<double>> parameters) const {
