@@ -234,12 +234,14 @@ ElementaryOperator::displace(int degree, std::complex<double> amplitude) {
     };
     op.define(op_id, degrees, func);
   }
+  throw std::runtime_error("currently have a bug in implementation.");
   return op;
 }
 
-// ElementaryOperator ElementaryOperator::displace(int degree,
-// std::complex<double> amplitude); ElementaryOperator
-// ElementaryOperator::squeeze(int degree, std::complex<double> amplitude);
+ElementaryOperator ElementaryOperator::squeeze(int degree,
+                                               std::complex<double> amplitude) {
+  throw std::runtime_error("Not yet implemented.");
+}
 
 complex_matrix
 ElementaryOperator::to_matrix(std::vector<int> degrees,
@@ -261,18 +263,17 @@ ElementaryOperator::to_matrix(std::vector<int> degrees,
 }
 
 ScalarOperator::ScalarOperator(const ScalarOperator &other)
-// : generator(other.generator), m_constant_value(other.m_constant_value) {}
-{
-  // generator = new scalar_callback_function;
-  generator = other.generator;
-  m_constant_value = other.m_constant_value;
-  std::copy(other.m_parameters.begin(), other.m_parameters.end(),
-            std::back_inserter(m_parameters));
-}
+    : generator(other.generator), m_constant_value(other.m_constant_value) {}
 ScalarOperator::ScalarOperator(ScalarOperator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
-ScalarOperator::ScalarOperator(ScalarOperator &&other)
-    : generator(other.generator), m_constant_value(other.m_constant_value) {}
+// ScalarOperator::ScalarOperator(ScalarOperator &&other)
+//     : generator(other.generator), m_constant_value(other.m_constant_value) {}
+
+ScalarOperator& ScalarOperator::operator=(ScalarOperator &other) {
+  generator = other.generator;
+  m_constant_value = other.m_constant_value;
+  return *this;
+}
 
 /// @FIXME: The below function signature can be updated once
 /// we support generalized function arguments.
@@ -293,7 +294,7 @@ ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
 }
 
 // Arithmetic Operations.
-ScalarOperator operator+(std::complex<double> other, ScalarOperator &self) {
+ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -347,8 +348,8 @@ ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   // So if they had two generator functions that took parameter vectors, now
   // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[0].evaluate(selfParams) +
-           returnOperator._operators_to_compose[1].evaluate({});
+    return returnOperator._operators_to_compose[1].evaluate({}) +
+           returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);

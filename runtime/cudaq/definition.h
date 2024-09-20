@@ -13,6 +13,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <iostream>
 
 namespace cudaq {
 
@@ -40,6 +41,7 @@ public:
 
   template <typename Callable>
   callback_function(Callable &&callable) {
+    std::cout << "in callback constructor\n";
     static_assert(std::is_invocable_r_v<ReturnType, Callable, std::vector<int>,
                                         std::vector<Parameter>>,
                   "Invalid callback function. Must have signature ReturnType("
@@ -72,6 +74,7 @@ public:
 
   template <typename Callable>
   scalar_callback_function(Callable &&callable) {
+    // std::cout << "in scalar callback constructor\n";
     static_assert(
         std::is_invocable_r_v<std::complex<double>, Callable,
                               std::vector<std::complex<double>>>,
@@ -80,13 +83,18 @@ public:
     _callback_func = std::forward<Callable>(callable);
   }
 
-  scalar_callback_function &operator=(const scalar_callback_function &other) {
-    _callback_func = std::move(other._callback_func);
-    return *this;
+  // Copy constructor.
+  scalar_callback_function(scalar_callback_function &other) {
+    _callback_func = other._callback_func;
+  }
+
+  scalar_callback_function(const scalar_callback_function &other) {
+    _callback_func = other._callback_func;
   }
 
   std::complex<double>
   operator()(std::vector<std::complex<double>> parameters) const {
+    std::cout << "calling callback function\n";
     return _callback_func(std::move(parameters));
   }
 };

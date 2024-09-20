@@ -75,6 +75,7 @@ public:
   complex_matrix to_matrix(std::vector<int> degrees,
                            std::vector<Parameter> parameters);
 
+  // Predefined operators.
   static ElementaryOperator identity(int degree);
   static ElementaryOperator zero(int degree);
   static ElementaryOperator annihilate(int degree);
@@ -151,18 +152,14 @@ class ScalarOperator : public ProductOperator {
 private:
   // If someone gave us a constant value, we will just return that
   // directly to them when they call `evaluate`.
-  std::complex<double> m_constant_value;
-  /// FIXME: For some reason, the existence of this parameter
-  /// is the only thing keeping the memory of `m_constant_value` from
-  /// being scrambled in our arithmetic operations???
-  std::vector<std::complex<double>> m_parameters;
+  std::complex<double> m_constant_value = 0.0;
 
 public:
   /// @brief Constructor that just takes a callback function with no
   /// arguments.
   template <typename Callable>
   ScalarOperator(Callable &&create) {
-    generator = scalar_callback_function(create);
+    // generator = scalar_callback_function(create);
   }
 
   /// @brief Constructor that just takes and returns a complex double value.
@@ -256,15 +253,8 @@ public:
   // Copy constructor.
   ScalarOperator(const ScalarOperator &other);
   ScalarOperator(ScalarOperator &other);
-  // Move constructor.
-  ScalarOperator(ScalarOperator &&other);
 
-  ScalarOperator &operator=(ScalarOperator &other) {
-    std::cout << "calling assignment operator\n";
-    generator = other.generator;
-    m_constant_value = other.m_constant_value;
-    return *this;
-  }
+  ScalarOperator &operator=(ScalarOperator &other);
 
   ~ScalarOperator() = default;
 
@@ -276,7 +266,7 @@ ScalarOperator operator+(ScalarOperator &self, std::complex<double> other);
 ScalarOperator operator-(ScalarOperator &self, std::complex<double> other);
 ScalarOperator operator*(ScalarOperator &self, std::complex<double> other);
 ScalarOperator operator/(ScalarOperator &self, std::complex<double> other);
-ScalarOperator operator+(std::complex<double> other, ScalarOperator &self);
+ScalarOperator operator+(std::complex<double> other, ScalarOperator self);
 ScalarOperator operator-(std::complex<double> other, ScalarOperator &self);
 ScalarOperator operator*(std::complex<double> other, ScalarOperator &self);
 ScalarOperator operator/(std::complex<double> other, ScalarOperator &self);
