@@ -152,7 +152,7 @@ class ScalarOperator : public ProductOperator {
 private:
   // If someone gave us a constant value, we will just return that
   // directly to them when they call `evaluate`.
-  std::complex<double> m_constant_value = 0.0;
+  std::complex<double> m_constant_value;
 
 public:
   /// @brief Constructor that just takes a callback function with no
@@ -239,10 +239,6 @@ public:
   /// and returns a number.
   scalar_callback_function generator;
 
-  /// NOTE: All of the below shouldn't be used by the user, but are needed to
-  /// perform arithmetic operations. Maybe there's a cleaner way to keep the
-  /// user from using them.
-
   // Only populated when we've performed arithmetic between various
   // scalar operators.
   std::vector<ScalarOperator> _operators_to_compose;
@@ -258,18 +254,18 @@ public:
 
   ~ScalarOperator() = default;
 
-  // REMOVEME: just using for testing:
-  // std::complex<double> get_val() { return m_constant_value; };
+  // REMOVEME: just using this as a temporary patch:
+  std::complex<double> get_val() { return m_constant_value; };
 };
 
-ScalarOperator operator+(ScalarOperator &self, std::complex<double> other);
-ScalarOperator operator-(ScalarOperator &self, std::complex<double> other);
-ScalarOperator operator*(ScalarOperator &self, std::complex<double> other);
-ScalarOperator operator/(ScalarOperator &self, std::complex<double> other);
+ScalarOperator operator+(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator-(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator*(ScalarOperator self, std::complex<double> other);
+ScalarOperator operator/(ScalarOperator self, std::complex<double> other);
 ScalarOperator operator+(std::complex<double> other, ScalarOperator self);
-ScalarOperator operator-(std::complex<double> other, ScalarOperator &self);
-ScalarOperator operator*(std::complex<double> other, ScalarOperator &self);
-ScalarOperator operator/(std::complex<double> other, ScalarOperator &self);
+ScalarOperator operator-(std::complex<double> other, ScalarOperator self);
+ScalarOperator operator*(std::complex<double> other, ScalarOperator self);
+ScalarOperator operator/(std::complex<double> other, ScalarOperator self);
 void operator+=(ScalarOperator &self, std::complex<double> other);
 void operator-=(ScalarOperator &self, std::complex<double> other);
 void operator*=(ScalarOperator &self, std::complex<double> other);

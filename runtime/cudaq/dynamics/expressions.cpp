@@ -266,23 +266,17 @@ ScalarOperator::ScalarOperator(const ScalarOperator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
 ScalarOperator::ScalarOperator(ScalarOperator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
-// ScalarOperator::ScalarOperator(ScalarOperator &&other)
-//     : generator(other.generator), m_constant_value(other.m_constant_value) {}
 
-ScalarOperator& ScalarOperator::operator=(ScalarOperator &other) {
+ScalarOperator &ScalarOperator::operator=(ScalarOperator &other) {
   generator = other.generator;
   m_constant_value = other.m_constant_value;
   return *this;
 }
 
-/// @FIXME: The below function signature can be updated once
-/// we support generalized function arguments.
 /// @brief Constructor that just takes and returns a complex double value.
 ScalarOperator::ScalarOperator(std::complex<double> value) {
   m_constant_value = value;
-  std::cout << "\nm_constant_value = " << m_constant_value << "\n";
   auto func = [&](std::vector<std::complex<double>> _none) {
-    std::cout << "\nm_constant_value in fn call = " << m_constant_value << "\n";
     return m_constant_value;
   };
   generator = scalar_callback_function(func);
@@ -308,25 +302,19 @@ ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// NOTE: This fails the unit test if I reverse the order of the evaluate
-    /// calls???
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return returnOperator._operators_to_compose[0].evaluate(selfParams) +
-           returnOperator._operators_to_compose[1].evaluate({});
+           returnOperator._operators_to_compose[1].get_val();
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
+ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -340,15 +328,11 @@ ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].evaluate({}) +
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
+    return returnOperator._operators_to_compose[1].get_val() +
            returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
@@ -356,7 +340,7 @@ ScalarOperator operator+(ScalarOperator &self, std::complex<double> other) {
   return returnOperator;
 }
 
-ScalarOperator operator-(ScalarOperator &self, std::complex<double> other) {
+ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -370,23 +354,19 @@ ScalarOperator operator-(ScalarOperator &self, std::complex<double> other) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return returnOperator._operators_to_compose[0].evaluate(selfParams) -
-           returnOperator._operators_to_compose[1].evaluate({});
+           returnOperator._operators_to_compose[1].get_val();
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator-(std::complex<double> other, ScalarOperator &self) {
+ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -400,15 +380,11 @@ ScalarOperator operator-(std::complex<double> other, ScalarOperator &self) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].evaluate({}) -
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
+    return returnOperator._operators_to_compose[1].get_val() -
            returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
@@ -416,7 +392,7 @@ ScalarOperator operator-(std::complex<double> other, ScalarOperator &self) {
   return returnOperator;
 }
 
-ScalarOperator operator*(ScalarOperator &self, std::complex<double> other) {
+ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -430,23 +406,19 @@ ScalarOperator operator*(ScalarOperator &self, std::complex<double> other) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return returnOperator._operators_to_compose[0].evaluate(selfParams) *
-           returnOperator._operators_to_compose[1].evaluate({});
+           returnOperator._operators_to_compose[1].get_val();
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator*(std::complex<double> other, ScalarOperator &self) {
+ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -460,36 +432,19 @@ ScalarOperator operator*(std::complex<double> other, ScalarOperator &self) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    // std::cout << "\n\nfirst value = " <<
-    // returnOperator._operators_to_compose[1].evaluate({}) << "\n"; std::cout
-    // << "second value = " <<
-    // returnOperator._operators_to_compose[0].evaluate(selfParams) << "\n";
-    // std::cout << "product = " <<
-    // returnOperator._operators_to_compose[1].evaluate({}) *
-    // returnOperator._operators_to_compose[0].evaluate(selfParams) << "\n\n\n";
-    std::cout << "\naccessing via evaluate = "
-              << returnOperator._operators_to_compose[1].evaluate({}) << "\n";
-    std::cout << "\naccessing via generator = "
-              << returnOperator._operators_to_compose[1].generator({}) << "\n";
-    return returnOperator._operators_to_compose[1].evaluate({}) *
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
+    return returnOperator._operators_to_compose[1].get_val() *
            returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
-  // newGenerator({});
-
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator/(ScalarOperator &self, std::complex<double> other) {
+ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -503,23 +458,19 @@ ScalarOperator operator/(ScalarOperator &self, std::complex<double> other) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return returnOperator._operators_to_compose[0].evaluate(selfParams) /
-           returnOperator._operators_to_compose[1].evaluate({});
+           returnOperator._operators_to_compose[1].get_val();
   };
 
   returnOperator.generator = scalar_callback_function(newGenerator);
   return returnOperator;
 }
 
-ScalarOperator operator/(std::complex<double> other, ScalarOperator &self) {
+ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
   // Create an operator for the complex double value.
   auto otherOperator = ScalarOperator(other);
 
@@ -533,15 +484,11 @@ ScalarOperator operator/(std::complex<double> other, ScalarOperator &self) {
   returnOperator._operators_to_compose.push_back(self);
   returnOperator._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    return returnOperator._operators_to_compose[1].evaluate({}) /
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
+    return returnOperator._operators_to_compose[1].get_val() /
            returnOperator._operators_to_compose[0].evaluate(selfParams);
   };
 
@@ -562,16 +509,12 @@ void operator+=(ScalarOperator &self, std::complex<double> other) {
   self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return self._operators_to_compose[0].evaluate(selfParams) +
-           self._operators_to_compose[1].evaluate({});
+           self._operators_to_compose[1].get_val();
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -590,16 +533,12 @@ void operator-=(ScalarOperator &self, std::complex<double> other) {
   self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return self._operators_to_compose[0].evaluate(selfParams) -
-           self._operators_to_compose[1].evaluate({});
+           self._operators_to_compose[1].get_val();
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -618,16 +557,12 @@ void operator*=(ScalarOperator &self, std::complex<double> other) {
   self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return self._operators_to_compose[0].evaluate(selfParams) *
-           self._operators_to_compose[1].evaluate({});
+           self._operators_to_compose[1].get_val();
   };
 
   self.generator = scalar_callback_function(newGenerator);
@@ -646,16 +581,12 @@ void operator/=(ScalarOperator &self, std::complex<double> other) {
   self._operators_to_compose.push_back(copy);
   self._operators_to_compose.push_back(otherOperator);
 
-  /// FIXME: For right now, we will merge the arguments vector into one larger
-  /// vector.
-  // I think it should ideally take multiple arguments, however, in the order
-  // that the arithmetic was applied. I.e, allow someone to keep each vector for
-  // each generator packed up individually instead of concatenating them.
-  // So if they had two generator functions that took parameter vectors, now
-  // they would have two arguments to this new generator function.
   auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
+    /// FIXME: I have to use this hacky `.get_val()` on the newly created
+    /// operator for the given complex double -- because calling the evaluate
+    /// function returns 0.0 . I have no clue why???
     return self._operators_to_compose[0].evaluate(selfParams) /
-           self._operators_to_compose[1].evaluate({});
+           self._operators_to_compose[1].get_val();
   };
 
   self.generator = scalar_callback_function(newGenerator);
