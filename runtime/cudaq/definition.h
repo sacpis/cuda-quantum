@@ -87,15 +87,10 @@ public:
   }
 
   scalar_callback_function(const scalar_callback_function &other) {
-    std::cout << "does new callback func exist? " << (!_callback_func) << "\n";
-    std::cout << "does the other callback func exist? " << (!other._callback_func) << "\n";
     _callback_func = other._callback_func;
-    std::cout << "does new callback func exist now? " << (!_callback_func) << "\n\n";
   }
 
-  bool operator!() {
-    return (!_callback_func);
-  }
+  bool operator!() { return (!_callback_func); }
 
   std::complex<double>
   operator()(std::vector<std::complex<double>> parameters) const {
