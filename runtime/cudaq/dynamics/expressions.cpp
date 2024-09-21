@@ -274,14 +274,104 @@ ScalarOperator::ScalarOperator(std::complex<double> value) {
 
 std::complex<double>
 ScalarOperator::evaluate(std::vector<std::complex<double>> parameters) {
+  /// TODO: throw an error if someone is supposed to call the merged
+  // generator instead of this one.
   return generator(parameters);
 }
 
-// Arithmetic Operations.
-ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
+std::complex<double>
+ScalarOperator::evaluate(std::vector<std::complex<double>> selfParameters,
+                         std::vector<std::complex<double>> otherParameters) {
+  return generator(selfParameters, otherParameters);
+}
 
+#define ARITHMETIC_OPERATIONS_DOUBLES(op)                                      \
+  ScalarOperator operator op(std::complex<double> other,                       \
+                             ScalarOperator self) {                            \
+    /* Create an operator for the complex double value. */                     \
+    auto otherOperator = ScalarOperator(other);                                \
+    /* Create an operator that we will store the result in and return to the   \
+     * user. */                                                                \
+    ScalarOperator returnOperator;                                             \
+    /* Store the previous generator functions in the new operator. This is     \
+     * needed as the old generator functions would effectively be lost once we \
+     * leave this function scope. */                                           \
+    returnOperator._operators_to_compose.push_back(self);                      \
+    returnOperator._operators_to_compose.push_back(otherOperator);             \
+    auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {    \
+      /* FIXME: I have to use this hacky `.get_val()` on the newly created     \
+       * operator for the given complex double -- because calling the evaluate \
+       * function returns 0.0 . I have no clue why??? */                       \
+      return returnOperator._operators_to_compose[0]                           \
+          .evaluate(selfParams) op returnOperator._operators_to_compose[1]     \
+          .get_val();                                                          \
+    };                                                                         \
+    returnOperator.generator = scalar_callback_function(newGenerator);         \
+    return returnOperator;                                                     \
+  }
+
+#define ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(op)                              \
+  ScalarOperator operator op(ScalarOperator self,                              \
+                             std::complex<double> other) {                     \
+    /* Create an operator for the complex double value. */                     \
+    auto otherOperator = ScalarOperator(other);                                \
+    /* Create an operator that we will store the result in and return to the   \
+     * user. */                                                                \
+    ScalarOperator returnOperator;                                             \
+    /* Store the previous generator functions in the new operator. This is     \
+     * needed as the old generator functions would effectively be lost once we \
+     * leave this function scope. */                                           \
+    returnOperator._operators_to_compose.push_back(self);                      \
+    returnOperator._operators_to_compose.push_back(otherOperator);             \
+    auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {    \
+      /* FIXME: I have to use this hacky `.get_val()` on the newly created     \
+       * operator for the given complex double -- because calling the evaluate \
+       * function returns 0.0 . I have no clue why??? */                       \
+      return returnOperator._operators_to_compose[1]                           \
+          .get_val() op returnOperator._operators_to_compose[0]                \
+          .evaluate(selfParams);                                               \
+    };                                                                         \
+    returnOperator.generator = scalar_callback_function(newGenerator);         \
+    return returnOperator;                                                     \
+  }
+
+#define ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(op)                           \
+  void operator op(ScalarOperator &self, std::complex<double> other) {         \
+    /* Create an operator for the complex double value. */                     \
+    auto otherOperator = ScalarOperator(other);                                \
+    /* Need to move the existing generating function to a new operator so that \
+     * we can modify the generator in `self` in-place. */                      \
+    ScalarOperator copy(self);                                                 \
+    /* Store the previous generator functions in the new operator. This is     \
+     * needed as the old generator functions would effectively be lost once we \
+     * leave this function scope. */                                           \
+    self._operators_to_compose.push_back(copy);                                \
+    self._operators_to_compose.push_back(otherOperator);                       \
+    auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {    \
+      /* FIXME: I have to use this hacky `.get_val()` on the newly created     \
+       * operator for the given complex double -- because calling the evaluate \
+       * function returns 0.0 . I have no clue why??? */                       \
+      return self._operators_to_compose[0]                                     \
+          .evaluate(selfParams) op self._operators_to_compose[1]               \
+          .get_val();                                                          \
+    };                                                                         \
+    self.generator = scalar_callback_function(newGenerator);                   \
+  }
+
+ARITHMETIC_OPERATIONS_DOUBLES(+);
+ARITHMETIC_OPERATIONS_DOUBLES(-);
+ARITHMETIC_OPERATIONS_DOUBLES(*);
+ARITHMETIC_OPERATIONS_DOUBLES(/);
+ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(+);
+ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(-);
+ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(*);
+ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(/);
+ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(+=);
+ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(-=);
+ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(*=);
+ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
+
+ScalarOperator ScalarOperator::operator+(ScalarOperator other) {
   // Create an operator that we will store the result in and return to
   // the user.
   ScalarOperator returnOperator;
@@ -289,25 +379,26 @@ ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
+  returnOperator._operators_to_compose.push_back(*this);
+  returnOperator._operators_to_compose.push_back(other);
 
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
+  /// TODO: Need to be able to handle two arguments to this function now
+  /// since we will have merged two generators. This will require modification
+  /// to the scalar callback function class.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams,
+                          std::vector<std::complex<double>> otherParams) {
     return returnOperator._operators_to_compose[0].evaluate(selfParams) +
-           returnOperator._operators_to_compose[1].get_val();
+           returnOperator._operators_to_compose[1].evaluate(otherParams);
   };
 
-  returnOperator.generator = scalar_callback_function(newGenerator);
+  auto newCallbackFunction = scalar_callback_function();
+  newCallbackFunction.define_merged(newGenerator);
+
+  returnOperator.generator = scalar_callback_function(newCallbackFunction);
   return returnOperator;
 }
 
-ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
+ScalarOperator ScalarOperator::operator-(ScalarOperator other) {
   // Create an operator that we will store the result in and return to
   // the user.
   ScalarOperator returnOperator;
@@ -315,271 +406,31 @@ ScalarOperator operator+(ScalarOperator self, std::complex<double> other) {
   // Store the previous generator functions in the new operator.
   // This is needed as the old generator functions would effectively be
   // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
+  returnOperator._operators_to_compose.push_back(*this);
+  returnOperator._operators_to_compose.push_back(other);
 
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[1].get_val() +
-           returnOperator._operators_to_compose[0].evaluate(selfParams);
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator-(ScalarOperator self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
+  /// TODO: Need to be able to handle two arguments to this function now
+  /// since we will have merged two generators. This will require modification
+  /// to the scalar callback function class.
+  auto newGenerator = [&](std::vector<std::complex<double>> selfParams,
+                          std::vector<std::complex<double>> otherParams) {
     return returnOperator._operators_to_compose[0].evaluate(selfParams) -
-           returnOperator._operators_to_compose[1].get_val();
+           returnOperator._operators_to_compose[1].evaluate(otherParams);
   };
 
-  returnOperator.generator = scalar_callback_function(newGenerator);
+  auto newCallbackFunction = scalar_callback_function();
+  newCallbackFunction.define_merged(newGenerator);
+
+  returnOperator.generator = scalar_callback_function(newCallbackFunction);
   return returnOperator;
 }
 
-ScalarOperator operator-(std::complex<double> other, ScalarOperator self) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[1].get_val() -
-           returnOperator._operators_to_compose[0].evaluate(selfParams);
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator*(ScalarOperator self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[0].evaluate(selfParams) *
-           returnOperator._operators_to_compose[1].get_val();
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator*(std::complex<double> other, ScalarOperator self) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[1].get_val() *
-           returnOperator._operators_to_compose[0].evaluate(selfParams);
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator/(ScalarOperator self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[0].evaluate(selfParams) /
-           returnOperator._operators_to_compose[1].get_val();
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-ScalarOperator operator/(std::complex<double> other, ScalarOperator self) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(self);
-  returnOperator._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return returnOperator._operators_to_compose[1].get_val() /
-           returnOperator._operators_to_compose[0].evaluate(selfParams);
-  };
-
-  returnOperator.generator = scalar_callback_function(newGenerator);
-  return returnOperator;
-}
-
-void operator+=(ScalarOperator &self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-  // Need to move the existing generating function to a new
-  // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator copy(self);
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  self._operators_to_compose.push_back(copy);
-  self._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return self._operators_to_compose[0].evaluate(selfParams) +
-           self._operators_to_compose[1].get_val();
-  };
-
-  self.generator = scalar_callback_function(newGenerator);
-}
-
-void operator-=(ScalarOperator &self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-  // Need to move the existing generating function to a new
-  // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator copy(self);
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  self._operators_to_compose.push_back(copy);
-  self._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return self._operators_to_compose[0].evaluate(selfParams) -
-           self._operators_to_compose[1].get_val();
-  };
-
-  self.generator = scalar_callback_function(newGenerator);
-}
-
-void operator*=(ScalarOperator &self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-  // Need to move the existing generating function to a new
-  // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator copy(self);
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  self._operators_to_compose.push_back(copy);
-  self._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return self._operators_to_compose[0].evaluate(selfParams) *
-           self._operators_to_compose[1].get_val();
-  };
-
-  self.generator = scalar_callback_function(newGenerator);
-}
-
-void operator/=(ScalarOperator &self, std::complex<double> other) {
-  // Create an operator for the complex double value.
-  auto otherOperator = ScalarOperator(other);
-  // Need to move the existing generating function to a new
-  // operator so that we can modify the generator in `self` in-place.
-  ScalarOperator copy(self);
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  self._operators_to_compose.push_back(copy);
-  self._operators_to_compose.push_back(otherOperator);
-
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams) {
-    /// FIXME: I have to use this hacky `.get_val()` on the newly created
-    /// operator for the given complex double -- because calling the evaluate
-    /// function returns 0.0 . I have no clue why???
-    return self._operators_to_compose[0].evaluate(selfParams) /
-           self._operators_to_compose[1].get_val();
-  };
-
-  self.generator = scalar_callback_function(newGenerator);
-}
+// ScalarOperator operator-(ScalarOperator other);
+// ScalarOperator operator+=(ScalarOperator other);
+// ScalarOperator operator-=(ScalarOperator other);
+// ScalarOperator operator*(ScalarOperator other);
+// ScalarOperator operator*=(ScalarOperator other);
+// ScalarOperator operator/(ScalarOperator other);
+// ScalarOperator operator/=(ScalarOperator other);
 
 } // namespace cudaq

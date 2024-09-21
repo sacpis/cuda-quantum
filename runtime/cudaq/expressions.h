@@ -230,6 +230,15 @@ public:
   /// @brief Return the scalar operator as a concrete complex value.
   std::complex<double> evaluate(std::vector<std::complex<double>> parameters);
 
+  /// FIXME: Likely not the best long term solution, but a viable short
+  /// term patch.
+  /// @brief Return the scalar operator as a concrete complex value.
+  /// This call is used when the ScalarOperator has been composed of
+  /// arithmetic between two other scalar operators.
+  std::complex<double>
+  evaluate(std::vector<std::complex<double>> selfParameters,
+           std::vector<std::complex<double>> otherParameters);
+
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.
   // bool operator==(ScalarOperator other);

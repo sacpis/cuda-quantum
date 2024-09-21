@@ -61,12 +61,16 @@ public:
 using ScalarFunc =
     std::function<std::complex<double>(std::vector<std::complex<double>>)>;
 
+using MergedScalarFunc = std::function<std::complex<double>(
+    std::vector<std::complex<double>>, std::vector<std::complex<double>>)>;
+
 // A scalar callback function does not need to accept the dimensions,
 // therefore we will use a different function type for this specific class.
 class scalar_callback_function : callback_function {
 private:
   // The user provided callback function that takes a vector of parameters.
   ScalarFunc _callback_func;
+  MergedScalarFunc _merged_callback_func;
 
 public:
   scalar_callback_function() = default;
@@ -84,17 +88,31 @@ public:
   // Copy constructor.
   scalar_callback_function(scalar_callback_function &other) {
     _callback_func = other._callback_func;
+    _merged_callback_func = other._merged_callback_func;
   }
 
   scalar_callback_function(const scalar_callback_function &other) {
     _callback_func = other._callback_func;
+    _merged_callback_func = other._merged_callback_func;
   }
 
   bool operator!() { return (!_callback_func); }
 
+  template <typename Callable>
+  void define_merged(Callable &&callable) {
+    _merged_callback_func = std::forward<Callable>(callable);
+  }
+
   std::complex<double>
   operator()(std::vector<std::complex<double>> parameters) const {
     return _callback_func(std::move(parameters));
+  }
+
+  std::complex<double>
+  operator()(std::vector<std::complex<double>> selfParameters,
+             std::vector<std::complex<double>> otherParameters) const {
+    return _merged_callback_func(std::move(selfParameters),
+                                 std::move(otherParameters));
   }
 };
 
