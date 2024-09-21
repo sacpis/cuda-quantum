@@ -393,25 +393,26 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
     return returnOperator;                                                     \
   }
 
+/// FIXME: Broken implementation
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(op)                        \
-  void operator op(ScalarOperator other) {               \
+  void operator op(ScalarOperator other) {                                     \
     /* Need to move the existing generating function to a new operator so      \
      * that we can modify the generator in `self` in-place. */                 \
-    ScalarOperator selfCopy(*this);                                             \
+    ScalarOperator selfCopy(*this);                                            \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
-    *this._operators_to_compose.push_back(selfCopy);                            \
-    *this._operators_to_compose.push_back(other);                               \
+    *this._operators_to_compose.push_back(selfCopy);                           \
+    *this._operators_to_compose.push_back(other);                              \
     auto newGenerator = [&](std::vector<std::complex<double>> selfParams,      \
                             std::vector<std::complex<double>> otherParams) {   \
-      return *this._operators_to_compose[0]                                     \
-          .evaluate(selfParams) op self._operators_to_compose[1]               \
-          .evaluate(otherParams);                                              \
+      return *this._operators_to_compose[0]                                    \
+                  .evaluate(selfParams) op self._operators_to_compose[1]       \
+                  .evaluate(otherParams);                                      \
     };                                                                         \
     auto newCallbackFunction = scalar_callback_function();                     \
     newCallbackFunction.define_merged(newGenerator);                           \
-    *this.generator = scalar_callback_function(newCallbackFunction);            \
+    *this.generator = scalar_callback_function(newCallbackFunction);           \
   }
 
 ARITHMETIC_OPERATIONS_SCALAR_OPS(+);
