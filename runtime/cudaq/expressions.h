@@ -157,9 +157,9 @@ private:
 public:
   /// @brief Constructor that just takes a callback function with no
   /// arguments.
-  template <typename Callable>
-  ScalarOperator(Callable &&create) {
-    // generator = scalar_callback_function(create);
+
+  ScalarOperator(scalar_callback_function &&create) {
+    generator = scalar_callback_function(create);
   }
 
   /// @brief Constructor that just takes and returns a complex double value.

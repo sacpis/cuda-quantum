@@ -306,6 +306,15 @@ ScalarOperator operator+(std::complex<double> other, ScalarOperator self) {
     /// FIXME: I have to use this hacky `.get_val()` on the newly created
     /// operator for the given complex double -- because calling the evaluate
     /// function returns 0.0 . I have no clue why???
+    if (!returnOperator._operators_to_compose[0].generator) {
+      // trying to debug a bad function call error that shows up
+      // in certain tests and is probably also the underlying
+      // error with above FIXME
+      throw std::runtime_error("original generator out of scope.\n");
+    }
+    if (!returnOperator._operators_to_compose[1].generator) {
+      throw std::runtime_error("new generator out of scope.\n");
+    }
     return returnOperator._operators_to_compose[0].evaluate(selfParams) +
            returnOperator._operators_to_compose[1].get_val();
   };

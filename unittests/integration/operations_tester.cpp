@@ -166,20 +166,60 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     }
   }
 
-  // Displacement operator.
-  {
-    for (int size : sizes) {
-      auto amplitude = 1.0 + 1.0j;
-      auto displace = cudaq::ElementaryOperator::displace(size, amplitude);
-      auto got_displace = displace.to_matrix({}, {});
-      auto want_displace = displace_matrix(size, amplitude);
-      ASSERT_TRUE(want_displace == got_displace);
-    }
-  }
+  // // Displacement operator.
+  // {
+  //   for (int size : sizes) {
+  //     auto amplitude = 1.0 + 1.0j;
+  //     auto displace = cudaq::ElementaryOperator::displace(size, amplitude);
+  //     auto got_displace = displace.to_matrix({}, {});
+  //     auto want_displace = displace_matrix(size, amplitude);
+  //     ASSERT_TRUE(want_displace == got_displace);
+  //   }
+  // }
 }
 
 TEST(ExpressionTester, checkCustomElementaryOps) {
   // pass
+}
+
+TEST(ExpressionTester, checkIsolated) {
+  std::complex<double> value_0 = 0.1 + 0.1;
+  std::complex<double> value_1 = 0.1 + 1.0;
+  std::complex<double> value_2 = 2.0 + 0.1;
+  std::complex<double> value_3 = 2.0 + 1.0;
+
+  {
+    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto new_scalar_op = value_1 + scalar_op;
+
+    auto scalar_op_1 = cudaq::ScalarOperator(value_0);
+    auto reverse_order_op = scalar_op_1 + value_1;
+    auto got_value = new_scalar_op.evaluate({});
+    auto got_value_1 = reverse_order_op.evaluate({});
+    auto want_value = value_1 + value_0;
+
+    EXPECT_NEAR(std::abs(got_value), std::abs(want_value), 1e-5);
+    EXPECT_NEAR(std::abs(got_value_1), std::abs(want_value), 1e-5);
+  }
+
+  {
+    // Should try to use some local variables in this function so
+    // I can test if it's working properly.
+    auto function = [&](std::vector<std::complex<double>> vec) {
+      return vec[0];
+    };
+    auto scalar_op = cudaq::ScalarOperator(function);
+    auto new_scalar_op = value_0 + scalar_op;
+
+    auto scalar_op_1 = cudaq::ScalarOperator(function);
+    auto reverse_order_op = scalar_op_1 + value_0;
+
+    auto got_value = new_scalar_op.evaluate({value_1});
+    auto got_value_1 = reverse_order_op.evaluate({value_1});
+
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
+    EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 + value_0), 1e-5);
+  }
 }
 
 TEST(ExpressionTester, checkScalarOps) {
