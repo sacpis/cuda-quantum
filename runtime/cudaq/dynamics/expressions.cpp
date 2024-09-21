@@ -371,66 +371,56 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(-=);
 ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(*=);
 ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
 
-ScalarOperator ScalarOperator::operator+(ScalarOperator other) {
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
+#define ARITHMETIC_OPERATIONS_SCALAR_OPS(op)                                   \
+  ScalarOperator ScalarOperator::operator op(ScalarOperator other) {           \
+    /* Create an operator that we will store the result in and return to the   \
+     * user. */                                                                \
+    ScalarOperator returnOperator;                                             \
+    /* Store the previous generator functions in the new operator. This is     \
+     * needed as the old generator functions would effectively be lost once we \
+     * leave this function scope. */                                           \
+    returnOperator._operators_to_compose.push_back(*this);                     \
+    returnOperator._operators_to_compose.push_back(other);                     \
+    auto newGenerator = [&](std::vector<std::complex<double>> selfParams,      \
+                            std::vector<std::complex<double>> otherParams) {   \
+      return returnOperator._operators_to_compose[0]                           \
+          .evaluate(selfParams) op returnOperator._operators_to_compose[1]     \
+          .evaluate(otherParams);                                              \
+    };                                                                         \
+    auto newCallbackFunction = scalar_callback_function();                     \
+    newCallbackFunction.define_merged(newGenerator);                           \
+    returnOperator.generator = scalar_callback_function(newCallbackFunction);  \
+    return returnOperator;                                                     \
+  }
 
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(*this);
-  returnOperator._operators_to_compose.push_back(other);
+#define ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(op)                        \
+  void operator op(ScalarOperator other) {               \
+    /* Need to move the existing generating function to a new operator so      \
+     * that we can modify the generator in `self` in-place. */                 \
+    ScalarOperator selfCopy(*this);                                             \
+    /* Store the previous generator functions in the new operator. This is     \
+     * needed as the old generator functions would effectively be lost once we \
+     * leave this function scope. */                                           \
+    *this._operators_to_compose.push_back(selfCopy);                            \
+    *this._operators_to_compose.push_back(other);                               \
+    auto newGenerator = [&](std::vector<std::complex<double>> selfParams,      \
+                            std::vector<std::complex<double>> otherParams) {   \
+      return *this._operators_to_compose[0]                                     \
+          .evaluate(selfParams) op self._operators_to_compose[1]               \
+          .evaluate(otherParams);                                              \
+    };                                                                         \
+    auto newCallbackFunction = scalar_callback_function();                     \
+    newCallbackFunction.define_merged(newGenerator);                           \
+    *this.generator = scalar_callback_function(newCallbackFunction);            \
+  }
 
-  /// TODO: Need to be able to handle two arguments to this function now
-  /// since we will have merged two generators. This will require modification
-  /// to the scalar callback function class.
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams,
-                          std::vector<std::complex<double>> otherParams) {
-    return returnOperator._operators_to_compose[0].evaluate(selfParams) +
-           returnOperator._operators_to_compose[1].evaluate(otherParams);
-  };
-
-  auto newCallbackFunction = scalar_callback_function();
-  newCallbackFunction.define_merged(newGenerator);
-
-  returnOperator.generator = scalar_callback_function(newCallbackFunction);
-  return returnOperator;
-}
-
-ScalarOperator ScalarOperator::operator-(ScalarOperator other) {
-  // Create an operator that we will store the result in and return to
-  // the user.
-  ScalarOperator returnOperator;
-
-  // Store the previous generator functions in the new operator.
-  // This is needed as the old generator functions would effectively be
-  // lost once we leave this function scope.
-  returnOperator._operators_to_compose.push_back(*this);
-  returnOperator._operators_to_compose.push_back(other);
-
-  /// TODO: Need to be able to handle two arguments to this function now
-  /// since we will have merged two generators. This will require modification
-  /// to the scalar callback function class.
-  auto newGenerator = [&](std::vector<std::complex<double>> selfParams,
-                          std::vector<std::complex<double>> otherParams) {
-    return returnOperator._operators_to_compose[0].evaluate(selfParams) -
-           returnOperator._operators_to_compose[1].evaluate(otherParams);
-  };
-
-  auto newCallbackFunction = scalar_callback_function();
-  newCallbackFunction.define_merged(newGenerator);
-
-  returnOperator.generator = scalar_callback_function(newCallbackFunction);
-  return returnOperator;
-}
-
-// ScalarOperator operator-(ScalarOperator other);
-// ScalarOperator operator+=(ScalarOperator other);
-// ScalarOperator operator-=(ScalarOperator other);
-// ScalarOperator operator*(ScalarOperator other);
-// ScalarOperator operator*=(ScalarOperator other);
-// ScalarOperator operator/(ScalarOperator other);
-// ScalarOperator operator/=(ScalarOperator other);
+ARITHMETIC_OPERATIONS_SCALAR_OPS(+);
+ARITHMETIC_OPERATIONS_SCALAR_OPS(-);
+ARITHMETIC_OPERATIONS_SCALAR_OPS(*);
+ARITHMETIC_OPERATIONS_SCALAR_OPS(/);
+// ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(+=);
+// ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(-=);
+// ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(*=);
+// ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(/=);
 
 } // namespace cudaq
