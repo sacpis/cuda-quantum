@@ -237,6 +237,13 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
   std::complex<double> value_2 = 2.0 + 0.1;
   std::complex<double> value_3 = 2.0 + 1.0;
 
+  auto local_variable = true;
+  auto function = [&](std::vector<std::complex<double>> vec) {
+    if (!local_variable)
+      throw std::runtime_error("Local variable not detected.");
+    return vec[0];
+  };
+
   // + : Constant scalar operator.
   {
     auto scalar_op = cudaq::ScalarOperator(value_0);
@@ -254,12 +261,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // + : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
 
     auto new_scalar_op = value_0 + scalar_op;
@@ -288,12 +289,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // - : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
 
     auto new_scalar_op = value_2 - scalar_op;
@@ -322,12 +317,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // * : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
 
     auto new_scalar_op = value_3 * scalar_op;
@@ -356,12 +345,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // / : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
 
     auto new_scalar_op = value_3 / scalar_op;
@@ -385,12 +368,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // += : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op += value_1;
 
@@ -409,12 +386,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // -= : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op -= value_1;
 
@@ -433,12 +404,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // *= : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op *= value_3;
 
@@ -457,12 +422,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // /= : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op /= value_3;
 
@@ -477,6 +436,13 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   std::complex<double> value_1 = 0.1 + 1.0;
   std::complex<double> value_2 = 2.0 + 0.1;
   std::complex<double> value_3 = 2.0 + 1.0;
+
+  auto local_variable = true;
+  auto function = [&](std::vector<std::complex<double>> vec) {
+    if (!local_variable)
+      throw std::runtime_error("Local variable not detected.");
+    return vec[0];
+  };
 
   // + : Constant scalar operator.
   {
@@ -496,12 +462,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // + : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     auto other_scalar_op = cudaq::ScalarOperator(function);
 
@@ -533,12 +493,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // - : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     auto other_scalar_op = cudaq::ScalarOperator(function);
 
@@ -571,12 +525,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // * : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     auto other_scalar_op = cudaq::ScalarOperator(function);
 
@@ -609,12 +557,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // / : Scalar operator from lambda.
   {
-    auto local_variable = true;
-    auto function = [&](std::vector<std::complex<double>> vec) {
-      if (!local_variable)
-        throw std::runtime_error("Local variable not detected.");
-      return vec[0];
-    };
     auto scalar_op = cudaq::ScalarOperator(function);
     auto other_scalar_op = cudaq::ScalarOperator(function);
 
@@ -640,9 +582,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // // += : Scalar operator from lambda.
   // {
-  //   auto function = [](std::vector<std::complex<double>> vec) {
-  //     return vec[0];
-  //   };
   //   auto scalar_op = cudaq::ScalarOperator(function);
   //   auto other = cudaq::ScalarOperator(value_1);
   //   scalar_op += other;
@@ -668,9 +607,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // // -= : Scalar operator from lambda.
   // {
-  //   auto function = [](std::vector<std::complex<double>> vec) {
-  //     return vec[0];
-  //   };
   //   auto scalar_op = cudaq::ScalarOperator(function);
   //   scalar_op -= value_1;
 
@@ -689,9 +625,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // // *= : Scalar operator from lambda.
   // {
-  //   auto function = [](std::vector<std::complex<double>> vec) {
-  //     return vec[0];
-  //   };
   //   auto scalar_op = cudaq::ScalarOperator(function);
   //   scalar_op *= value_3;
 
@@ -710,9 +643,6 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // // /= : Scalar operator from lambda.
   // {
-  //   auto function = [](std::vector<std::complex<double>> vec) {
-  //     return vec[0];
-  //   };
   //   auto scalar_op = cudaq::ScalarOperator(function);
   //   scalar_op /= value_3;
 
