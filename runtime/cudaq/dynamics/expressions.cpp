@@ -270,7 +270,7 @@ complex_matrix ElementaryOperator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
   std::variant<complex_matrix, std::complex<double>> result =
-      m_ops[id].m_generator(dimensions, parameters);
+      m_ops[id].generator(dimensions, parameters);
 
   if (std::holds_alternative<complex_matrix>(result)) {
     // Move the complex_matrix from the variant, which avoids copying

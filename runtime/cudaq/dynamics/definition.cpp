@@ -22,15 +22,15 @@ Definition::Definition() = default;
 void Definition::create_definition(const std::string &operator_id,
                                    std::map<int, int> expected_dimensions,
                                    callback_function &&create) {
-  m_id = operator_id;
+  id = operator_id;
+  generator = std::move(create);
   m_expected_dimensions = std::move(expected_dimensions);
-  m_generator = std::move(create);
 }
 
 complex_matrix Definition::generate_matrix(
     const std::map<int, int> &degrees,
     const std::map<std::string, std::complex<double>> &parameters) const {
-  return m_generator(degrees, parameters);
+  return generator(degrees, parameters);
 }
 
 Definition::~Definition() = default;

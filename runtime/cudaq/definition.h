@@ -96,10 +96,12 @@ public:
 /// class method.
 class Definition {
 public:
+  std::string id;
+
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
   // `cudaq::complex_matrix` type representing the operator matrix.
-  callback_function m_generator;
+  callback_function generator;
 
   // Constructor.
   Definition();
@@ -118,7 +120,6 @@ public:
 
 private:
   // Member variables
-  std::string m_id;
   std::map<int, int> m_expected_dimensions;
 };
 } // namespace cudaq

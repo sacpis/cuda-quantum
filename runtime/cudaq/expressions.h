@@ -13,14 +13,100 @@
 #include <functional>
 #include <iostream>
 #include <map>
+#include <set>
 
 namespace cudaq {
 
 class OperatorSum;
-class OperatorSum {};
-class ProductOperator : public OperatorSum {};
+class ProductOperator;
 class ScalarOperator;
 class ElementaryOperator;
+
+/// @brief Represents an operator expression consisting of a sum of terms, where
+/// each term is a product of elementary and scalar operators. Operator
+/// expressions cannot be used within quantum kernels, but they provide methods
+/// to convert them to data types that can.
+class OperatorSum {
+private:
+  std::vector<ProductOperator> _terms;
+
+  std::vector<std::tuple<ScalarOperator, ElementaryOperator>>
+  canonicalize_product(const ProductOperator &prod) const;
+
+  std::vector<std::tuple<ScalarOperator, ElementaryOperator>>
+  _canonical_terms() const;
+
+public:
+  /// @brief Construct a `cudaq::OperatorSum` given a sequence of
+  /// `cudaq::ProductOperator`'s.
+  /// This operator expression represents a sum of terms, where each term
+  /// is a product of elementary and scalar operators.
+  OperatorSum(const std::vector<ProductOperator> &terms = {});
+
+  OperatorSum canonicalize() const;
+
+  /// @brief  True, if the other value is an OperatorSum with equivalent terms,
+  /// and False otherwise. The equality takes into account that operator
+  /// addition is commutative, as is the product of two operators if they
+  /// act on different degrees of freedom.
+  /// The equality comparison does *not* take commutation relations into
+  /// account, and does not try to reorder terms blockwise; it may hence
+  /// evaluate to False, even if two operators in reality are the same.
+  /// If the equality evaluates to True, on the other hand, the operators
+  /// are guaranteed to represent the same transformation for all arguments.
+  bool operator==(const OperatorSum &other) const;
+
+  /// @brief The degrees of freedom that the oeprator acts on in canonical
+  /// order.
+  std::vector<int> degrees() const;
+
+  std::map<std::string, std::complex<double>> parameters() const;
+
+  bool _is_spinop() const;
+
+  /// TODO: implement
+  // template<typename TEval>
+  // TEval _evaluate(OperatorArithmetics<TEval> &arithmetics) const;
+
+  /// @brief Return the `OperatorSum` as a matrix.
+  /// @arg `dimensions` : A mapping that specifies the number of levels,
+  ///                      that is, the dimension of each degree of freedom
+  ///                      that the operator acts on. Example for two, 2-level
+  ///                      degrees of freedom: `{0:2, 1:2}`.
+  /// @arg `parameters` : A map of the paramter names to their concrete, complex
+  /// values.
+  complex_matrix
+  to_matrix(const std::map<int, int> &dimensions,
+            const std::map<std::string, double> &params = {}) const;
+
+  // Arithmetic operators
+  OperatorSum operator+(const OperatorSum &other) const;
+  OperatorSum operator-(const OperatorSum &other) const;
+  OperatorSum operator*(const OperatorSum &other) const;
+  OperatorSum operator/(const OperatorSum &other) const;
+  OperatorSum operator+=(const OperatorSum &other);
+  OperatorSum operator-=(const OperatorSum &other);
+
+  OperatorSum operator+(const ScalarOperator &other) const;
+  OperatorSum operator-(const ScalarOperator &other) const;
+  OperatorSum operator+=(const ScalarOperator &other);
+  OperatorSum operator-=(const ScalarOperator &other);
+
+  OperatorSum operator+(const ProductOperator &other) const;
+  OperatorSum operator-(const ProductOperator &other) const;
+  OperatorSum operator+=(const ProductOperator &other);
+  OperatorSum operator-=(const ProductOperator &other);
+
+  OperatorSum operator+(const ElementaryOperator &other) const;
+  OperatorSum operator-(const ElementaryOperator &other) const;
+  OperatorSum operator+=(const ElementaryOperator &other);
+  OperatorSum operator-=(const ElementaryOperator &other);
+
+  /// @brief Return the OperatorSum as a string.
+  std::string to_string() const;
+};
+
+class ProductOperator : public OperatorSum {};
 
 class ElementaryOperator : public ProductOperator {
 private:
@@ -29,10 +115,10 @@ private:
 public:
   // The constructor should never be called directly by the user:
   // Keeping it internally documentd for now, however.
-  // / @brief Constructor.
-  // / @arg operator_id : The ID of the operator as specified when it was
-  // / defined.
-  // / @arg degrees : the degrees of freedom that the operator acts upon.
+  /// @brief Constructor.
+  /// @arg operator_id : The ID of the operator as specified when it was
+  /// defined.
+  /// @arg degrees : the degrees of freedom that the operator acts upon.
   ElementaryOperator(std::string operator_id, std::vector<int> degrees);
 
   // Arithmetic overloads against all other operator types.
@@ -85,6 +171,7 @@ public:
   static ElementaryOperator number(int degree);
   static ElementaryOperator parity(int degree);
   static ElementaryOperator position(int degree);
+  /// FIXME:
   static ElementaryOperator squeeze(int degree, std::complex<double> amplitude);
   static ElementaryOperator displace(int degree,
                                      std::complex<double> amplitude);
@@ -173,6 +260,7 @@ public:
   ScalarOperator operator-(ScalarOperator other);
   ScalarOperator operator*(ScalarOperator other);
   ScalarOperator operator/(ScalarOperator other);
+  /// TODO:
   ScalarOperator pow(ScalarOperator other);
 
   // Implement after scalar operator arithmetic:
@@ -247,116 +335,18 @@ void operator+=(ScalarOperator &self, std::complex<double> other);
 void operator-=(ScalarOperator &self, std::complex<double> other);
 void operator*=(ScalarOperator &self, std::complex<double> other);
 void operator/=(ScalarOperator &self, std::complex<double> other);
-
 void operator+=(ScalarOperator &self, ScalarOperator other);
 void operator-=(ScalarOperator &self, ScalarOperator other);
 void operator*=(ScalarOperator &self, ScalarOperator other);
 void operator/=(ScalarOperator &self, ScalarOperator other);
 
-/// @brief Represents an operator expression consisting of a sum of terms, where
-/// each term is a product of elementary and scalar operators. Operator
-/// expressions cannot be used within quantum kernels, but they provide methods
-/// to convert them to data types that can.
-// class OperatorSum {
-
-// private:
-//   std::vector<ProductOperator> m_terms;
-
-// public:
-//   /// @brief Construct a `cudaq::OperatorSum` given a sequence of
-//   /// `cudaq::ProductOperator`'s.
-//   /// This operator expression represents a sum of terms, where each term
-//   /// is a product of elementary and scalar operators.
-//   OperatorSum(std::vector<ProductOperator> &terms);
-
-//   /// @brief Empty constructor.
-//   OperatorSum();
-
-//   // Arithmetic overloads against all other operator types.
-//   OperatorSum operator+(double other);
-//   OperatorSum operator-(double other);
-//   OperatorSum operator*(double other);
-//   OperatorSum operator+=(double other);
-//   OperatorSum operator-=(double other);
-//   OperatorSum operator*=(double other);
-//   OperatorSum operator+(std::complex<double> other);
-//   OperatorSum operator-(std::complex<double> other);
-//   OperatorSum operator*(std::complex<double> other);
-//   OperatorSum operator+=(std::complex<double> other);
-//   OperatorSum operator-=(std::complex<double> other);
-//   OperatorSum operator*=(std::complex<double> other);
-//   OperatorSum operator+(OperatorSum other);
-//   OperatorSum operator-(OperatorSum other);
-//   OperatorSum operator*(OperatorSum other);
-//   OperatorSum operator+=(OperatorSum other);
-//   OperatorSum operator-=(OperatorSum other);
-//   OperatorSum operator*=(OperatorSum other);
-//   OperatorSum operator+(ScalarOperator other);
-//   OperatorSum operator-(ScalarOperator other);
-//   OperatorSum operator*(ScalarOperator other);
-//   OperatorSum operator+=(ScalarOperator other);
-//   OperatorSum operator-=(ScalarOperator other);
-//   OperatorSum operator*=(ScalarOperator other);
-//   OperatorSum operator+(ProductOperator other);
-//   OperatorSum operator-(ProductOperator other);
-//   OperatorSum operator*(ProductOperator other);
-//   OperatorSum operator+=(ProductOperator other);
-//   OperatorSum operator-=(ProductOperator other);
-//   OperatorSum operator*=(ProductOperator other);
-//   OperatorSum operator+(ElementaryOperator other);
-//   OperatorSum operator-(ElementaryOperator other);
-//   OperatorSum operator*(ElementaryOperator other);
-//   OperatorSum operator+=(ElementaryOperator other);
-//   OperatorSum operator-=(ElementaryOperator other);
-//   OperatorSum operator*=(ElementaryOperator other);
-//   /// @brief  True, if the other value is an OperatorSum with equivalent
-//   terms,
-//   /// and False otherwise. The equality takes into account that operator
-//   /// addition is commutative, as is the product of two operators if they
-//   /// act on different degrees of freedom.
-//   /// The equality comparison does *not* take commutation relations into
-//   /// account, and does not try to reorder terms blockwise; it may hence
-//   /// evaluate to False, even if two operators in reality are the same.
-//   /// If the equality evaluates to True, on the other hand, the operators
-//   /// are guaranteed to represent the same transformation for all arguments.
-//   bool operator==(OperatorSum other);
-
-//   /// @brief Return the OperatorSum as a string.
-//   std::string to_string() const;
-
-//   /// @brief Return the `OperatorSum` as a matrix.
-//   /// @arg `dimensions` : A mapping that specifies the number of levels,
-//   ///                      that is, the dimension of each degree of freedom
-//   ///                      that the operator acts on. Example for two,
-//   2-level
-//   ///                      degrees of freedom: `{0:2, 1:2}`.
-//   /// @arg `parameters` : A map of the paramter names to their concrete,
-//   complex
-//   /// values.
-//   complex_matrix
-//   to_matrix(std::map<int, int> dimensions,
-//             std::map<std::string, std::complex<double>> parameters);
-
-//   /// @brief Creates a representation of the operator as a
-//   `cudaq::pauli_word`
-//   /// that can be passed as an argument to quantum kernels.
-//   pauli_word to_pauli_word();
-
-//   /// Attributes on the class.
-
-//   /// @brief The degrees of freedom that the oeprator acts on in canonical
-//   /// order.
-//   std::vector<int> degrees;
-
-//   /// @brief A map of the paramter names to their concrete, complex values.
-//   std::map<std::string, std::complex<double>> parameters;
-// };
-
-/// @brief Represents an operator expression consisting of a product of
-/// elementary and scalar operators. Operator expressions cannot be used within
-/// quantum kernels, but they provide methods to convert them to data types that
-/// can.
-// class ProductOperator {
+// /// @brief Represents an operator expression consisting of a product of
+// /// elementary and scalar operators. Operator expressions cannot be used
+// within
+// /// quantum kernels, but they provide methods to convert them to data types
+// that
+// /// can.
+// class ProductOperator : public OperatorSum {
 
 //   /// @brief Constructor for an operator expression that represents a product
 //   /// of elementary operators.
@@ -366,97 +356,101 @@ void operator/=(ScalarOperator &self, ScalarOperator other);
 //   ProductOperator(std::vector<ElementaryOperator> atomic_operators);
 
 //   /// @brief Constructor for an operator expression that represents a product
-//   /// of e scalar operators.
+//   /// of scalar and elementary operators.
 //   /// @arg atomic_operators : The operators of which to compute the product
 //   when
 //   ///                         evaluating the operator expression.
-//   ProductOperator(std::vector<ScalarOperator> atomic_operators);
+//   /// @arg scalar_operator : The scalar operators of which to compute the
+//   product when
+//   ///                         evaluating the operator expression.
+//   // ProductOperator(std::vector<ElementaryOperator> atomic_operators,
+//   // std::vector<ScalarOperator> scalar_operators);
 
-//   ProductOperator(std::vector<ElementaryOperator> elementary_operators,
-//   std::vector<ScalarOperator> scalar_operators);
-
-//   // Arithmetic overloads against all other operator types.
-//   OperatorSum operator+(int other);
-//   OperatorSum operator-(int other);
-//   OperatorSum operator+=(int other);
-//   OperatorSum operator-=(int other);
-//   ProductOperator operator*(int other);
-//   ProductOperator operator*=(int other);
-//   OperatorSum operator+(double other);
-//   OperatorSum operator-(double other);
-//   OperatorSum operator+=(double other);
-//   OperatorSum operator-=(double other);
-//   ProductOperator operator*(double other);
-//   ProductOperator operator*=(double other);
-//   OperatorSum operator+(std::complex<double> other);
-//   OperatorSum operator-(std::complex<double> other);
-//   OperatorSum operator+=(dostd::complex<double> other);
-//   OperatorSum operator-=(std::complex<double> other);
-//   ProductOperator operator*(std::complex<double> other);
-//   ProductOperator operator*=(std::complex<double> other);
-//   OperatorSum operator+(OperatorSum other);
-//   OperatorSum operator-(OperatorSum other);
-//   OperatorSum operator+=(OperatorSum other);
-//   OperatorSum operator-=(OperatorSum other);
-//   ProductOperator operator*(OperatorSum other);
-//   ProductOperator operator*=(OperatorSum other);
-//   OperatorSum operator+(ScalarOperator other);
-//   OperatorSum operator-(ScalarOperator other);
-//   OperatorSum operator+=(ScalarOperator other);
-//   OperatorSum operator-=(ScalarOperator other);
-//   ProductOperator operator*(ScalarOperator other);
-//   ProductOperator operator*=(ScalarOperator other);
-//   OperatorSum operator+(ProductOperator other);
-//   OperatorSum operator-(ProductOperator other);
-//   OperatorSum operator+=(ProductOperator other);
-//   OperatorSum operator-=(ProductOperator other);
-//   ProductOperator operator*(ProductOperator other);
-//   ProductOperator operator*=(ProductOperator other);
-//   OperatorSum operator+(ElementaryOperator other);
-//   OperatorSum operator-(ElementaryOperator other);
-//   OperatorSum operator+=(ElementaryOperator other);
-//   OperatorSum operator-=(ElementaryOperator other);
-//   ProductOperator operator*(ElementaryOperator other);
-//   ProductOperator operator*=(ElementaryOperator other);
-//   /// @brief True, if the other value is an OperatorSum with equivalent
+//   // // Arithmetic overloads against all other operator types.
+//   // OperatorSum operator+(int other);
+//   // OperatorSum operator-(int other);
+//   // OperatorSum operator+=(int other);
+//   // OperatorSum operator-=(int other);
+//   // ProductOperator operator*(int other);
+//   // ProductOperator operator*=(int other);
+//   // OperatorSum operator+(double other);
+//   // OperatorSum operator-(double other);
+//   // OperatorSum operator+=(double other);
+//   // OperatorSum operator-=(double other);
+//   // ProductOperator operator*(double other);
+//   // ProductOperator operator*=(double other);
+//   // OperatorSum operator+(std::complex<double> other);
+//   // OperatorSum operator-(std::complex<double> other);
+//   // OperatorSum operator+=(dostd::complex<double> other);
+//   // OperatorSum operator-=(std::complex<double> other);
+//   // ProductOperator operator*(std::complex<double> other);
+//   // ProductOperator operator*=(std::complex<double> other);
+//   // OperatorSum operator+(OperatorSum other);
+//   // OperatorSum operator-(OperatorSum other);
+//   // OperatorSum operator+=(OperatorSum other);
+//   // OperatorSum operator-=(OperatorSum other);
+//   // ProductOperator operator*(OperatorSum other);
+//   // ProductOperator operator*=(OperatorSum other);
+//   // OperatorSum operator+(ScalarOperator other);
+//   // OperatorSum operator-(ScalarOperator other);
+//   // OperatorSum operator+=(ScalarOperator other);
+//   // OperatorSum operator-=(ScalarOperator other);
+//   // ProductOperator operator*(ScalarOperator other);
+//   // ProductOperator operator*=(ScalarOperator other);
+//   // OperatorSum operator+(ProductOperator other);
+//   // OperatorSum operator-(ProductOperator other);
+//   // OperatorSum operator+=(ProductOperator other);
+//   // OperatorSum operator-=(ProductOperator other);
+//   // ProductOperator operator*(ProductOperator other);
+//   // ProductOperator operator*=(ProductOperator other);
+//   // OperatorSum operator+(ElementaryOperator other);
+//   // OperatorSum operator-(ElementaryOperator other);
+//   // OperatorSum operator+=(ElementaryOperator other);
+//   // OperatorSum operator-=(ElementaryOperator other);
+//   // ProductOperator operator*(ElementaryOperator other);
+//   // ProductOperator operator*=(ElementaryOperator other);
+//   // /// @brief True, if the other value is an OperatorSum with equivalent
 //   terms,
-//   ///  and False otherwise. The equality takes into account that operator
-//   ///  addition is commutative, as is the product of two operators if they
-//   ///  act on different degrees of freedom.
-//   ///  The equality comparison does *not* take commutation relations into
-//   ///  account, and does not try to reorder terms blockwise; it may hence
-//   ///  evaluate to False, even if two operators in reality are the same.
-//   ///  If the equality evaluates to True, on the other hand, the operators
-//   ///  are guaranteed to represent the same transformation for all arguments.
-//   bool operator==(ProductOperator other);
+//   // ///  and False otherwise. The equality takes into account that operator
+//   // ///  addition is commutative, as is the product of two operators if they
+//   // ///  act on different degrees of freedom.
+//   // ///  The equality comparison does *not* take commutation relations into
+//   // ///  account, and does not try to reorder terms blockwise; it may hence
+//   // ///  evaluate to False, even if two operators in reality are the same.
+//   // ///  If the equality evaluates to True, on the other hand, the operators
+//   // ///  are guaranteed to represent the same transformation for all
+//   arguments.
+//   // bool operator==(ProductOperator other);
 
-//   /// @brief Return the `ProductOperator` as a string.
-//   std::string to_string() const;
+//   // /// @brief Return the `ProductOperator` as a string.
+//   // std::string to_string() const;
 
-//   /// @brief Return the `OperatorSum` as a matrix.
-//   /// @arg  `dimensions` : A mapping that specifies the number of levels,
-//   ///                      that is, the dimension of each degree of freedom
-//   ///                      that the operator acts on. Example for two,
+//   // /// @brief Return the `OperatorSum` as a matrix.
+//   // /// @arg  `dimensions` : A mapping that specifies the number of levels,
+//   // ///                      that is, the dimension of each degree of
+//   freedom
+//   // ///                      that the operator acts on. Example for two,
 //   2-level
-//   ///                      degrees of freedom: `{0:2, 1:2}`.
-//   /// @arg `parameters` : A map of the paramter names to their concrete,
+//   // ///                      degrees of freedom: `{0:2, 1:2}`.
+//   // /// @arg `parameters` : A map of the paramter names to their concrete,
 //   complex
-//   /// values.
-//   complex_matrix to_matrix(
-//       std::map<int, int> dimensions,
-//       std::map<std::string, std::complex<double>> parameters);
+//   // /// values.
+//   // complex_matrix to_matrix(
+//   //     std::map<int, int> dimensions,
+//   //     std::map<std::string, std::complex<double>> parameters);
 
-//   /// @brief Creates a representation of the operator as a
+//   // /// @brief Creates a representation of the operator as a
 //   `cudaq::pauli_word`
-//   /// that can be passed as an argument to quantum kernels.
-//   pauli_word to_pauli_word();
+//   // /// that can be passed as an argument to quantum kernels.
+//   // // pauli_word to_pauli_word();
 
-//   /// @brief The degrees of freedom that the oeprator acts on in canonical
-//   /// order.
-//   std::vector<int> degrees;
+//   // /// @brief The degrees of freedom that the operator acts on in canonical
+//   // /// order.
+//   // std::vector<int> degrees;
 
-//   /// @brief A map of the paramter names to their concrete, complex values.
-//   std::map<std::string, std::complex<double>> parameters;
+//   // /// @brief A map of the paramter names to their concrete, complex
+//   values.
+//   // std::map<std::string, std::complex<double>> parameters;
 // };
 
 } // namespace cudaq

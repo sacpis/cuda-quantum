@@ -191,6 +191,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   //     ASSERT_TRUE(want_displace == got_displace);
   //   }
   // }
+
+  // TODO: Squeeze operator.
 }
 
 // TEST(ExpressionTester, checkCustomElementaryOps) {
@@ -742,4 +744,35 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
     auto got_value = scalar_op.evaluate({{"value", value_2}});
     EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
   }
+}
+
+TEST(ExpressionTester, checkScalarAgainstElementary) {
+
+  std::complex<double> value_0 = 0.1 + 0.1;
+  std::complex<double> value_1 = 0.1 + 1.0;
+  std::complex<double> value_2 = 2.0 + 0.1;
+  std::complex<double> value_3 = 2.0 + 1.0;
+
+  auto local_variable = true;
+  auto function = [&](std::map<std::string, std::complex<double>> parameters) {
+    if (!local_variable)
+      throw std::runtime_error("Local variable not detected.");
+    return parameters["value"];
+  };
+
+  // Identity against constant.
+  {
+    auto id_op = cudaq::ElementaryOperator::identity(0);
+    auto scalar_op = cudaq::ScalarOperator(value_0);
+
+    // auto addition = scalar_op + id_op;
+    // auto subtraction = scalar_op - id_op;
+    // auto multiplication = scalar_op * id_op;
+  }
+
+  // // Identity against constant from lambda.
+  // {
+  //   auto id_op = cudaq::ElementaryOperator::identity(0);
+  //   auto scalar_op = cudaq::ScalarOperator(function)
+  // }
 }
