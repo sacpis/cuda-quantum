@@ -73,7 +73,7 @@ public:
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0 : 2, 1 : 2}`.
   complex_matrix
-  to_matrix(std::map<int, int> degrees,
+  to_matrix(std::map<int, int> dimensions,
             std::map<std::string, std::complex<double>> parameters);
 
   // Predefined operators.
@@ -123,7 +123,7 @@ public:
       throw;
     }
     auto defn = Definition();
-    defn.create_definition(operator_id, degrees, create);
+    defn.create_definition(operator_id, expected_dimensions, create);
     m_ops[operator_id] = defn;
   }
 

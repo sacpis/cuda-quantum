@@ -107,9 +107,6 @@ public:
   // Destructor.
   ~Definition();
 
-  // Convenience setter. May be able to just move this to the constructor
-  // now that we've restricted the function signature and no longer need
-  // a template on this function.
   void create_definition(const std::string &operator_id,
                          std::map<int, int> expected_dimensions,
                          callback_function &&create);
