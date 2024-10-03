@@ -20,16 +20,16 @@ Definition::Definition() = default;
 
 // Convenience setter
 void Definition::create_definition(const std::string &operator_id,
-                                   std::vector<int> expected_dimensions,
+                                   std::map<int, int> expected_dimensions,
                                    callback_function &&create) {
   m_id = operator_id;
   m_expected_dimensions = std::move(expected_dimensions);
   m_generator = std::move(create);
 }
 
-ReturnType
-Definition::generate_matrix(const std::vector<int> &degrees,
-                            const std::vector<Parameter> &parameters) const {
+complex_matrix Definition::generate_matrix(
+    const std::map<int, int> &degrees,
+    const std::map<std::string, std::complex<double>> &parameters) const {
   return m_generator(degrees, parameters);
 }
 

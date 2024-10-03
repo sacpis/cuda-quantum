@@ -68,12 +68,13 @@ public:
   std::string to_string() const;
 
   /// @brief Return the `ElementaryOperator` as a matrix.
-  /// @arg  `dimensions` : A vector specifying the number of levels,
+  /// @arg  `dimensions` : A map specifying the number of levels,
   ///                      that is, the dimension of each degree of freedom
   ///                      that the operator acts on. Example for two, 2-level
-  ///                      degrees of freedom: `{2,2}`.
-  complex_matrix to_matrix(std::vector<int> degrees,
-                           std::vector<Parameter> parameters);
+  ///                      degrees of freedom: `{0 : 2, 1 : 2}`.
+  complex_matrix
+  to_matrix(std::map<int, int> degrees,
+            std::map<std::string, std::complex<double>> parameters);
 
   // Predefined operators.
   static ElementaryOperator identity(int degree);
@@ -115,7 +116,7 @@ public:
   ///      short), if the operator acts
   ///     on multiple degrees of freedom.
   template <typename Func>
-  void define(std::string operator_id, std::vector<int> expected_dimensions,
+  void define(std::string operator_id, std::map<int, int> expected_dimensions,
               Func create) {
     if (m_ops.find(operator_id) != m_ops.end()) {
       // todo: make a nice error message to say op already exists
@@ -132,7 +133,7 @@ public:
   /// freedom in canonical order that the operator acts on. A value of zero or
   /// less indicates that the operator is defined for any dimension of that
   /// degree.
-  std::vector<int> expected_dimensions;
+  std::map<int, int> expected_dimensions;
   /// @brief The degrees of freedom that the operator acts on in canonical
   /// order.
   std::vector<int> degrees;
@@ -167,47 +168,22 @@ public:
   /// without the need for an extra member function.
   ScalarOperator(std::complex<double> value);
 
-  // Arithmetic overloads against all other operator types.
-  /// TODO: It makes sense to wait to support addition against ints
-  /// and doubles until the callback function can return them. Going
-  /// ahead with just complex values for now.
-  ScalarOperator operator+(int other);
-  ScalarOperator operator-(int other);
-  ScalarOperator operator+=(int other);
-  ScalarOperator operator-=(int other);
-  ScalarOperator operator*(int other);
-  ScalarOperator operator*=(int other);
-  ScalarOperator operator/(int other);
-  ScalarOperator operator/=(int other);
-  ScalarOperator operator+(double other);
-  ScalarOperator operator-(double other);
-  ScalarOperator operator+=(double other);
-  ScalarOperator operator-=(double other);
-  ScalarOperator operator*(double other);
-  ScalarOperator operator*=(double other);
-  ScalarOperator operator/(double other);
-  ScalarOperator operator/=(double other);
-
-  // Implement next:
+  // Arithmetic overloads against other operator types.
   ScalarOperator operator+(ScalarOperator other);
   ScalarOperator operator-(ScalarOperator other);
-  ScalarOperator operator+=(ScalarOperator other);
-  ScalarOperator operator-=(ScalarOperator other);
   ScalarOperator operator*(ScalarOperator other);
-  ScalarOperator operator*=(ScalarOperator other);
   ScalarOperator operator/(ScalarOperator other);
-  ScalarOperator operator/=(ScalarOperator other);
   ScalarOperator pow(ScalarOperator other);
 
   // Implement after scalar operator arithmetic:
   ScalarOperator operator+(ElementaryOperator other);
+  void operator+=(ElementaryOperator other);
   ScalarOperator operator-(ElementaryOperator other);
-  ScalarOperator operator+=(ElementaryOperator other);
-  ScalarOperator operator-=(ElementaryOperator other);
+  void operator-=(ElementaryOperator other);
   ScalarOperator operator*(ElementaryOperator other);
-  ScalarOperator operator*=(ElementaryOperator other);
+  void operator*=(ElementaryOperator other);
   ScalarOperator operator/(ElementaryOperator other);
-  ScalarOperator operator/=(ElementaryOperator other);
+  void operator/=(ElementaryOperator other);
 
   // Implement last:
   ScalarOperator operator+(OperatorSum other);
@@ -228,16 +204,8 @@ public:
   ScalarOperator operator/=(ProductOperator other);
 
   /// @brief Return the scalar operator as a concrete complex value.
-  std::complex<double> evaluate(std::vector<std::complex<double>> parameters);
-
-  /// FIXME: Likely not the best long term solution, but a viable short
-  /// term patch.
-  /// @brief Return the scalar operator as a concrete complex value.
-  /// This call is used when the ScalarOperator has been composed of
-  /// arithmetic between two other scalar operators.
   std::complex<double>
-  evaluate(std::vector<std::complex<double>> selfParameters,
-           std::vector<std::complex<double>> otherParameters);
+  evaluate(std::map<std::string, std::complex<double>> parameters);
 
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.
@@ -279,6 +247,11 @@ void operator+=(ScalarOperator &self, std::complex<double> other);
 void operator-=(ScalarOperator &self, std::complex<double> other);
 void operator*=(ScalarOperator &self, std::complex<double> other);
 void operator/=(ScalarOperator &self, std::complex<double> other);
+
+void operator+=(ScalarOperator &self, ScalarOperator other);
+void operator-=(ScalarOperator &self, ScalarOperator other);
+void operator*=(ScalarOperator &self, ScalarOperator other);
+void operator/=(ScalarOperator &self, ScalarOperator other);
 
 /// @brief Represents an operator expression consisting of a sum of terms, where
 /// each term is a product of elementary and scalar operators. Operator

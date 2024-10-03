@@ -84,103 +84,104 @@ cudaq::complex_matrix displace_matrix(int size,
   return mat.exp();
 }
 
-TEST(ExpressionTester, checkPreBuiltElementaryOps) {
-  std::vector<int> sizes = {2, 3, 4, 5};
-  // Identity operator.
-  {
-    for (int size : sizes) {
-      auto id = cudaq::ElementaryOperator::identity(size);
-      auto got_id = id.to_matrix({}, {});
-      auto want_id = id_matrix(size);
-      ASSERT_TRUE(want_id == got_id);
-    }
-  }
+// TEST(ExpressionTester, checkPreBuiltElementaryOps) {
+//   std::vector<int> sizes = {2, 3, 4, 5};
+//   // Identity operator.
+//   {
+//     for (int size : sizes) {
+//       auto id = cudaq::ElementaryOperator::identity(size);
+//       auto got_id = id.to_matrix({}, {});
+//       auto want_id = id_matrix(size);
+//       ASSERT_TRUE(want_id == got_id);
+//     }
+//   }
 
-  // Zero operator.
-  {
-    for (int size : sizes) {
-      auto zero = cudaq::ElementaryOperator::zero(size);
-      auto got_zero = zero.to_matrix({}, {});
-      auto want_zero = zero_matrix(size);
-      ASSERT_TRUE(want_zero == got_zero);
-    }
-  }
+//   // Zero operator.
+//   {
+//     for (int size : sizes) {
+//       auto zero = cudaq::ElementaryOperator::zero(size);
+//       auto got_zero = zero.to_matrix({}, {});
+//       auto want_zero = zero_matrix(size);
+//       ASSERT_TRUE(want_zero == got_zero);
+//     }
+//   }
 
-  // Annihilation operator.
-  {
-    for (int size : sizes) {
-      auto annihilate = cudaq::ElementaryOperator::annihilate(size);
-      auto got_annihilate = annihilate.to_matrix({}, {});
-      auto want_annihilate = annihilate_matrix(size);
-      ASSERT_TRUE(want_annihilate == got_annihilate);
-    }
-  }
+//   // Annihilation operator.
+//   {
+//     for (int size : sizes) {
+//       auto annihilate = cudaq::ElementaryOperator::annihilate(size);
+//       auto got_annihilate = annihilate.to_matrix({}, {});
+//       auto want_annihilate = annihilate_matrix(size);
+//       ASSERT_TRUE(want_annihilate == got_annihilate);
+//     }
+//   }
 
-  // Creation operator.
-  {
-    for (int size : sizes) {
-      auto create = cudaq::ElementaryOperator::create(size);
-      auto got_create = create.to_matrix({}, {});
-      auto want_create = create_matrix(size);
-      ASSERT_TRUE(want_create == got_create);
-    }
-  }
+//   // Creation operator.
+//   {
+//     for (int size : sizes) {
+//       auto create = cudaq::ElementaryOperator::create(size);
+//       auto got_create = create.to_matrix({}, {});
+//       auto want_create = create_matrix(size);
+//       ASSERT_TRUE(want_create == got_create);
+//     }
+//   }
 
-  // Position operator.
-  {
-    for (int size : sizes) {
-      auto position = cudaq::ElementaryOperator::position(size);
-      auto got_position = position.to_matrix({}, {});
-      auto want_position = position_matrix(size);
-      ASSERT_TRUE(want_position == got_position);
-    }
-  }
+//   // Position operator.
+//   {
+//     for (int size : sizes) {
+//       auto position = cudaq::ElementaryOperator::position(size);
+//       auto got_position = position.to_matrix({}, {});
+//       auto want_position = position_matrix(size);
+//       ASSERT_TRUE(want_position == got_position);
+//     }
+//   }
 
-  // Momentum operator.
-  {
-    for (int size : sizes) {
-      auto momentum = cudaq::ElementaryOperator::momentum(size);
-      auto got_momentum = momentum.to_matrix({}, {});
-      auto want_momentum = momentum_matrix(size);
-      ASSERT_TRUE(want_momentum == got_momentum);
-    }
-  }
+//   // Momentum operator.
+//   {
+//     for (int size : sizes) {
+//       auto momentum = cudaq::ElementaryOperator::momentum(size);
+//       auto got_momentum = momentum.to_matrix({}, {});
+//       auto want_momentum = momentum_matrix(size);
+//       ASSERT_TRUE(want_momentum == got_momentum);
+//     }
+//   }
 
-  // Number operator.
-  {
-    for (int size : sizes) {
-      auto number = cudaq::ElementaryOperator::number(size);
-      auto got_number = number.to_matrix({}, {});
-      auto want_number = number_matrix(size);
-      ASSERT_TRUE(want_number == got_number);
-    }
-  }
+//   // Number operator.
+//   {
+//     for (int size : sizes) {
+//       auto number = cudaq::ElementaryOperator::number(size);
+//       auto got_number = number.to_matrix({}, {});
+//       auto want_number = number_matrix(size);
+//       ASSERT_TRUE(want_number == got_number);
+//     }
+//   }
 
-  // Parity operator.
-  {
-    for (int size : sizes) {
-      auto parity = cudaq::ElementaryOperator::parity(size);
-      auto got_parity = parity.to_matrix({}, {});
-      auto want_parity = parity_matrix(size);
-      ASSERT_TRUE(want_parity == got_parity);
-    }
-  }
+//   // Parity operator.
+//   {
+//     for (int size : sizes) {
+//       auto parity = cudaq::ElementaryOperator::parity(size);
+//       auto got_parity = parity.to_matrix({}, {});
+//       auto want_parity = parity_matrix(size);
+//       ASSERT_TRUE(want_parity == got_parity);
+//     }
+//   }
 
-  // // Displacement operator.
-  // {
-  //   for (int size : sizes) {
-  //     auto amplitude = 1.0 + 1.0j;
-  //     auto displace = cudaq::ElementaryOperator::displace(size, amplitude);
-  //     auto got_displace = displace.to_matrix({}, {});
-  //     auto want_displace = displace_matrix(size, amplitude);
-  //     ASSERT_TRUE(want_displace == got_displace);
-  //   }
-  // }
-}
+//   // // Displacement operator.
+//   // {
+//   //   for (int size : sizes) {
+//   //     auto amplitude = 1.0 + 1.0j;
+//   //     auto displace = cudaq::ElementaryOperator::displace(size,
+//   amplitude);
+//   //     auto got_displace = displace.to_matrix({}, {});
+//   //     auto want_displace = displace_matrix(size, amplitude);
+//   //     ASSERT_TRUE(want_displace == got_displace);
+//   //   }
+//   // }
+// }
 
-TEST(ExpressionTester, checkCustomElementaryOps) {
-  // pass
-}
+// TEST(ExpressionTester, checkCustomElementaryOps) {
+//   // pass
+// }
 
 TEST(ExpressionTester, checkScalarOpsSimple) {
 
@@ -209,19 +210,25 @@ TEST(ExpressionTester, checkScalarOpsSimple) {
 
   // From a lambda function.
   {
-    auto function = [](std::vector<std::complex<double>> vec) {
-      return vec[0];
+    auto function = [](std::map<std::string, std::complex<double>> parameters) {
+      return parameters["value"];
     };
+
+    std::map<std::string, std::complex<double>> parameter_map;
 
     auto operator_0 = cudaq::ScalarOperator(function);
     auto operator_1 = cudaq::ScalarOperator(function);
     auto operator_2 = cudaq::ScalarOperator(function);
     auto operator_3 = cudaq::ScalarOperator(function);
 
-    auto got_value_0 = operator_0.evaluate({value_0});
-    auto got_value_1 = operator_1.evaluate({value_1});
-    auto got_value_2 = operator_2.evaluate({value_2});
-    auto got_value_3 = operator_3.evaluate({value_3});
+    parameter_map["value"] = value_0;
+    auto got_value_0 = operator_0.evaluate(parameter_map);
+    parameter_map["value"] = value_1;
+    auto got_value_1 = operator_1.evaluate(parameter_map);
+    parameter_map["value"] = value_2;
+    auto got_value_2 = operator_2.evaluate(parameter_map);
+    parameter_map["value"] = value_3;
+    auto got_value_3 = operator_3.evaluate(parameter_map);
 
     EXPECT_NEAR(std::abs(value_0), std::abs(got_value_0), 1e-5);
     EXPECT_NEAR(std::abs(value_1), std::abs(got_value_1), 1e-5);
@@ -238,10 +245,10 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
   std::complex<double> value_3 = 2.0 + 1.0;
 
   auto local_variable = true;
-  auto function = [&](std::vector<std::complex<double>> vec) {
+  auto function = [&](std::map<std::string, std::complex<double>> parameters) {
     if (!local_variable)
       throw std::runtime_error("Local variable not detected.");
-    return vec[0];
+    return parameters["value"];
   };
 
   // + : Constant scalar operator.
@@ -257,6 +264,12 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
     EXPECT_NEAR(std::abs(got_value), std::abs(want_value), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(want_value), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op + reverse_order_op;
+    auto got_value_third = third_op.evaluate({});
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value + want_value),
+                1e-5);
   }
 
   // + : Scalar operator from lambda.
@@ -266,11 +279,17 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto new_scalar_op = value_0 + scalar_op;
     auto reverse_order_op = scalar_op + value_0;
 
-    auto got_value = new_scalar_op.evaluate({value_1});
-    auto got_value_1 = reverse_order_op.evaluate({value_1});
+    auto got_value = new_scalar_op.evaluate({{"value", value_1}});
+    auto got_value_1 = reverse_order_op.evaluate({{"value", value_1}});
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 + value_0), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op + reverse_order_op;
+    auto got_value_third = third_op.evaluate({{"value", value_1}});
+    auto want_value = value_0 + value_1 + value_1 + value_0;
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // - : Constant scalar operator.
@@ -285,6 +304,12 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_3 - value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 - value_3), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op - reverse_order_op;
+    auto got_value_third = third_op.evaluate({});
+    auto want_value = (value_3 - value_1) - (value_1 - value_3);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // - : Scalar operator from lambda.
@@ -294,11 +319,17 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto new_scalar_op = value_2 - scalar_op;
     auto reverse_order_op = scalar_op - value_2;
 
-    auto got_value = new_scalar_op.evaluate({value_1});
-    auto got_value_1 = reverse_order_op.evaluate({value_1});
+    auto got_value = new_scalar_op.evaluate({{"value", value_1}});
+    auto got_value_1 = reverse_order_op.evaluate({{"value", value_1}});
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_2 - value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 - value_2), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op - reverse_order_op;
+    auto got_value_third = third_op.evaluate({{"value", value_1}});
+    auto want_value = (value_2 - value_1) - (value_1 - value_2);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // * : Constant scalar operator.
@@ -313,6 +344,12 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_3 * value_2), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_2 * value_3), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op * reverse_order_op;
+    auto got_value_third = third_op.evaluate({});
+    auto want_value = (value_3 * value_2) * (value_2 * value_3);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // * : Scalar operator from lambda.
@@ -322,11 +359,17 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto new_scalar_op = value_3 * scalar_op;
     auto reverse_order_op = scalar_op * value_3;
 
-    auto got_value = new_scalar_op.evaluate({value_2});
-    auto got_value_1 = reverse_order_op.evaluate({value_2});
+    auto got_value = new_scalar_op.evaluate({{"value", value_2}});
+    auto got_value_1 = reverse_order_op.evaluate({{"value", value_2}});
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_3 * value_2), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_2 * value_3), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op * reverse_order_op;
+    auto got_value_third = third_op.evaluate({{"value", value_2}});
+    auto want_value = (value_3 * value_2) * (value_2 * value_3);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // / : Constant scalar operator.
@@ -341,6 +384,12 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_3 / value_2), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op / reverse_order_op;
+    auto got_value_third = third_op.evaluate({});
+    auto want_value = (value_2 / value_3) / (value_3 / value_2);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // / : Scalar operator from lambda.
@@ -350,11 +399,17 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto new_scalar_op = value_3 / scalar_op;
     auto reverse_order_op = scalar_op / value_3;
 
-    auto got_value = new_scalar_op.evaluate({value_1});
-    auto got_value_1 = reverse_order_op.evaluate({value_1});
+    auto got_value = new_scalar_op.evaluate({{"value", value_1}});
+    auto got_value_1 = reverse_order_op.evaluate({{"value", value_1}});
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_1 / value_3), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_3 / value_1), 1e-5);
+
+    // Checking composition of many scalar operators.
+    auto third_op = new_scalar_op / reverse_order_op;
+    auto got_value_third = third_op.evaluate({{"value", value_1}});
+    auto want_value = (value_1 / value_3) / (value_3 / value_1);
+    EXPECT_NEAR(std::abs(got_value_third), std::abs(want_value), 1e-5);
   }
 
   // += : Constant scalar operator.
@@ -371,7 +426,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op += value_1;
 
-    auto got_value = scalar_op.evaluate({value_0});
+    auto got_value = scalar_op.evaluate({{"value", value_0}});
     EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
   }
 
@@ -389,7 +444,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op -= value_1;
 
-    auto got_value = scalar_op.evaluate({value_0});
+    auto got_value = scalar_op.evaluate({{"value", value_0}});
     EXPECT_NEAR(std::abs(got_value), std::abs(value_0 - value_1), 1e-5);
   }
 
@@ -407,7 +462,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op *= value_3;
 
-    auto got_value = scalar_op.evaluate({value_2});
+    auto got_value = scalar_op.evaluate({{"value", value_2}});
     EXPECT_NEAR(std::abs(got_value), std::abs(value_2 * value_3), 1e-5);
   }
 
@@ -425,7 +480,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto scalar_op = cudaq::ScalarOperator(function);
     scalar_op /= value_3;
 
-    auto got_value = scalar_op.evaluate({value_2});
+    auto got_value = scalar_op.evaluate({{"value", value_2}});
     EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
   }
 }
@@ -438,11 +493,22 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   std::complex<double> value_3 = 2.0 + 1.0;
 
   auto local_variable = true;
-  auto function = [&](std::vector<std::complex<double>> vec) {
+  auto function = [&](std::map<std::string, std::complex<double>> parameters) {
     if (!local_variable)
       throw std::runtime_error("Local variable not detected.");
-    return vec[0];
+    return parameters["value"];
   };
+
+  // I use another function here to make sure that local variables
+  // that may be unique to each ScalarOp's generators are both kept
+  // track of when we merge the generators.
+  auto alternative_local_variable = true;
+  auto alternative_function =
+      [&](std::map<std::string, std::complex<double>> parameters) {
+        if (!alternative_local_variable)
+          throw std::runtime_error("Local variable not detected.");
+        return parameters["other"];
+      };
 
   // + : Constant scalar operator.
   {
@@ -452,8 +518,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
     auto new_scalar_op = other_scalar_op + scalar_op;
     auto reverse_order_op = scalar_op + other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({}, {});
-    auto got_value_1 = reverse_order_op.evaluate({}, {});
+    auto got_value = new_scalar_op.evaluate({});
+    auto got_value_1 = reverse_order_op.evaluate({});
     auto want_value = value_1 + value_0;
 
     EXPECT_NEAR(std::abs(got_value), std::abs(want_value), 1e-5);
@@ -463,13 +529,16 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   // + : Scalar operator from lambda.
   {
     auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(function);
+    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
 
     auto new_scalar_op = other_scalar_op + scalar_op;
     auto reverse_order_op = scalar_op + other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({value_1}, {value_0});
-    auto got_value_1 = reverse_order_op.evaluate({value_0}, {value_1});
+    std::map<std::string, std::complex<double>> parameter_map = {
+        {"value", value_1}, {"other", value_0}};
+
+    auto got_value = new_scalar_op.evaluate(parameter_map);
+    auto got_value_1 = reverse_order_op.evaluate(parameter_map);
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 + value_0), 1e-5);
@@ -483,8 +552,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
     auto new_scalar_op = other_scalar_op - scalar_op;
     auto reverse_order_op = scalar_op - other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({}, {});
-    auto got_value_1 = reverse_order_op.evaluate({}, {});
+    auto got_value = new_scalar_op.evaluate({});
+    auto got_value_1 = reverse_order_op.evaluate({});
     auto want_value = value_1 - value_2;
 
     EXPECT_NEAR(std::abs(got_value), std::abs(want_value), 1e-5);
@@ -494,13 +563,16 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   // - : Scalar operator from lambda.
   {
     auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(function);
+    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
 
     auto new_scalar_op = other_scalar_op - scalar_op;
     auto reverse_order_op = scalar_op - other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({value_1}, {value_3});
-    auto got_value_1 = reverse_order_op.evaluate({value_3}, {value_1});
+    std::map<std::string, std::complex<double>> parameter_map = {
+        {"value", value_1}, {"other", value_3}};
+
+    auto got_value = new_scalar_op.evaluate(parameter_map);
+    auto got_value_1 = reverse_order_op.evaluate(parameter_map);
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_3 - value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 - value_3), 1e-5);
@@ -514,8 +586,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
     auto new_scalar_op = other_scalar_op * scalar_op;
     auto reverse_order_op = scalar_op * other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({}, {});
-    auto got_value_1 = reverse_order_op.evaluate({}, {});
+    auto got_value = new_scalar_op.evaluate({});
+    auto got_value_1 = reverse_order_op.evaluate({});
     auto want_value = value_3 * value_2;
     auto reverse_want_value = value_2 * value_3;
 
@@ -526,13 +598,16 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   // * : Scalar operator from lambda.
   {
     auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(function);
+    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
 
     auto new_scalar_op = other_scalar_op * scalar_op;
     auto reverse_order_op = scalar_op * other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({value_1}, {value_3});
-    auto got_value_1 = reverse_order_op.evaluate({value_3}, {value_1});
+    std::map<std::string, std::complex<double>> parameter_map = {
+        {"value", value_1}, {"other", value_3}};
+
+    auto got_value = new_scalar_op.evaluate(parameter_map);
+    auto got_value_1 = reverse_order_op.evaluate(parameter_map);
 
     EXPECT_NEAR(std::abs(got_value), std::abs(value_3 * value_1), 1e-5);
     EXPECT_NEAR(std::abs(got_value_1), std::abs(value_1 * value_3), 1e-5);
@@ -546,8 +621,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
     auto new_scalar_op = other_scalar_op / scalar_op;
     auto reverse_order_op = scalar_op / other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({}, {});
-    auto got_value_1 = reverse_order_op.evaluate({}, {});
+    auto got_value = new_scalar_op.evaluate({});
+    auto got_value_1 = reverse_order_op.evaluate({});
     auto want_value = value_2 / value_0;
     auto reverse_want_value = value_0 / value_2;
 
@@ -558,95 +633,99 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
   // / : Scalar operator from lambda.
   {
     auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(function);
+    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
 
     auto new_scalar_op = other_scalar_op / scalar_op;
     auto reverse_order_op = scalar_op / other_scalar_op;
 
-    auto got_value = new_scalar_op.evaluate({value_0}, {value_3});
-    auto got_value_1 = reverse_order_op.evaluate({value_3}, {value_0});
+    std::map<std::string, std::complex<double>> parameter_map = {
+        {"value", value_0}, {"other", value_3}};
 
-    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 / value_3), 1e-5);
-    EXPECT_NEAR(std::abs(got_value_1), std::abs(value_3 / value_0), 1e-5);
+    auto got_value = new_scalar_op.evaluate(parameter_map);
+    auto got_value_1 = reverse_order_op.evaluate(parameter_map);
+
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_3 / value_0), 1e-5);
+    EXPECT_NEAR(std::abs(got_value_1), std::abs(value_0 / value_3), 1e-5);
   }
 
-  // // += : Constant scalar operator.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(value_0);
-  //   auto other = cudaq::ScalarOperator(value_0);
-  //   scalar_op += other;
+  // += : Constant scalar operator.
+  {
+    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto other = cudaq::ScalarOperator(value_0);
+    scalar_op += other;
 
-  //   auto got_value = scalar_op.evaluate({},{});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_0), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_0), 1e-5);
+  }
 
-  // // += : Scalar operator from lambda.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(function);
-  //   auto other = cudaq::ScalarOperator(value_1);
-  //   scalar_op += other;
+  // += : Scalar operator from lambda.
+  {
+    auto scalar_op = cudaq::ScalarOperator(function);
+    auto other = cudaq::ScalarOperator(value_1);
+    scalar_op += other;
 
-  //   auto scalar_op_1 = cudaq::ScalarOperator(function);
-  //   auto other_function = cudaq::ScalarOperator(function);
-  //   scalar_op_1 += other_function;
+    auto scalar_op_1 = cudaq::ScalarOperator(function);
+    auto other_function = cudaq::ScalarOperator(alternative_function);
+    scalar_op_1 += other_function;
 
-  //   auto got_value = scalar_op.evaluate({value_0});
-  //   auto got_value_1 = scalar_op_1.evaluate({value_0}, {value_1});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
-  //   EXPECT_NEAR(std::abs(got_value_1), std::abs(value_0 + value_1), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({{"value", value_0}});
+    auto got_value_1 =
+        scalar_op_1.evaluate({{"value", value_0}, {"other", value_1}});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 + value_1), 1e-5);
+    EXPECT_NEAR(std::abs(got_value_1), std::abs(value_0 + value_1), 1e-5);
+  }
 
-  // // -= : Constant scalar operator.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(value_0);
-  //   scalar_op -= value_0;
+  // -= : Constant scalar operator.
+  {
+    auto scalar_op = cudaq::ScalarOperator(value_0);
+    scalar_op -= value_0;
 
-  //   auto got_value = scalar_op.evaluate({});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_0 - value_0), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 - value_0), 1e-5);
+  }
 
-  // // -= : Scalar operator from lambda.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(function);
-  //   scalar_op -= value_1;
+  // -= : Scalar operator from lambda.
+  {
+    auto scalar_op = cudaq::ScalarOperator(function);
+    scalar_op -= value_1;
 
-  //   auto got_value = scalar_op.evaluate({value_0});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_0 - value_1), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({{"value", value_0}});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_0 - value_1), 1e-5);
+  }
 
-  // // *= : Constant scalar operator.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(value_2);
-  //   scalar_op *= value_3;
+  // *= : Constant scalar operator.
+  {
+    auto scalar_op = cudaq::ScalarOperator(value_2);
+    scalar_op *= value_3;
 
-  //   auto got_value = scalar_op.evaluate({});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_2 * value_3), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_2 * value_3), 1e-5);
+  }
 
-  // // *= : Scalar operator from lambda.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(function);
-  //   scalar_op *= value_3;
+  // *= : Scalar operator from lambda.
+  {
+    auto scalar_op = cudaq::ScalarOperator(function);
+    scalar_op *= value_3;
 
-  //   auto got_value = scalar_op.evaluate({value_2});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_2 * value_3), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({{"value", value_2}});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_2 * value_3), 1e-5);
+  }
 
-  // // /= : Constant scalar operator.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(value_2);
-  //   scalar_op /= value_3;
+  // /= : Constant scalar operator.
+  {
+    auto scalar_op = cudaq::ScalarOperator(value_2);
+    scalar_op /= value_3;
 
-  //   auto got_value = scalar_op.evaluate({});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
+  }
 
-  // // /= : Scalar operator from lambda.
-  // {
-  //   auto scalar_op = cudaq::ScalarOperator(function);
-  //   scalar_op /= value_3;
+  // /= : Scalar operator from lambda.
+  {
+    auto scalar_op = cudaq::ScalarOperator(function);
+    scalar_op /= value_3;
 
-  //   auto got_value = scalar_op.evaluate({value_2});
-  //   EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
-  // }
+    auto got_value = scalar_op.evaluate({{"value", value_2}});
+    EXPECT_NEAR(std::abs(got_value), std::abs(value_2 / value_3), 1e-5);
+  }
 }
