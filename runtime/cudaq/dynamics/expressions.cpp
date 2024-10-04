@@ -13,14 +13,14 @@
 
 namespace cudaq {
 
-ElementaryOperator::ElementaryOperator(std::string operator_id,
+elementary_operator::elementary_operator(std::string operator_id,
                                        std::vector<int> degrees)
     : id(operator_id), degrees(degrees) {}
 
-ElementaryOperator ElementaryOperator::identity(int degree) {
+elementary_operator elementary_operator::identity(int degree) {
   std::string op_id = "identity";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -43,10 +43,10 @@ ElementaryOperator ElementaryOperator::identity(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::zero(int degree) {
+elementary_operator elementary_operator::zero(int degree) {
   std::string op_id = "zero";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -69,10 +69,10 @@ ElementaryOperator ElementaryOperator::zero(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::annihilate(int degree) {
+elementary_operator elementary_operator::annihilate(int degree) {
   std::string op_id = "annihilate";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -94,10 +94,10 @@ ElementaryOperator ElementaryOperator::annihilate(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::create(int degree) {
+elementary_operator elementary_operator::create(int degree) {
   std::string op_id = "create";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -119,10 +119,10 @@ ElementaryOperator ElementaryOperator::create(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::position(int degree) {
+elementary_operator elementary_operator::position(int degree) {
   std::string op_id = "position";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -146,10 +146,10 @@ ElementaryOperator ElementaryOperator::position(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::momentum(int degree) {
+elementary_operator elementary_operator::momentum(int degree) {
   std::string op_id = "momentum";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -175,10 +175,10 @@ ElementaryOperator ElementaryOperator::momentum(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::number(int degree) {
+elementary_operator elementary_operator::number(int degree) {
   std::string op_id = "number";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -200,10 +200,10 @@ ElementaryOperator ElementaryOperator::number(int degree) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::parity(int degree) {
+elementary_operator elementary_operator::parity(int degree) {
   std::string op_id = "parity";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -225,11 +225,11 @@ ElementaryOperator ElementaryOperator::parity(int degree) {
   return op;
 }
 
-ElementaryOperator
-ElementaryOperator::displace(int degree, std::complex<double> amplitude) {
+elementary_operator
+elementary_operator::displace(int degree, std::complex<double> amplitude) {
   std::string op_id = "displace";
   std::vector<int> degrees = {degree};
-  auto op = ElementaryOperator(op_id, degrees);
+  auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
   if (op.m_ops.find(op_id) == op.m_ops.end()) {
@@ -261,12 +261,12 @@ ElementaryOperator::displace(int degree, std::complex<double> amplitude) {
   return op;
 }
 
-ElementaryOperator ElementaryOperator::squeeze(int degree,
+elementary_operator elementary_operator::squeeze(int degree,
                                                std::complex<double> amplitude) {
   throw std::runtime_error("Not yet implemented.");
 }
 
-complex_matrix ElementaryOperator::to_matrix(
+complex_matrix elementary_operator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
   std::variant<complex_matrix, std::complex<double>> result =
@@ -286,27 +286,27 @@ complex_matrix ElementaryOperator::to_matrix(
   }
 }
 
-ScalarOperator::ScalarOperator(const ScalarOperator &other)
+scalar_operator::scalar_operator(const scalar_operator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
-ScalarOperator::ScalarOperator(ScalarOperator &other)
+scalar_operator::scalar_operator(scalar_operator &other)
     : generator(other.generator), m_constant_value(other.m_constant_value) {}
 
-ScalarOperator &ScalarOperator::operator=(ScalarOperator &other) {
+scalar_operator &scalar_operator::operator=(scalar_operator &other) {
   generator = other.generator;
   m_constant_value = other.m_constant_value;
   return *this;
 }
 
 /// @brief Constructor that just takes and returns a complex double value.
-ScalarOperator::ScalarOperator(std::complex<double> value) {
+scalar_operator::scalar_operator(std::complex<double> value) {
   m_constant_value = value;
   auto func = [&](std::map<std::string, std::complex<double>> _none) {
     return m_constant_value;
   };
-  generator = scalar_callback_function(func);
+  generator = ScalarCallbackFunction(func);
 }
 
-std::complex<double> ScalarOperator::evaluate(
+std::complex<double> scalar_operator::evaluate(
     std::map<std::string, std::complex<double>> parameters) {
   /// TODO: throw an error if someone is supposed to call the merged
   // generator instead of this one.
@@ -314,13 +314,13 @@ std::complex<double> ScalarOperator::evaluate(
 }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES(op)                                      \
-  ScalarOperator operator op(std::complex<double> other,                       \
-                             ScalarOperator self) {                            \
+  scalar_operator operator op(std::complex<double> other,                       \
+                             scalar_operator self) {                            \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = ScalarOperator(other);                                \
+    auto otherOperator = scalar_operator(other);                                \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    ScalarOperator returnOperator;                                             \
+    scalar_operator returnOperator;                                             \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -335,18 +335,18 @@ std::complex<double> ScalarOperator::evaluate(
               .evaluate(parameters) op returnOperator._operators_to_compose[1] \
               .get_val();                                                      \
         };                                                                     \
-    returnOperator.generator = scalar_callback_function(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
     return returnOperator;                                                     \
   }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(op)                              \
-  ScalarOperator operator op(ScalarOperator self,                              \
+  scalar_operator operator op(scalar_operator self,                              \
                              std::complex<double> other) {                     \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = ScalarOperator(other);                                \
+    auto otherOperator = scalar_operator(other);                                \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    ScalarOperator returnOperator;                                             \
+    scalar_operator returnOperator;                                             \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -361,17 +361,17 @@ std::complex<double> ScalarOperator::evaluate(
               .get_val() op returnOperator._operators_to_compose[0]            \
               .evaluate(parameters);                                           \
         };                                                                     \
-    returnOperator.generator = scalar_callback_function(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
     return returnOperator;                                                     \
   }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(op)                           \
-  void operator op(ScalarOperator &self, std::complex<double> other) {         \
+  void operator op(scalar_operator &self, std::complex<double> other) {         \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = ScalarOperator(other);                                \
+    auto otherOperator = scalar_operator(other);                                \
     /* Need to move the existing generating function to a new operator so that \
      * we can modify the generator in `self` in-place. */                      \
-    ScalarOperator copy(self);                                                 \
+    scalar_operator copy(self);                                                 \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -386,7 +386,7 @@ std::complex<double> ScalarOperator::evaluate(
               .evaluate(parameters) op self._operators_to_compose[1]           \
               .get_val();                                                      \
         };                                                                     \
-    self.generator = scalar_callback_function(newGenerator);                   \
+    self.generator = ScalarCallbackFunction(newGenerator);                   \
   }
 
 ARITHMETIC_OPERATIONS_DOUBLES(+);
@@ -403,10 +403,10 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(*=);
 ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
 
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS(op)                                   \
-  ScalarOperator ScalarOperator::operator op(ScalarOperator other) {           \
+  scalar_operator scalar_operator::operator op(scalar_operator other) {           \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    ScalarOperator returnOperator;                                             \
+    scalar_operator returnOperator;                                             \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -418,16 +418,16 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
               .evaluate(parameters) op returnOperator._operators_to_compose[1] \
               .evaluate(parameters);                                           \
         };                                                                     \
-    returnOperator.generator = scalar_callback_function(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
     return returnOperator;                                                     \
   }
 
 /// FIXME: Broken implementation
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(op)                        \
-  void operator op(ScalarOperator &self, ScalarOperator other) {               \
+  void operator op(scalar_operator &self, scalar_operator other) {               \
     /* Need to move the existing generating function to a new operator so      \
      * that we can modify the generator in `self` in-place. */                 \
-    ScalarOperator selfCopy(self);                                             \
+    scalar_operator selfCopy(self);                                             \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -439,7 +439,7 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
               .evaluate(parameters) op self._operators_to_compose[1]           \
               .evaluate(parameters);                                           \
         };                                                                     \
-    self.generator = scalar_callback_function(newGenerator);                   \
+    self.generator = ScalarCallbackFunction(newGenerator);                   \
   }
 
 ARITHMETIC_OPERATIONS_SCALAR_OPS(+);

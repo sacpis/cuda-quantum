@@ -21,7 +21,7 @@ Definition::Definition() = default;
 // Convenience setter
 void Definition::create_definition(const std::string &operator_id,
                                    std::map<int, int> expected_dimensions,
-                                   callback_function &&create) {
+                                   CallbackFunction &&create) {
   id = operator_id;
   generator = std::move(create);
   m_expected_dimensions = std::move(expected_dimensions);

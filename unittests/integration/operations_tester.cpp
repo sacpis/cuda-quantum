@@ -96,7 +96,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto id = cudaq::ElementaryOperator::identity(degree_index);
+      auto id = cudaq::elementary_operator::identity(degree_index);
       auto got_id = id.to_matrix(dimensions, {});
       auto want_id = id_matrix(size);
       ASSERT_TRUE(want_id == got_id);
@@ -107,7 +107,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto zero = cudaq::ElementaryOperator::zero(degree_index);
+      auto zero = cudaq::elementary_operator::zero(degree_index);
       auto got_zero = zero.to_matrix(dimensions, {});
       auto want_zero = zero_matrix(size);
       ASSERT_TRUE(want_zero == got_zero);
@@ -118,7 +118,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto annihilate = cudaq::ElementaryOperator::annihilate(degree_index);
+      auto annihilate = cudaq::elementary_operator::annihilate(degree_index);
       auto got_annihilate = annihilate.to_matrix(dimensions, {});
       auto want_annihilate = annihilate_matrix(size);
       ASSERT_TRUE(want_annihilate == got_annihilate);
@@ -129,7 +129,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto create = cudaq::ElementaryOperator::create(degree_index);
+      auto create = cudaq::elementary_operator::create(degree_index);
       auto got_create = create.to_matrix(dimensions, {});
       auto want_create = create_matrix(size);
       ASSERT_TRUE(want_create == got_create);
@@ -140,7 +140,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto position = cudaq::ElementaryOperator::position(degree_index);
+      auto position = cudaq::elementary_operator::position(degree_index);
       auto got_position = position.to_matrix(dimensions, {});
       auto want_position = position_matrix(size);
       ASSERT_TRUE(want_position == got_position);
@@ -151,7 +151,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto momentum = cudaq::ElementaryOperator::momentum(degree_index);
+      auto momentum = cudaq::elementary_operator::momentum(degree_index);
       auto got_momentum = momentum.to_matrix(dimensions, {});
       auto want_momentum = momentum_matrix(size);
       ASSERT_TRUE(want_momentum == got_momentum);
@@ -162,7 +162,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto number = cudaq::ElementaryOperator::number(degree_index);
+      auto number = cudaq::elementary_operator::number(degree_index);
       auto got_number = number.to_matrix(dimensions, {});
       auto want_number = number_matrix(size);
       ASSERT_TRUE(want_number == got_number);
@@ -173,7 +173,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   {
     for (int size : sizes) {
       dimensions[degree_index] = size;
-      auto parity = cudaq::ElementaryOperator::parity(degree_index);
+      auto parity = cudaq::elementary_operator::parity(degree_index);
       auto got_parity = parity.to_matrix(dimensions, {});
       auto want_parity = parity_matrix(size);
       ASSERT_TRUE(want_parity == got_parity);
@@ -185,7 +185,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   //   for (int size : sizes) {
   //     dimensions[degree_index] = size;
   //     auto amplitude = 1.0 + 1.0j;
-  //     auto displace = cudaq::ElementaryOperator::displace(degree_index,
+  //     auto displace = cudaq::elementary_operator::displace(degree_index,
   //     amplitude); auto got_displace = displace.to_matrix(dimensions, {});
   //     auto want_displace = displace_matrix(size, amplitude);
   //     ASSERT_TRUE(want_displace == got_displace);
@@ -208,10 +208,10 @@ TEST(ExpressionTester, checkScalarOpsSimple) {
 
   // From concrete values.
   {
-    auto operator_0 = cudaq::ScalarOperator(value_0);
-    auto operator_1 = cudaq::ScalarOperator(value_1);
-    auto operator_2 = cudaq::ScalarOperator(value_2);
-    auto operator_3 = cudaq::ScalarOperator(value_3);
+    auto operator_0 = cudaq::scalar_operator(value_0);
+    auto operator_1 = cudaq::scalar_operator(value_1);
+    auto operator_2 = cudaq::scalar_operator(value_2);
+    auto operator_3 = cudaq::scalar_operator(value_3);
 
     auto got_value_0 = operator_0.evaluate({});
     auto got_value_1 = operator_1.evaluate({});
@@ -232,10 +232,10 @@ TEST(ExpressionTester, checkScalarOpsSimple) {
 
     std::map<std::string, std::complex<double>> parameter_map;
 
-    auto operator_0 = cudaq::ScalarOperator(function);
-    auto operator_1 = cudaq::ScalarOperator(function);
-    auto operator_2 = cudaq::ScalarOperator(function);
-    auto operator_3 = cudaq::ScalarOperator(function);
+    auto operator_0 = cudaq::scalar_operator(function);
+    auto operator_1 = cudaq::scalar_operator(function);
+    auto operator_2 = cudaq::scalar_operator(function);
+    auto operator_3 = cudaq::scalar_operator(function);
 
     parameter_map["value"] = value_0;
     auto got_value_0 = operator_0.evaluate(parameter_map);
@@ -269,7 +269,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // + : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
 
     auto new_scalar_op = value_1 + scalar_op;
     auto reverse_order_op = scalar_op + value_1;
@@ -290,7 +290,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // + : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
 
     auto new_scalar_op = value_0 + scalar_op;
     auto reverse_order_op = scalar_op + value_0;
@@ -310,7 +310,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // - : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_1);
+    auto scalar_op = cudaq::scalar_operator(value_1);
 
     auto new_scalar_op = value_3 - scalar_op;
     auto reverse_order_op = scalar_op - value_3;
@@ -330,7 +330,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // - : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
 
     auto new_scalar_op = value_2 - scalar_op;
     auto reverse_order_op = scalar_op - value_2;
@@ -350,7 +350,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // * : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
 
     auto new_scalar_op = value_3 * scalar_op;
     auto reverse_order_op = scalar_op * value_3;
@@ -370,7 +370,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // * : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
 
     auto new_scalar_op = value_3 * scalar_op;
     auto reverse_order_op = scalar_op * value_3;
@@ -390,7 +390,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // / : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
 
     auto new_scalar_op = value_3 / scalar_op;
     auto reverse_order_op = scalar_op / value_3;
@@ -410,7 +410,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // / : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
 
     auto new_scalar_op = value_3 / scalar_op;
     auto reverse_order_op = scalar_op / value_3;
@@ -430,7 +430,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // += : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
     scalar_op += value_0;
 
     auto got_value = scalar_op.evaluate({});
@@ -439,7 +439,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // += : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op += value_1;
 
     auto got_value = scalar_op.evaluate({{"value", value_0}});
@@ -448,7 +448,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // -= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
     scalar_op -= value_0;
 
     auto got_value = scalar_op.evaluate({});
@@ -457,7 +457,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // -= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op -= value_1;
 
     auto got_value = scalar_op.evaluate({{"value", value_0}});
@@ -466,7 +466,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // *= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
     scalar_op *= value_3;
 
     auto got_value = scalar_op.evaluate({});
@@ -475,7 +475,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // *= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op *= value_3;
 
     auto got_value = scalar_op.evaluate({{"value", value_2}});
@@ -484,7 +484,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // /= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
     scalar_op /= value_3;
 
     auto got_value = scalar_op.evaluate({});
@@ -493,7 +493,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
 
   // /= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op /= value_3;
 
     auto got_value = scalar_op.evaluate({{"value", value_2}});
@@ -528,8 +528,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // + : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
-    auto other_scalar_op = cudaq::ScalarOperator(value_1);
+    auto scalar_op = cudaq::scalar_operator(value_0);
+    auto other_scalar_op = cudaq::scalar_operator(value_1);
 
     auto new_scalar_op = other_scalar_op + scalar_op;
     auto reverse_order_op = scalar_op + other_scalar_op;
@@ -544,8 +544,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // + : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
+    auto scalar_op = cudaq::scalar_operator(function);
+    auto other_scalar_op = cudaq::scalar_operator(alternative_function);
 
     auto new_scalar_op = other_scalar_op + scalar_op;
     auto reverse_order_op = scalar_op + other_scalar_op;
@@ -562,8 +562,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // - : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
-    auto other_scalar_op = cudaq::ScalarOperator(value_1);
+    auto scalar_op = cudaq::scalar_operator(value_2);
+    auto other_scalar_op = cudaq::scalar_operator(value_1);
 
     auto new_scalar_op = other_scalar_op - scalar_op;
     auto reverse_order_op = scalar_op - other_scalar_op;
@@ -578,8 +578,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // - : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
+    auto scalar_op = cudaq::scalar_operator(function);
+    auto other_scalar_op = cudaq::scalar_operator(alternative_function);
 
     auto new_scalar_op = other_scalar_op - scalar_op;
     auto reverse_order_op = scalar_op - other_scalar_op;
@@ -596,8 +596,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // * : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
-    auto other_scalar_op = cudaq::ScalarOperator(value_3);
+    auto scalar_op = cudaq::scalar_operator(value_2);
+    auto other_scalar_op = cudaq::scalar_operator(value_3);
 
     auto new_scalar_op = other_scalar_op * scalar_op;
     auto reverse_order_op = scalar_op * other_scalar_op;
@@ -613,8 +613,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // * : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
+    auto scalar_op = cudaq::scalar_operator(function);
+    auto other_scalar_op = cudaq::scalar_operator(alternative_function);
 
     auto new_scalar_op = other_scalar_op * scalar_op;
     auto reverse_order_op = scalar_op * other_scalar_op;
@@ -631,8 +631,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // / : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
-    auto other_scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_0);
+    auto other_scalar_op = cudaq::scalar_operator(value_2);
 
     auto new_scalar_op = other_scalar_op / scalar_op;
     auto reverse_order_op = scalar_op / other_scalar_op;
@@ -648,8 +648,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // / : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
-    auto other_scalar_op = cudaq::ScalarOperator(alternative_function);
+    auto scalar_op = cudaq::scalar_operator(function);
+    auto other_scalar_op = cudaq::scalar_operator(alternative_function);
 
     auto new_scalar_op = other_scalar_op / scalar_op;
     auto reverse_order_op = scalar_op / other_scalar_op;
@@ -666,8 +666,8 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // += : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
-    auto other = cudaq::ScalarOperator(value_0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
+    auto other = cudaq::scalar_operator(value_0);
     scalar_op += other;
 
     auto got_value = scalar_op.evaluate({});
@@ -676,12 +676,12 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // += : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
-    auto other = cudaq::ScalarOperator(value_1);
+    auto scalar_op = cudaq::scalar_operator(function);
+    auto other = cudaq::scalar_operator(value_1);
     scalar_op += other;
 
-    auto scalar_op_1 = cudaq::ScalarOperator(function);
-    auto other_function = cudaq::ScalarOperator(alternative_function);
+    auto scalar_op_1 = cudaq::scalar_operator(function);
+    auto other_function = cudaq::scalar_operator(alternative_function);
     scalar_op_1 += other_function;
 
     auto got_value = scalar_op.evaluate({{"value", value_0}});
@@ -693,7 +693,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // -= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
     scalar_op -= value_0;
 
     auto got_value = scalar_op.evaluate({});
@@ -702,7 +702,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // -= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op -= value_1;
 
     auto got_value = scalar_op.evaluate({{"value", value_0}});
@@ -711,7 +711,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // *= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
     scalar_op *= value_3;
 
     auto got_value = scalar_op.evaluate({});
@@ -720,7 +720,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // *= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op *= value_3;
 
     auto got_value = scalar_op.evaluate({{"value", value_2}});
@@ -729,7 +729,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // /= : Constant scalar operator.
   {
-    auto scalar_op = cudaq::ScalarOperator(value_2);
+    auto scalar_op = cudaq::scalar_operator(value_2);
     scalar_op /= value_3;
 
     auto got_value = scalar_op.evaluate({});
@@ -738,7 +738,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticScalarOps) {
 
   // /= : Scalar operator from lambda.
   {
-    auto scalar_op = cudaq::ScalarOperator(function);
+    auto scalar_op = cudaq::scalar_operator(function);
     scalar_op /= value_3;
 
     auto got_value = scalar_op.evaluate({{"value", value_2}});
@@ -762,8 +762,8 @@ TEST(ExpressionTester, checkScalarAgainstElementary) {
 
   // Identity against constant.
   {
-    auto id_op = cudaq::ElementaryOperator::identity(0);
-    auto scalar_op = cudaq::ScalarOperator(value_0);
+    auto id_op = cudaq::elementary_operator::identity(0);
+    auto scalar_op = cudaq::scalar_operator(value_0);
 
     // auto addition = scalar_op + id_op;
     // auto subtraction = scalar_op - id_op;
@@ -772,7 +772,7 @@ TEST(ExpressionTester, checkScalarAgainstElementary) {
 
   // // Identity against constant from lambda.
   // {
-  //   auto id_op = cudaq::ElementaryOperator::identity(0);
-  //   auto scalar_op = cudaq::ScalarOperator(function)
+  //   auto id_op = cudaq::elementary_operator::identity(0);
+  //   auto scalar_op = cudaq::scalar_operator(function)
   // }
 }

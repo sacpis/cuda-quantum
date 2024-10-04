@@ -24,17 +24,17 @@ namespace cudaq {
 using Func = std::function<complex_matrix(
     std::map<int, int>, std::map<std::string, std::complex<double>>)>;
 
-class callback_function {
+class CallbackFunction {
 private:
   // The user provided callback function that takes the degrees of
   // freedom and a vector of complex parameters.
   Func _callback_func;
 
 public:
-  callback_function() = default;
+  CallbackFunction() = default;
 
   template <typename Callable>
-  callback_function(Callable &&callable) {
+  CallbackFunction(Callable &&callable) {
     static_assert(
         std::is_invocable_r_v<complex_matrix, Callable, std::map<int, int>,
                               std::map<std::string, std::complex<double>>>,
@@ -56,16 +56,16 @@ using ScalarFunc = std::function<std::complex<double>(
 
 // A scalar callback function does not need to accept the dimensions,
 // therefore we will use a different function type for this specific class.
-class scalar_callback_function : callback_function {
+class ScalarCallbackFunction : CallbackFunction {
 private:
   // The user provided callback function that takes a vector of parameters.
   ScalarFunc _callback_func;
 
 public:
-  scalar_callback_function() = default;
+  ScalarCallbackFunction() = default;
 
   template <typename Callable>
-  scalar_callback_function(Callable &&callable) {
+  ScalarCallbackFunction(Callable &&callable) {
     static_assert(
         std::is_invocable_r_v<std::complex<double>, Callable,
                               std::map<std::string, std::complex<double>>>,
@@ -75,11 +75,11 @@ public:
   }
 
   // Copy constructor.
-  scalar_callback_function(scalar_callback_function &other) {
+  ScalarCallbackFunction(ScalarCallbackFunction &other) {
     _callback_func = other._callback_func;
   }
 
-  scalar_callback_function(const scalar_callback_function &other) {
+  ScalarCallbackFunction(const ScalarCallbackFunction &other) {
     _callback_func = other._callback_func;
   }
 
@@ -101,7 +101,7 @@ public:
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
   // `cudaq::complex_matrix` type representing the operator matrix.
-  callback_function generator;
+  CallbackFunction generator;
 
   // Constructor.
   Definition();
@@ -111,7 +111,7 @@ public:
 
   void create_definition(const std::string &operator_id,
                          std::map<int, int> expected_dimensions,
-                         callback_function &&create);
+                         CallbackFunction &&create);
 
   // To call the generator function
   complex_matrix generate_matrix(
