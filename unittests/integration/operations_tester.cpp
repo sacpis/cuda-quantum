@@ -89,15 +89,13 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
 
   // Keeping this fixed throughout.
   int degree_index = 0;
-  // Dimension map.
-  std::map<int, int> dimensions;
 
   // Identity operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
+      // cudaq::operators::identity(int degree)
       auto id = cudaq::elementary_operator::identity(degree_index);
-      auto got_id = id.to_matrix(dimensions, {});
+      auto got_id = id.to_matrix({{degree_index, size}}, {});
       auto want_id = id_matrix(size);
       ASSERT_TRUE(want_id == got_id);
     }
@@ -106,9 +104,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Zero operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto zero = cudaq::elementary_operator::zero(degree_index);
-      auto got_zero = zero.to_matrix(dimensions, {});
+      auto got_zero = zero.to_matrix({{degree_index, size}}, {});
       auto want_zero = zero_matrix(size);
       ASSERT_TRUE(want_zero == got_zero);
     }
@@ -117,9 +114,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Annihilation operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto annihilate = cudaq::elementary_operator::annihilate(degree_index);
-      auto got_annihilate = annihilate.to_matrix(dimensions, {});
+      auto got_annihilate = annihilate.to_matrix({{degree_index, size}}, {});
       auto want_annihilate = annihilate_matrix(size);
       ASSERT_TRUE(want_annihilate == got_annihilate);
     }
@@ -128,9 +124,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Creation operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto create = cudaq::elementary_operator::create(degree_index);
-      auto got_create = create.to_matrix(dimensions, {});
+      auto got_create = create.to_matrix({{degree_index, size}}, {});
       auto want_create = create_matrix(size);
       ASSERT_TRUE(want_create == got_create);
     }
@@ -139,9 +134,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Position operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto position = cudaq::elementary_operator::position(degree_index);
-      auto got_position = position.to_matrix(dimensions, {});
+      auto got_position = position.to_matrix({{degree_index, size}}, {});
       auto want_position = position_matrix(size);
       ASSERT_TRUE(want_position == got_position);
     }
@@ -150,9 +144,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Momentum operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto momentum = cudaq::elementary_operator::momentum(degree_index);
-      auto got_momentum = momentum.to_matrix(dimensions, {});
+      auto got_momentum = momentum.to_matrix({{degree_index, size}}, {});
       auto want_momentum = momentum_matrix(size);
       ASSERT_TRUE(want_momentum == got_momentum);
     }
@@ -161,9 +154,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Number operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto number = cudaq::elementary_operator::number(degree_index);
-      auto got_number = number.to_matrix(dimensions, {});
+      auto got_number = number.to_matrix({{degree_index, size}}, {});
       auto want_number = number_matrix(size);
       ASSERT_TRUE(want_number == got_number);
     }
@@ -172,9 +164,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // Parity operator.
   {
     for (int size : sizes) {
-      dimensions[degree_index] = size;
       auto parity = cudaq::elementary_operator::parity(degree_index);
-      auto got_parity = parity.to_matrix(dimensions, {});
+      auto got_parity = parity.to_matrix({{degree_index, size}}, {});
       auto want_parity = parity_matrix(size);
       ASSERT_TRUE(want_parity == got_parity);
     }
@@ -183,11 +174,10 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // // Displacement operator.
   // {
   //   for (int size : sizes) {
-  //     dimensions[degree_index] = size;
   //     auto amplitude = 1.0 + 1.0j;
   //     auto displace = cudaq::elementary_operator::displace(degree_index,
-  //     amplitude); auto got_displace = displace.to_matrix(dimensions, {});
-  //     auto want_displace = displace_matrix(size, amplitude);
+  //     amplitude); auto got_displace = displace.to_matrix({{degree_index,
+  //     size}}, {}); auto want_displace = displace_matrix(size, amplitude);
   //     ASSERT_TRUE(want_displace == got_displace);
   //   }
   // }
@@ -272,6 +262,7 @@ TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
     auto scalar_op = cudaq::scalar_operator(value_0);
 
     auto new_scalar_op = value_1 + scalar_op;
+    // function + scalar_op;
     auto reverse_order_op = scalar_op + value_1;
 
     auto got_value = new_scalar_op.evaluate({});
@@ -763,16 +754,21 @@ TEST(ExpressionTester, checkScalarAgainstElementary) {
   // Identity against constant.
   {
     auto id_op = cudaq::elementary_operator::identity(0);
-    auto scalar_op = cudaq::scalar_operator(value_0);
+    auto scalar_op = cudaq::scalar_operator(
+        value_0); // cudaq::variable() , cudaq::operator::parameter() ,
 
+    // auto multiplication = scalar_op * id_op;
     // auto addition = scalar_op + id_op;
     // auto subtraction = scalar_op - id_op;
-    // auto multiplication = scalar_op * id_op;
   }
 
-  // // Identity against constant from lambda.
-  // {
-  //   auto id_op = cudaq::elementary_operator::identity(0);
-  //   auto scalar_op = cudaq::scalar_operator(function)
-  // }
+  // Identity against constant from lambda.
+  {
+    auto id_op = cudaq::elementary_operator::identity(0);
+    auto scalar_op = cudaq::scalar_operator(function);
+
+    // auto multiplication = scalar_op * id_op;
+    // auto addition = scalar_op + id_op;
+    // auto subtraction = scalar_op - id_op;
+  }
 }

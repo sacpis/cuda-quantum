@@ -28,7 +28,7 @@ class elementary_operator;
 /// to convert them to data types that can.
 class operator_sum {
 private:
-  std::vector<product_operator> _terms;
+  std::vector<product_operator> m_terms;
 
   std::vector<std::tuple<scalar_operator, elementary_operator>>
   canonicalize_product(const product_operator &prod) const;
@@ -37,24 +37,16 @@ private:
   _canonical_terms() const;
 
 public:
+  /// @brief Empty constructor that a user can aggregate terms into.
+  operator_sum() = default;
+
   /// @brief Construct a `cudaq::operator_sum` given a sequence of
   /// `cudaq::product_operator`'s.
   /// This operator expression represents a sum of terms, where each term
   /// is a product of elementary and scalar operators.
-  operator_sum(const std::vector<product_operator> &terms = {});
+  operator_sum(const std::vector<product_operator> &terms);
 
   operator_sum canonicalize() const;
-
-  /// @brief  True, if the other value is an operator_sum with equivalent terms,
-  /// and False otherwise. The equality takes into account that operator
-  /// addition is commutative, as is the product of two operators if they
-  /// act on different degrees of freedom.
-  /// The equality comparison does *not* take commutation relations into
-  /// account, and does not try to reorder terms blockwise; it may hence
-  /// evaluate to False, even if two operators in reality are the same.
-  /// If the equality evaluates to True, on the other hand, the operators
-  /// are guaranteed to represent the same transformation for all arguments.
-  bool operator==(const operator_sum &other) const;
 
   /// @brief The degrees of freedom that the oeprator acts on in canonical
   /// order.
@@ -84,29 +76,136 @@ public:
   operator_sum operator-(const operator_sum &other) const;
   operator_sum operator*(const operator_sum &other) const;
   operator_sum operator/(const operator_sum &other) const;
-  operator_sum operator+=(const operator_sum &other);
-  operator_sum operator-=(const operator_sum &other);
+  void operator+=(const operator_sum &other);
+  void operator-=(const operator_sum &other);
 
   operator_sum operator+(const scalar_operator &other) const;
   operator_sum operator-(const scalar_operator &other) const;
-  operator_sum operator+=(const scalar_operator &other);
-  operator_sum operator-=(const scalar_operator &other);
+  void operator+=(const scalar_operator &other);
+  void operator-=(const scalar_operator &other);
 
   operator_sum operator+(const product_operator &other) const;
   operator_sum operator-(const product_operator &other) const;
-  operator_sum operator+=(const product_operator &other);
-  operator_sum operator-=(const product_operator &other);
+  void operator+=(const product_operator &other);
+  void operator-=(const product_operator &other);
 
   operator_sum operator+(const elementary_operator &other) const;
   operator_sum operator-(const elementary_operator &other) const;
-  operator_sum operator+=(const elementary_operator &other);
-  operator_sum operator-=(const elementary_operator &other);
+  void operator+=(const elementary_operator &other);
+  void operator-=(const elementary_operator &other);
 
   /// @brief Return the operator_sum as a string.
   std::string to_string() const;
+
+  /// @brief  True, if the other value is an operator_sum with equivalent terms,
+  /// and False otherwise. The equality takes into account that operator
+  /// addition is commutative, as is the product of two operators if they
+  /// act on different degrees of freedom.
+  /// The equality comparison does *not* take commutation relations into
+  /// account, and does not try to reorder terms blockwise; it may hence
+  /// evaluate to False, even if two operators in reality are the same.
+  /// If the equality evaluates to True, on the other hand, the operators
+  /// are guaranteed to represent the same transformation for all arguments.
+  bool operator==(const operator_sum &other) const;
 };
 
-class product_operator : public operator_sum {};
+// class product_operator : public operator_sum {
+// public:
+// product_operator() {};
+// ~product_operator() {};
+// };
+
+/// @brief Represents an operator expression consisting of a product of
+/// elementary and scalar operators. Operator expressions cannot be used within
+/// quantum kernels, but they provide methods to convert them to data types
+/// that can.
+class product_operator : public operator_sum {
+public:
+  product_operator() = default;
+  ~product_operator() = default;
+
+  /// @brief Constructor for an operator expression that represents a product
+  /// of elementary operators.
+  /// @arg atomic_operators : The operators of which to compute the product when
+  ///                         evaluating the operator expression.
+  product_operator(std::vector<elementary_operator> atomic_operators);
+
+  /// @brief Constructor for an operator expression that represents a product
+  /// of scalar and elementary operators.
+  /// @arg atomic_operators : The operators of which to compute the product when
+  ///                         evaluating the operator expression.
+  /// @arg scalar_operator : The scalar operators of which to compute the
+  /// product when evaluating the operator expression.
+  product_operator(std::vector<elementary_operator> atomic_operators,
+                   std::vector<scalar_operator> scalar_operators);
+
+  // Arithmetic overloads against all other operator types.
+  operator_sum operator+(std::complex<double> other);
+  operator_sum operator-(std::complex<double> other);
+  operator_sum operator+=(std::complex<double> other);
+  operator_sum operator-=(std::complex<double> other);
+  product_operator operator*(std::complex<double> other);
+  product_operator operator*=(std::complex<double> other);
+  operator_sum operator+(operator_sum other);
+  operator_sum operator-(operator_sum other);
+  operator_sum operator+=(operator_sum other);
+  operator_sum operator-=(operator_sum other);
+  product_operator operator*(operator_sum other);
+  product_operator operator*=(operator_sum other);
+  operator_sum operator+(scalar_operator other);
+  operator_sum operator-(scalar_operator other);
+  operator_sum operator+=(scalar_operator other);
+  operator_sum operator-=(scalar_operator other);
+  product_operator operator*(scalar_operator other);
+  product_operator operator*=(scalar_operator other);
+  operator_sum operator+(product_operator other);
+  operator_sum operator-(product_operator other);
+  operator_sum operator+=(product_operator other);
+  operator_sum operator-=(product_operator other);
+  product_operator operator*(product_operator other);
+  product_operator operator*=(product_operator other);
+  operator_sum operator+(elementary_operator other);
+  operator_sum operator-(elementary_operator other);
+  operator_sum operator+=(elementary_operator other);
+  operator_sum operator-=(elementary_operator other);
+  product_operator operator*(elementary_operator other);
+  product_operator operator*=(elementary_operator other);
+  /// @brief True, if the other value is an operator_sum with equivalent terms,
+  ///  and False otherwise. The equality takes into account that operator
+  ///  addition is commutative, as is the product of two operators if they
+  ///  act on different degrees of freedom.
+  ///  The equality comparison does *not* take commutation relations into
+  ///  account, and does not try to reorder terms blockwise; it may hence
+  ///  evaluate to False, even if two operators in reality are the same.
+  ///  If the equality evaluates to True, on the other hand, the operators
+  ///  are guaranteed to represent the same transformation for all arguments.
+  bool operator==(product_operator other);
+
+  /// @brief Return the `product_operator` as a string.
+  std::string to_string() const;
+
+  /// @brief Return the `operator_sum` as a matrix.
+  /// @arg  `dimensions` : A mapping that specifies the number of levels,
+  ///                      that is, the dimension of each degree of freedom
+  ///                      that the operator acts on. Example for two, 2-level
+  ///                      degrees of freedom: `{0:2, 1:2}`.
+  /// @arg `parameters` : A map of the paramter names to their concrete, complex
+  /// values.
+  complex_matrix
+  to_matrix(std::map<int, int> dimensions,
+            std::map<std::string, std::complex<double>> parameters);
+
+  /// @brief Creates a representation of the operator as a `cudaq::pauli_word`
+  /// that can be passed as an argument to quantum kernels.
+  // pauli_word to_pauli_word();
+
+  /// @brief The degrees of freedom that the operator acts on in canonical
+  /// order.
+  std::vector<int> degrees;
+
+  /// @brief A map of the paramter names to their concrete, complex values.
+  std::map<std::string, std::complex<double>> parameters;
+};
 
 class elementary_operator : public product_operator {
 private:
@@ -172,9 +271,10 @@ public:
   static elementary_operator parity(int degree);
   static elementary_operator position(int degree);
   /// FIXME:
-  static elementary_operator squeeze(int degree, std::complex<double> amplitude);
-  static elementary_operator displace(int degree,
+  static elementary_operator squeeze(int degree,
                                      std::complex<double> amplitude);
+  static elementary_operator displace(int degree,
+                                      std::complex<double> amplitude);
 
   /// @brief Adds the definition of an elementary operator with the given id to
   /// the class. After definition, an the defined elementary operator can be
@@ -339,118 +439,5 @@ void operator+=(scalar_operator &self, scalar_operator other);
 void operator-=(scalar_operator &self, scalar_operator other);
 void operator*=(scalar_operator &self, scalar_operator other);
 void operator/=(scalar_operator &self, scalar_operator other);
-
-// /// @brief Represents an operator expression consisting of a product of
-// /// elementary and scalar operators. Operator expressions cannot be used
-// within
-// /// quantum kernels, but they provide methods to convert them to data types
-// that
-// /// can.
-// class product_operator : public operator_sum {
-
-//   /// @brief Constructor for an operator expression that represents a product
-//   /// of elementary operators.
-//   /// @arg atomic_operators : The operators of which to compute the product
-//   when
-//   ///                         evaluating the operator expression.
-//   product_operator(std::vector<elementary_operator> atomic_operators);
-
-//   /// @brief Constructor for an operator expression that represents a product
-//   /// of scalar and elementary operators.
-//   /// @arg atomic_operators : The operators of which to compute the product
-//   when
-//   ///                         evaluating the operator expression.
-//   /// @arg scalar_operator : The scalar operators of which to compute the
-//   product when
-//   ///                         evaluating the operator expression.
-//   // product_operator(std::vector<elementary_operator> atomic_operators,
-//   // std::vector<scalar_operator> scalar_operators);
-
-//   // // Arithmetic overloads against all other operator types.
-//   // operator_sum operator+(int other);
-//   // operator_sum operator-(int other);
-//   // operator_sum operator+=(int other);
-//   // operator_sum operator-=(int other);
-//   // product_operator operator*(int other);
-//   // product_operator operator*=(int other);
-//   // operator_sum operator+(double other);
-//   // operator_sum operator-(double other);
-//   // operator_sum operator+=(double other);
-//   // operator_sum operator-=(double other);
-//   // product_operator operator*(double other);
-//   // product_operator operator*=(double other);
-//   // operator_sum operator+(std::complex<double> other);
-//   // operator_sum operator-(std::complex<double> other);
-//   // operator_sum operator+=(dostd::complex<double> other);
-//   // operator_sum operator-=(std::complex<double> other);
-//   // product_operator operator*(std::complex<double> other);
-//   // product_operator operator*=(std::complex<double> other);
-//   // operator_sum operator+(operator_sum other);
-//   // operator_sum operator-(operator_sum other);
-//   // operator_sum operator+=(operator_sum other);
-//   // operator_sum operator-=(operator_sum other);
-//   // product_operator operator*(operator_sum other);
-//   // product_operator operator*=(operator_sum other);
-//   // operator_sum operator+(scalar_operator other);
-//   // operator_sum operator-(scalar_operator other);
-//   // operator_sum operator+=(scalar_operator other);
-//   // operator_sum operator-=(scalar_operator other);
-//   // product_operator operator*(scalar_operator other);
-//   // product_operator operator*=(scalar_operator other);
-//   // operator_sum operator+(product_operator other);
-//   // operator_sum operator-(product_operator other);
-//   // operator_sum operator+=(product_operator other);
-//   // operator_sum operator-=(product_operator other);
-//   // product_operator operator*(product_operator other);
-//   // product_operator operator*=(product_operator other);
-//   // operator_sum operator+(elementary_operator other);
-//   // operator_sum operator-(elementary_operator other);
-//   // operator_sum operator+=(elementary_operator other);
-//   // operator_sum operator-=(elementary_operator other);
-//   // product_operator operator*(elementary_operator other);
-//   // product_operator operator*=(elementary_operator other);
-//   // /// @brief True, if the other value is an operator_sum with equivalent
-//   terms,
-//   // ///  and False otherwise. The equality takes into account that operator
-//   // ///  addition is commutative, as is the product of two operators if they
-//   // ///  act on different degrees of freedom.
-//   // ///  The equality comparison does *not* take commutation relations into
-//   // ///  account, and does not try to reorder terms blockwise; it may hence
-//   // ///  evaluate to False, even if two operators in reality are the same.
-//   // ///  If the equality evaluates to True, on the other hand, the operators
-//   // ///  are guaranteed to represent the same transformation for all
-//   arguments.
-//   // bool operator==(product_operator other);
-
-//   // /// @brief Return the `product_operator` as a string.
-//   // std::string to_string() const;
-
-//   // /// @brief Return the `operator_sum` as a matrix.
-//   // /// @arg  `dimensions` : A mapping that specifies the number of levels,
-//   // ///                      that is, the dimension of each degree of
-//   freedom
-//   // ///                      that the operator acts on. Example for two,
-//   2-level
-//   // ///                      degrees of freedom: `{0:2, 1:2}`.
-//   // /// @arg `parameters` : A map of the paramter names to their concrete,
-//   complex
-//   // /// values.
-//   // complex_matrix to_matrix(
-//   //     std::map<int, int> dimensions,
-//   //     std::map<std::string, std::complex<double>> parameters);
-
-//   // /// @brief Creates a representation of the operator as a
-//   `cudaq::pauli_word`
-//   // /// that can be passed as an argument to quantum kernels.
-//   // // pauli_word to_pauli_word();
-
-//   // /// @brief The degrees of freedom that the operator acts on in canonical
-//   // /// order.
-//   // std::vector<int> degrees;
-
-//   // /// @brief A map of the paramter names to their concrete, complex
-//   values.
-//   // std::map<std::string, std::complex<double>> parameters;
-// };
 
 } // namespace cudaq

@@ -8,33 +8,33 @@
 
 #pragma once
 
-#include "matrix.h"
 #include "definition.h"
+#include "matrix.h"
+#include <functional>
 #include <map>
 #include <string>
-#include <functional>
-#include <vector>
 #include <utility>
 #include <variant>
+#include <vector>
 
 namespace cudaq {
 
-inline std::map<std::string, std::complex<double>> aggregate_parameters(
-    const std::map<std::string, Definition> &param1,
-    const std::map<std::string, Definition> &param2) {
-    std::map<std::string, std::complex<double>> merged_map = param1;
+inline std::map<std::string, std::complex<double>>
+aggregate_parameters(const std::map<std::string, Definition> &param1,
+                     const std::map<std::string, Definition> &param2) {
+  std::map<std::string, std::complex<double>> merged_map = param1;
 
-    for (const auto &[key, value] : param2) {
-        /// FIXME: May just be able to remove this whole conditional block
-        /// since we're not dealing with std::string entries, but instead
-        /// complex doubles now.
-        if (merged_map.find(key) != merged_map.end()) {
-            // do nothing
-        } else {
-            merged_map[key] = value;
-        }
+  for (const auto &[key, value] : param2) {
+    /// FIXME: May just be able to remove this whole conditional block
+    /// since we're not dealing with std::string entries, but instead
+    /// complex doubles now.
+    if (merged_map.find(key) != merged_map.end()) {
+      // do nothing
+    } else {
+      merged_map[key] = value;
     }
+  }
 
-    return merged_map;
+  return merged_map;
 }
-}
+} // namespace cudaq

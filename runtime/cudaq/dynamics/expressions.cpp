@@ -14,7 +14,7 @@
 namespace cudaq {
 
 elementary_operator::elementary_operator(std::string operator_id,
-                                       std::vector<int> degrees)
+                                         std::vector<int> degrees)
     : id(operator_id), degrees(degrees) {}
 
 elementary_operator elementary_operator::identity(int degree) {
@@ -261,8 +261,8 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   return op;
 }
 
-elementary_operator elementary_operator::squeeze(int degree,
-                                               std::complex<double> amplitude) {
+elementary_operator
+elementary_operator::squeeze(int degree, std::complex<double> amplitude) {
   throw std::runtime_error("Not yet implemented.");
 }
 
@@ -314,13 +314,13 @@ std::complex<double> scalar_operator::evaluate(
 }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES(op)                                      \
-  scalar_operator operator op(std::complex<double> other,                       \
-                             scalar_operator self) {                            \
+  scalar_operator operator op(std::complex<double> other,                      \
+                              scalar_operator self) {                          \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = scalar_operator(other);                                \
+    auto otherOperator = scalar_operator(other);                               \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    scalar_operator returnOperator;                                             \
+    scalar_operator returnOperator;                                            \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -335,18 +335,18 @@ std::complex<double> scalar_operator::evaluate(
               .evaluate(parameters) op returnOperator._operators_to_compose[1] \
               .get_val();                                                      \
         };                                                                     \
-    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);           \
     return returnOperator;                                                     \
   }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(op)                              \
-  scalar_operator operator op(scalar_operator self,                              \
-                             std::complex<double> other) {                     \
+  scalar_operator operator op(scalar_operator self,                            \
+                              std::complex<double> other) {                    \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = scalar_operator(other);                                \
+    auto otherOperator = scalar_operator(other);                               \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    scalar_operator returnOperator;                                             \
+    scalar_operator returnOperator;                                            \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -361,17 +361,17 @@ std::complex<double> scalar_operator::evaluate(
               .get_val() op returnOperator._operators_to_compose[0]            \
               .evaluate(parameters);                                           \
         };                                                                     \
-    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);           \
     return returnOperator;                                                     \
   }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(op)                           \
-  void operator op(scalar_operator &self, std::complex<double> other) {         \
+  void operator op(scalar_operator &self, std::complex<double> other) {        \
     /* Create an operator for the complex double value. */                     \
-    auto otherOperator = scalar_operator(other);                                \
+    auto otherOperator = scalar_operator(other);                               \
     /* Need to move the existing generating function to a new operator so that \
      * we can modify the generator in `self` in-place. */                      \
-    scalar_operator copy(self);                                                 \
+    scalar_operator copy(self);                                                \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -386,7 +386,7 @@ std::complex<double> scalar_operator::evaluate(
               .evaluate(parameters) op self._operators_to_compose[1]           \
               .get_val();                                                      \
         };                                                                     \
-    self.generator = ScalarCallbackFunction(newGenerator);                   \
+    self.generator = ScalarCallbackFunction(newGenerator);                     \
   }
 
 ARITHMETIC_OPERATIONS_DOUBLES(+);
@@ -403,10 +403,10 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(*=);
 ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
 
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS(op)                                   \
-  scalar_operator scalar_operator::operator op(scalar_operator other) {           \
+  scalar_operator scalar_operator::operator op(scalar_operator other) {        \
     /* Create an operator that we will store the result in and return to the   \
      * user. */                                                                \
-    scalar_operator returnOperator;                                             \
+    scalar_operator returnOperator;                                            \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -418,16 +418,16 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
               .evaluate(parameters) op returnOperator._operators_to_compose[1] \
               .evaluate(parameters);                                           \
         };                                                                     \
-    returnOperator.generator = ScalarCallbackFunction(newGenerator);         \
+    returnOperator.generator = ScalarCallbackFunction(newGenerator);           \
     return returnOperator;                                                     \
   }
 
 /// FIXME: Broken implementation
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(op)                        \
-  void operator op(scalar_operator &self, scalar_operator other) {               \
+  void operator op(scalar_operator &self, scalar_operator other) {             \
     /* Need to move the existing generating function to a new operator so      \
      * that we can modify the generator in `self` in-place. */                 \
-    scalar_operator selfCopy(self);                                             \
+    scalar_operator selfCopy(self);                                            \
     /* Store the previous generator functions in the new operator. This is     \
      * needed as the old generator functions would effectively be lost once we \
      * leave this function scope. */                                           \
@@ -439,7 +439,7 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
               .evaluate(parameters) op self._operators_to_compose[1]           \
               .evaluate(parameters);                                           \
         };                                                                     \
-    self.generator = ScalarCallbackFunction(newGenerator);                   \
+    self.generator = ScalarCallbackFunction(newGenerator);                     \
   }
 
 ARITHMETIC_OPERATIONS_SCALAR_OPS(+);
