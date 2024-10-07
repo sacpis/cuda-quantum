@@ -44,7 +44,10 @@ set(CUDAQ_RUNTIME_TEST_SOURCES
   common/NoiseModelTester.cpp
   integration/tracer_tester.cpp
   integration/gate_library_tester.cpp
-  integration/operations_tester.cpp
+  dynamics/scalar_ops_simple.cpp
+  dynamics/scalar_ops_arithmetic.cpp
+  dynamics/elementary_ops_simple.cpp
+  dynamics/operator_arithmetics.cpp
 )
 
 # Make it so we can get function symbols
@@ -211,7 +214,11 @@ gtest_discover_tests(test_spin)
 
 # Create an executable for operators UnitTests
 set(CUDAQ_OPERATOR_TEST_SOURCES 
-   integration/operations_tester.cpp
+   dynamics/utils.h
+   dynamics/elementary_ops_simple.cpp
+   dynamics/scalar_ops_simple.cpp
+   dynamics/scalar_ops_arithmetic.cpp
+   dynamics/operator_arithmetics.cpp
 )
 add_executable(test_operators main.cpp ${CUDAQ_OPERATOR_TEST_SOURCES})
 target_link_libraries(test_operators
