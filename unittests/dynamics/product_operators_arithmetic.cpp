@@ -34,7 +34,6 @@ cudaq::complex_matrix _create_matrix(int size) {
 TEST(ExpressionTester, checkProductOperatorSimple) {
   std::vector<int> levels = {2, 3, 4};
 
-
   // std::set<int> uniqueDegrees;
   // std::copy(this->degrees.begin(), this->degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));
   // std::copy(other.degrees.begin(), other.degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));

@@ -48,6 +48,12 @@ public:
   complex_matrix(value_type *rawData, const std::size_t rows,
                  const std::size_t cols);
 
+  complex_matrix(const complex_matrix &other);
+  complex_matrix &operator=(const complex_matrix &other);
+
+  static complex_matrix identity(const std::size_t rows,
+                                 const std::size_t cols);
+
   /// @brief Return the internal data representation
   value_type *data() const;
 
@@ -91,10 +97,16 @@ public:
   /// @brief Set all elements in this matrix to 0.0
   void set_zero();
 
+  /// @brief Set this matrix equal to the identity.
+  void set_identity();
+
   /// @brief Print this matrix to the given output stream
   void dump(std::ostream &os);
 
   /// @brief Print this matrix to standard out
   void dump();
+
+  /// @brief Kronecker product between two matrices.
+  complex_matrix kronecker(complex_matrix &other);
 };
 } // namespace cudaq

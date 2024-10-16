@@ -6,9 +6,9 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include <gtest/gtest.h>
 #include "cudaq/matrix.h"
 #include "cudaq/operators.h"
+#include <gtest/gtest.h>
 
 cudaq::complex_matrix zero_matrix(int size) {
   auto mat = cudaq::complex_matrix(size, size);
@@ -84,100 +84,101 @@ cudaq::complex_matrix displace_matrix(int size,
 }
 
 TEST(ExpressionTester, checkPreBuiltElementaryOps) {
-  std::vector<int> sizes = {2, 3, 4, 5};
+  std::vector<int> levels = {2, 3, 4, 5};
 
   // Keeping this fixed throughout.
   int degree_index = 0;
 
   // Identity operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       // cudaq::operators::identity(int degree)
       auto id = cudaq::elementary_operator::identity(degree_index);
-      auto got_id = id.to_matrix({{degree_index, size}}, {});
-      auto want_id = id_matrix(size);
+      auto got_id = id.to_matrix({{degree_index, level_count}}, {});
+      auto want_id = id_matrix(level_count);
       ASSERT_TRUE(want_id == got_id);
     }
   }
 
   // Zero operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto zero = cudaq::elementary_operator::zero(degree_index);
-      auto got_zero = zero.to_matrix({{degree_index, size}}, {});
-      auto want_zero = zero_matrix(size);
+      auto got_zero = zero.to_matrix({{degree_index, level_count}}, {});
+      auto want_zero = zero_matrix(level_count);
       ASSERT_TRUE(want_zero == got_zero);
     }
   }
 
   // Annihilation operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto annihilate = cudaq::elementary_operator::annihilate(degree_index);
-      auto got_annihilate = annihilate.to_matrix({{degree_index, size}}, {});
-      auto want_annihilate = annihilate_matrix(size);
+      auto got_annihilate =
+          annihilate.to_matrix({{degree_index, level_count}}, {});
+      auto want_annihilate = annihilate_matrix(level_count);
       ASSERT_TRUE(want_annihilate == got_annihilate);
     }
   }
 
   // Creation operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto create = cudaq::elementary_operator::create(degree_index);
-      auto got_create = create.to_matrix({{degree_index, size}}, {});
-      auto want_create = create_matrix(size);
+      auto got_create = create.to_matrix({{degree_index, level_count}}, {});
+      auto want_create = create_matrix(level_count);
       ASSERT_TRUE(want_create == got_create);
     }
   }
 
   // Position operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto position = cudaq::elementary_operator::position(degree_index);
-      auto got_position = position.to_matrix({{degree_index, size}}, {});
-      auto want_position = position_matrix(size);
+      auto got_position = position.to_matrix({{degree_index, level_count}}, {});
+      auto want_position = position_matrix(level_count);
       ASSERT_TRUE(want_position == got_position);
     }
   }
 
   // Momentum operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto momentum = cudaq::elementary_operator::momentum(degree_index);
-      auto got_momentum = momentum.to_matrix({{degree_index, size}}, {});
-      auto want_momentum = momentum_matrix(size);
+      auto got_momentum = momentum.to_matrix({{degree_index, level_count}}, {});
+      auto want_momentum = momentum_matrix(level_count);
       ASSERT_TRUE(want_momentum == got_momentum);
     }
   }
 
   // Number operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto number = cudaq::elementary_operator::number(degree_index);
-      auto got_number = number.to_matrix({{degree_index, size}}, {});
-      auto want_number = number_matrix(size);
+      auto got_number = number.to_matrix({{degree_index, level_count}}, {});
+      auto want_number = number_matrix(level_count);
       ASSERT_TRUE(want_number == got_number);
     }
   }
 
   // Parity operator.
   {
-    for (int size : sizes) {
+    for (int level_count : levels) {
       auto parity = cudaq::elementary_operator::parity(degree_index);
-      auto got_parity = parity.to_matrix({{degree_index, size}}, {});
-      auto want_parity = parity_matrix(size);
+      auto got_parity = parity.to_matrix({{degree_index, level_count}}, {});
+      auto want_parity = parity_matrix(level_count);
       ASSERT_TRUE(want_parity == got_parity);
     }
   }
 
   // // Displacement operator.
   // {
-  //   for (int size : sizes) {
+  //   for (int level_count : levels) {
   //     auto amplitude = 1.0 + 1.0j;
   //     auto displace = cudaq::elementary_operator::displace(degree_index,
   //     amplitude); auto got_displace = displace.to_matrix({{degree_index,
-  //     size}}, {}); auto want_displace = displace_matrix(size, amplitude);
-  //     ASSERT_TRUE(want_displace == got_displace);
+  //     level_count}}, {}); auto want_displace = displace_matrix(level_count,
+  //     amplitude); ASSERT_TRUE(want_displace == got_displace);
   //   }
   // }
 

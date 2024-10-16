@@ -6,9 +6,9 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include <gtest/gtest.h>
 #include "cudaq/matrix.h"
 #include "cudaq/operators.h"
+#include <gtest/gtest.h>
 
 TEST(ExpressionTester, checkScalarOpsArithmeticDoubles) {
   // Arithmetic overloads against complex doubles.

@@ -44,6 +44,15 @@ public:
     _callback_func = std::forward<Callable>(callable);
   }
 
+  // Copy constructor.
+  CallbackFunction(CallbackFunction &other) {
+    _callback_func = other._callback_func;
+  }
+
+  CallbackFunction(const CallbackFunction &other) {
+    _callback_func = other._callback_func;
+  }
+
   complex_matrix
   operator()(std::map<int, int> degrees,
              std::map<std::string, std::complex<double>> parameters) const {
