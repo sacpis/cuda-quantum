@@ -23,7 +23,13 @@ state state::from_data(const state_data &data) {
     throw std::runtime_error(
         "[state::from_data] Could not find valid simulator backend.");
 
-  return state(simulator->createStateFromData(data).release());
+  try {
+    return state(simulator->createStateFromData(data).release());
+  } catch (std::exception &e) {
+    throw std::runtime_error("The provided target is not supported. Please use "
+                             "the appropriate nvidia target with the precision "
+                             "as .");
+  }
 }
 
 SimulationState::precision state::get_precision() const {
