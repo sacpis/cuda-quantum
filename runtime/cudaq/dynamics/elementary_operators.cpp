@@ -387,17 +387,8 @@ product_operator operator/(double other, elementary_operator self) {
   return product_operator({other_scalar, self});
 }
 
-/// FIXME: see TODO
 product_operator elementary_operator::operator*(elementary_operator other) {
-  auto returnOperator = product_operator({*this, other});
-
-  /// TODO: May move this logic out of this function and into the degrees attribute.
-  std::set<int> uniqueDegrees;
-  std::copy(this->degrees.begin(), this->degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));
-  std::copy(other.degrees.begin(), other.degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));
-  std::vector<int> newDegrees(uniqueDegrees.begin(), uniqueDegrees.end());
-  returnOperator.degrees = newDegrees;
-  return returnOperator;
+  return product_operator({*this, other});
 }
 
 operator_sum elementary_operator::operator+(elementary_operator other) {

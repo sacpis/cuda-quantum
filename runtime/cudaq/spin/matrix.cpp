@@ -58,12 +58,14 @@ complex_matrix::complex_matrix(complex_matrix::value_type *rawData,
 
 complex_matrix::complex_matrix(const complex_matrix &other) {
   internalData = other.data();
+  // std::memcpy(internalData, other.data(), sizeof(value_type) * other.size());
   nRows = other.rows();
   nCols = other.cols();
 }
 
 complex_matrix &complex_matrix::operator=(const complex_matrix &other) {
   internalData = other.data();
+  // std::memcpy(internalData, other.data(), sizeof(value_type) * other.size());
   nRows = other.rows();
   nCols = other.cols();
   return *this;
@@ -200,6 +202,18 @@ complex_matrix complex_matrix::exp() const {
 
 complex_matrix complex_matrix::kronecker(complex_matrix &other) {
   Eigen::Map<Eigen::MatrixXcd> map(internalData, nRows, nCols);
+  Eigen::Map<Eigen::MatrixXcd> otherMap(other.data(), other.rows(),
+                                        other.cols());
+  Eigen::MatrixXcd ret = Eigen::kroneckerProduct(map, otherMap).eval();
+  complex_matrix copy(ret.rows(), ret.cols());
+  std::memcpy(copy.data(), ret.data(),
+              sizeof(std::complex<double>) * ret.size());
+  return copy;
+}
+
+complex_matrix kronecker(complex_matrix &self, complex_matrix &other) {
+  Eigen::Map<Eigen::MatrixXcd> map(self.data(), self.rows(),
+                                        self.cols());
   Eigen::Map<Eigen::MatrixXcd> otherMap(other.data(), other.rows(),
                                         other.cols());
   Eigen::MatrixXcd ret = Eigen::kroneckerProduct(map, otherMap).eval();

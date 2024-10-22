@@ -48,7 +48,7 @@ public:
 
   operator_sum canonicalize() const;
 
-  /// @brief The degrees of freedom that the oeprator acts on in canonical
+  /// @brief The degrees of freedom that the operator acts on in canonical
   /// order.
   std::vector<int> degrees() const;
 
@@ -125,9 +125,6 @@ public:
   product_operator() = default;
   ~product_operator() = default;
 
-  /// FIXME: Making temporarily public for first implementation purposes.
-  CallbackFunction m_generator;
-
   /// @brief Constructor for an operator expression that represents a product
   /// of scalar and elementary operators.
   /// @arg atomic_operators : The operators of which to compute the product when
@@ -186,7 +183,7 @@ public:
 
   /// @brief The degrees of freedom that the operator acts on in canonical
   /// order.
-  std::vector<int> degrees;
+  std::vector<int> degrees() const;
 
   /// @brief A map of the paramter names to their concrete, complex values.
   std::map<std::string, std::complex<double>> parameters;
@@ -214,6 +211,8 @@ public:
   elementary_operator(elementary_operator &other);
 
   // Arithmetic overloads against all other operator types.
+  /// NOTE: All of below arithmetic implemented except for the division between 
+  ///       two elementary ops. Further testing at the matrix level is needed.
   operator_sum operator+(std::complex<double> other);
   operator_sum operator-(std::complex<double> other);
   product_operator operator*(std::complex<double> other);
@@ -230,7 +229,7 @@ public:
   operator_sum operator-(elementary_operator other);
   product_operator operator*(elementary_operator other);
   product_operator operator/(elementary_operator other);
-  
+
   /// TODO: implement and test the below
   operator_sum operator+(operator_sum other);
   operator_sum operator-(operator_sum other);
@@ -372,12 +371,12 @@ public:
   /// TODO:
   scalar_operator pow(scalar_operator other);
 
-  /// TODO: All of the below need deeper testing.
-  scalar_operator operator+(elementary_operator other);
-  scalar_operator operator-(elementary_operator other);
-  scalar_operator operator*(elementary_operator other);
-  scalar_operator operator/(elementary_operator other);
-  // Implement last:
+  /// TODO: All of the below need deeper testing but are implemented.
+  operator_sum operator+(elementary_operator other);
+  operator_sum operator-(elementary_operator other);
+  product_operator operator*(elementary_operator other);
+  product_operator operator/(elementary_operator other);
+  // TODO:
   operator_sum operator+(operator_sum other);
   operator_sum operator-(operator_sum other);
   operator_sum operator*(operator_sum other);
@@ -390,6 +389,12 @@ public:
   /// @brief Return the scalar operator as a concrete complex value.
   std::complex<double>
   evaluate(std::map<std::string, std::complex<double>> parameters);
+
+  // Return the scalar operator as a 1x1 matrix. This is needed for
+  // compatability with the other inherited classes.
+  complex_matrix
+  to_matrix(std::map<int, int> dimensions,
+            std::map<std::string, std::complex<double>> parameters);
 
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.
@@ -412,6 +417,11 @@ public:
   scalar_operator(scalar_operator &other);
 
   ~scalar_operator() = default;
+
+  // Need this property for consistency with other inherited types.
+  // Particularly, to be used when the scalar operator is held within
+  // a variant type next to elementary operators.
+  std::vector<int> degrees = {-1};
 
   // REMOVEME: just using this as a temporary patch:
   std::complex<double> get_val() { return m_constant_value; };

@@ -16,6 +16,7 @@
 /// These tests should be built upon to do actual numeric checks once
 /// the implementations are complete.
 
+
 TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
 
   auto function = [](std::map<std::string, std::complex<double>> parameters) {

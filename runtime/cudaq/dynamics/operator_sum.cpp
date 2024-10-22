@@ -163,7 +163,7 @@ operator_sum operator_sum::operator+=(const operator_sum &other) {
 //   return operator_sum(divided_terms);
 // }
 
-// operator_sum + scalar_operator
+
 operator_sum operator_sum::operator+(const scalar_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
   combined_terms.push_back(product_operator({other}));
@@ -184,7 +184,6 @@ operator_sum operator_sum::operator-=(const scalar_operator &other) {
   return *this;
 }
 
-// operator_sum + product_operator
 operator_sum operator_sum::operator+(const product_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
   combined_terms.push_back(other);

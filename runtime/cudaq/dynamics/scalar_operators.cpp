@@ -44,6 +44,13 @@ std::complex<double> scalar_operator::evaluate(
   return generator(parameters);
 }
 
+complex_matrix scalar_operator::to_matrix(std::map<int, int> dimensions,
+          std::map<std::string, std::complex<double>> parameters) {
+  auto returnOperator = complex_matrix(1,1);
+  returnOperator(0,0) = evaluate(parameters);
+  return returnOperator;
+}
+
 #define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES(op)                                      \
   scalar_operator operator op(std::complex<double> other,                      \
                               scalar_operator self) {                          \
@@ -214,7 +221,6 @@ ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(*=);
 ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(/=);
 
 
-
 operator_sum scalar_operator::operator+(elementary_operator other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
@@ -231,8 +237,9 @@ product_operator scalar_operator::operator*(elementary_operator other) {
   return product_operator({*this, other});
 }
 
-product_operator scalar_operator::operator/(elementary_operator other) {
-  return product_operator({*this, (1./other)});
-}
+/// FIXME: division on elementary op needed
+// product_operator scalar_operator::operator/(elementary_operator other) {
+//   return product_operator({*this, (1./other)});
+// }
 
 } // namespace cudaq

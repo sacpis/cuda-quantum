@@ -48,7 +48,7 @@ set(CUDAQ_RUNTIME_TEST_SOURCES
   dynamics/scalar_ops_arithmetic.cpp
   dynamics/elementary_ops_simple.cpp
   dynamics/elementary_ops_arithmetic.cpp
-  dynamics/product_operators_arithmetics.cpp
+  dynamics/product_operators_arithmetic.cpp
 )
 
 # Make it so we can get function symbols
@@ -219,7 +219,7 @@ set(CUDAQ_OPERATOR_TEST_SOURCES
    dynamics/elementary_ops_arithmetic.cpp
    dynamics/scalar_ops_simple.cpp
    dynamics/scalar_ops_arithmetic.cpp
-   dynamics/product_operators_arithmetics.cpp
+   dynamics/product_operators_arithmetic.cpp
 )
 add_executable(test_operators main.cpp ${CUDAQ_OPERATOR_TEST_SOURCES})
 target_link_libraries(test_operators

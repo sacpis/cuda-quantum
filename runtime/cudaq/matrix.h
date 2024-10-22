@@ -109,4 +109,8 @@ public:
   /// @brief Kronecker product between two matrices.
   complex_matrix kronecker(complex_matrix &other);
 };
+
+// Needed to perform an accumulation of kronecker products.
+complex_matrix kronecker(complex_matrix &self, complex_matrix &other);
+
 } // namespace cudaq
