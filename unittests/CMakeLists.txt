@@ -219,6 +219,7 @@ gtest_discover_tests(test_spin)
 
 # Create an executable for operators UnitTests
 set(CUDAQ_OPERATOR_TEST_SOURCES 
+   dynamics/operator_sum.cpp
    dynamics/elementary_ops_simple.cpp
    dynamics/elementary_ops_arithmetic.cpp
    dynamics/scalar_ops_simple.cpp

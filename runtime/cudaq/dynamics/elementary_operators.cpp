@@ -417,9 +417,9 @@ operator_sum elementary_operator::operator+(operator_sum other) {
   return selfOpSum + other;
 }
 
-// operator_sum elementary_operator:operator-(operator_sum other);
-// operator_sum elementary_operator:operator+=(operator_sum other);
-// operator_sum elementary_operator:operator-=(operator_sum other);
+// operator_sum elementary_operator::operator-(operator_sum other);
+// operator_sum elementary_operator::operator+=(operator_sum other);
+// operator_sum elementary_operator::operator-=(operator_sum other);
 
 
 operator_sum elementary_operator::operator+(product_operator other) {

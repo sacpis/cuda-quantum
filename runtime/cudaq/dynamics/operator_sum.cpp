@@ -123,8 +123,7 @@ operator_sum::operator_sum(const std::vector<product_operator> &terms)
 // Arithmetic operators
 operator_sum operator_sum::operator+(const operator_sum &other) const {
   std::vector<product_operator> combined_terms = m_terms;
-  combined_terms.insert(combined_terms.end(), other.m_terms.begin(),
-                        other.m_terms.end());
+  combined_terms.insert(combined_terms.end(), std::make_move_iterator(other.m_terms.begin()), std::make_move_iterator(other.m_terms.end()));
   return operator_sum(combined_terms);
 }
 
@@ -165,6 +164,14 @@ operator_sum operator_sum::operator+=(const operator_sum &other) {
 //   return operator_sum(divided_terms);
 // }
 
+
+operator_sum operator_sum::operator*(const scalar_operator &other) const {
+  std::vector<product_operator> combined_terms = m_terms;
+  for (auto &term : combined_terms)
+    term *= other;
+  return operator_sum(combined_terms);
+}
+
 operator_sum operator_sum::operator+(const scalar_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
   combined_terms.push_back(product_operator({other}));
@@ -173,6 +180,11 @@ operator_sum operator_sum::operator+(const scalar_operator &other) const {
 
 operator_sum operator_sum::operator-(const scalar_operator &other) const {
   return *this + (-1.0 * other);
+}
+
+operator_sum operator_sum::operator*=(const scalar_operator &other) {
+  *this = *this * other;
+  return *this;
 }
 
 operator_sum operator_sum::operator+=(const scalar_operator &other) {
@@ -185,6 +197,89 @@ operator_sum operator_sum::operator-=(const scalar_operator &other) {
   return *this;
 }
 
+operator_sum operator_sum::operator*(std::complex<double> other) const {
+  return *this * scalar_operator(other);
+}
+
+operator_sum operator_sum::operator+(std::complex<double> other) const {
+  return *this + scalar_operator(other);
+}
+
+operator_sum operator_sum::operator-(std::complex<double> other) const {
+  return *this - scalar_operator(other);
+}
+
+operator_sum operator_sum::operator*=(std::complex<double> other) {
+  *this *= scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator_sum::operator+=(std::complex<double> other) {
+  *this += scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator_sum::operator-=(std::complex<double> other) {
+  *this -= scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator_sum::operator*(double other) const {
+  return *this * scalar_operator(other);
+}
+
+operator_sum operator_sum::operator+(double other) const {
+  return *this + scalar_operator(other);
+}
+
+operator_sum operator_sum::operator-(double other) const {
+  return *this - scalar_operator(other);
+}
+
+operator_sum operator_sum::operator*=(double other) {
+  *this *= scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator_sum::operator+=(double other) {
+  *this += scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator_sum::operator-=(double other) {
+  *this -= scalar_operator(other);
+  return *this;
+}
+
+operator_sum operator*(std::complex<double> other, operator_sum self) {
+  return scalar_operator(other) * self;
+}
+
+operator_sum operator+(std::complex<double> other, operator_sum self) {
+  return scalar_operator(other) + self;
+}
+
+operator_sum operator-(std::complex<double> other, operator_sum self) {
+  return scalar_operator(other) - self;
+}
+
+operator_sum operator*(double other, operator_sum self) {
+  return scalar_operator(other) * self;
+}
+
+operator_sum operator+(double other, operator_sum self) {
+  return scalar_operator(other) + self;
+}
+
+operator_sum operator-(double other, operator_sum self) {
+  return scalar_operator(other) - self;
+}
+
+
+
+
+
+
 operator_sum operator_sum::operator+(const product_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
   combined_terms.push_back(other);
@@ -196,17 +291,22 @@ operator_sum operator_sum::operator+=(const product_operator &other) {
   return *this;
 }
 
-/// FIXME:
-// operator_sum operator_sum::operator-(const product_operator &other) const {
-//   return *this + (-1. * other);
-// }
+operator_sum operator_sum::operator-(const product_operator &other) const {
+  return *this + (-1. * other);
+}
 
-/// FIXME:
-// operator_sum operator_sum::operator-=(const product_operator &other) {
-//   *this = *this - other;
-//   return *this;
-// }
+operator_sum operator_sum::operator-=(const product_operator &other) {
+  *this = *this - other;
+  return *this;
+}
 
+operator_sum operator_sum::operator*(const product_operator &other) const {
+  std::vector<product_operator> combined_terms = m_terms;
+  for (auto &term : combined_terms) {
+    term *= other;
+  }
+  return operator_sum(combined_terms);
+}
 
 operator_sum operator_sum::operator+(const elementary_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
@@ -231,15 +331,9 @@ operator_sum operator_sum::operator+=(const elementary_operator &other) {
 //   return *this;
 // }
 
-operator_sum operator_sum::operator*(const product_operator &other) const {
-  std::vector<product_operator> combined_terms = m_terms;
-  for (auto &term : combined_terms) {
-    term *= other;
-  }
-  return operator_sum(combined_terms);
-}
 
-// operator_sum operator*(const scalar_operator &other) const;
+
+
 
 
 

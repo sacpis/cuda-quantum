@@ -76,23 +76,42 @@ public:
   operator_sum operator-(const operator_sum &other) const;
   operator_sum operator*(const operator_sum &other) const;
   operator_sum operator/(const operator_sum &other) const;
+  /// FIXME: implement *=
+  operator_sum operator*=(const operator_sum &other);
   operator_sum operator+=(const operator_sum &other);
   operator_sum operator-=(const operator_sum &other);
-
   operator_sum operator*(const scalar_operator &other) const;
   operator_sum operator+(const scalar_operator &other) const;
   operator_sum operator-(const scalar_operator &other) const;
+  operator_sum operator*=(const scalar_operator &other);
   operator_sum operator+=(const scalar_operator &other);
   operator_sum operator-=(const scalar_operator &other);
+  operator_sum operator*(std::complex<double> other) const;
+  operator_sum operator+(std::complex<double> other) const;
+  operator_sum operator-(std::complex<double> other) const;
+  operator_sum operator*=(std::complex<double> other);
+  operator_sum operator+=(std::complex<double> other);
+  operator_sum operator-=(std::complex<double> other);
+  operator_sum operator*(double other) const;
+  operator_sum operator+(double other) const;
+  operator_sum operator-(double other) const;
+  operator_sum operator*=(double other);
+  operator_sum operator+=(double other);
+  operator_sum operator-=(double other);
+
 
   operator_sum operator*(const product_operator &other) const;
   operator_sum operator+(const product_operator &other) const;
   operator_sum operator-(const product_operator &other) const;
+  /// TODO: implement *=
+  // operator_sum operator*=(const product_operator &other);
   operator_sum operator+=(const product_operator &other);
   operator_sum operator-=(const product_operator &other);
 
   operator_sum operator+(const elementary_operator &other) const;
   operator_sum operator-(const elementary_operator &other) const;
+  /// TODO: implement *=
+  // operator_sum operator*=(const product_operator &other);
   operator_sum operator+=(const elementary_operator &other);
   operator_sum operator-=(const elementary_operator &other);
 
@@ -112,6 +131,12 @@ public:
 
   std::vector<product_operator> get_terms() { return m_terms; }
 };
+operator_sum operator*(std::complex<double> other, operator_sum self);
+operator_sum operator+(std::complex<double> other, operator_sum self);
+operator_sum operator-(std::complex<double> other, operator_sum self);
+operator_sum operator*(double other, operator_sum self);
+operator_sum operator+(double other, operator_sum self);
+operator_sum operator-(double other, operator_sum self);
 
 /// @brief Represents an operator expression consisting of a product of
 /// elementary and scalar operators. Operator expressions cannot be used within
@@ -384,9 +409,8 @@ public:
   scalar_operator operator-(scalar_operator other);
   scalar_operator operator*(scalar_operator other);
   scalar_operator operator/(scalar_operator other);
-  /// TODO:
+  /// TODO: implement and test pow
   scalar_operator pow(scalar_operator other);
-
   /// TODO: All of the below need deeper testing but are implemented.
   operator_sum operator+(elementary_operator other);
   operator_sum operator-(elementary_operator other);
@@ -395,12 +419,12 @@ public:
   operator_sum operator+(product_operator other);
   operator_sum operator-(product_operator other);
   product_operator operator*(product_operator other);
-  /// FIXME:
+  /// FIXME: division
   product_operator operator/(product_operator other);
-  /// TODO:
   operator_sum operator+(operator_sum other);
   operator_sum operator-(operator_sum other);
   operator_sum operator*(operator_sum other);
+  /// FIXME: division
   operator_sum operator/(operator_sum other);
 
   /// @brief Return the scalar operator as a concrete complex value.

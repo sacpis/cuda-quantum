@@ -21,76 +21,102 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     return parameters["value"];
   };
 
-  // Addition against constant scalar operator.
+  // `elementary_operator + scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(1.0);
 
     auto sum = self + other;
+    auto reverse = other + self;
+
     ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Addition against scalar operator from generator.
+   // `elementary_operator + scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(function);
 
     auto sum = self + other;
+    auto reverse = other + self;
+
     ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Subtraction against constant scalar operator.
+   // `elementary_operator - scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(1.0);
 
     auto sum = self - other;
+    auto reverse = other - self;
+
     ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Subtraction against scalar operator from generator.
+   // `elementary_operator - scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(function);
 
     auto sum = self - other;
+    auto reverse = other - self;
+
     ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Multiplication against constant scalar operator.
+   // `elementary_operator * scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(1.0);
 
     auto product = self * other;
+    auto reverse = other * self;
+
     ASSERT_TRUE(product.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Multiplication against scalar operator from generator.
+   // `elementary_operator * scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(function);
 
     auto product = self * other;
+    auto reverse = other * self;
+
     ASSERT_TRUE(product.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Division against constant scalar operator.
+   // `elementary_operator / scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(1.0);
 
     auto product = self / other;
+    /// FIXME:
+    // auto reverse = other / self;
+
     ASSERT_TRUE(product.get_terms().size() == 2);
+    // ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 
-  // Division against scalar operator from generator.
+   // `elementary_operator / scalar_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     auto other = cudaq::scalar_operator(function);
 
     auto product = self / other;
+    /// FIXME:
+    // auto reverse = other / self;
+
     ASSERT_TRUE(product.get_terms().size() == 2);
+    // ASSERT_TRUE(reverse.get_terms().size() == 2);
   }
 }
 

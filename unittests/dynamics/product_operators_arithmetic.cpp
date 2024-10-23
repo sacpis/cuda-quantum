@@ -12,26 +12,26 @@
 
 #include <numeric>
 
-cudaq::complex_matrix _id_matrix(int size) {
-  auto mat = cudaq::complex_matrix(size, size);
-  for (int i = 0; i < size; i++)
-    mat(i, i) = 1.0 + 0.0j;
-  return mat;
-}
+// cudaq::complex_matrix _id_matrix(int size) {
+//   auto mat = cudaq::complex_matrix(size, size);
+//   for (int i = 0; i < size; i++)
+//     mat(i, i) = 1.0 + 0.0j;
+//   return mat;
+// }
 
-cudaq::complex_matrix _annihilate_matrix(int size) {
-  auto mat = cudaq::complex_matrix(size, size);
-  for (std::size_t i = 0; i + 1 < size; i++)
-    mat(i, i + 1) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-  return mat;
-}
+// cudaq::complex_matrix _annihilate_matrix(int size) {
+//   auto mat = cudaq::complex_matrix(size, size);
+//   for (std::size_t i = 0; i + 1 < size; i++)
+//     mat(i, i + 1) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+//   return mat;
+// }
 
-cudaq::complex_matrix _create_matrix(int size) {
-  auto mat = cudaq::complex_matrix(size, size);
-  for (std::size_t i = 0; i + 1 < size; i++)
-    mat(i + 1, i) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-  return mat;
-}
+// cudaq::complex_matrix _create_matrix(int size) {
+//   auto mat = cudaq::complex_matrix(size, size);
+//   for (std::size_t i = 0; i + 1 < size; i++)
+//     mat(i + 1, i) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+//   return mat;
+// }
 
 cudaq::complex_matrix
 kroneckerHelper(std::vector<cudaq::complex_matrix> &matrices) {
@@ -464,8 +464,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
     auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
 
     auto sum = product + original_sum;
+    auto reverse = original_sum + product;
 
     ASSERT_TRUE(sum.get_terms().size() == 3);
+    ASSERT_TRUE(reverse.get_terms().size() == 3);
   }
 
   /// FIXME:
@@ -475,8 +477,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
   //   auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
 
   //   auto difference = product - original_sum;
+  //   auto reverse = original_sum - product;
 
   //   ASSERT_TRUE(sum.get_terms().size() == 3);
+  //   ASSERT_TRUE(reverse.get_terms().size() == 3);
   // }
 
   // `product_operator * operator_sum`
