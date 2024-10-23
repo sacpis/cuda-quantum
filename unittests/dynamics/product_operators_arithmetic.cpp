@@ -231,14 +231,14 @@ TEST(ExpressionTester, checkProductOperatorSimpleContinued) {
   }
 }
 
-
 TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
   std::complex<double> value_0 = 0.1 + 0.1;
 
   /// `product_operator + complex<double>`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-   
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto sum = value_0 + product_op;
     auto reverse = product_op + value_0;
 
@@ -248,8 +248,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator + double`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-   
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto sum = 2.0 + product_op;
     auto reverse = product_op + 2.0;
 
@@ -259,9 +260,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator + scalar_operator`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
     auto scalar_op = cudaq::scalar_operator(1.0);
-    
+
     auto sum = scalar_op + product_op;
     auto reverse = product_op + scalar_op;
 
@@ -271,8 +273,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator - complex<double>`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto difference = value_0 - product_op;
     auto reverse = product_op - value_0;
 
@@ -282,8 +285,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator - double`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto difference = 2.0 - product_op;
     auto reverse = product_op - 2.0;
 
@@ -293,9 +297,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator - scalar_operator`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
     auto scalar_op = cudaq::scalar_operator(1.0);
-    
+
     auto difference = scalar_op - product_op;
     auto reverse = product_op - scalar_op;
 
@@ -305,8 +310,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator * complex<double>`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-   
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto product = value_0 * product_op;
     auto reverse = product_op * value_0;
 
@@ -316,8 +322,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator * double`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-   
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
+
     auto product = 2.0 * product_op;
     auto reverse = product_op * 2.0;
 
@@ -327,9 +334,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator * scalar_operator`
   {
-    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product_op = cudaq::elementary_operator::annihilate(0) *
+                      cudaq::elementary_operator::annihilate(1);
     auto scalar_op = cudaq::scalar_operator(1.0);
-    
+
     auto product = scalar_op * product_op;
     auto reverse = product_op * scalar_op;
 
@@ -339,7 +347,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator *= complex<double>`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     product *= value_0;
 
     ASSERT_TRUE(product.term_count() == 3);
@@ -347,7 +356,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator *= double`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     product *= 2.0;
 
     ASSERT_TRUE(product.term_count() == 3);
@@ -355,9 +365,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
   /// `product_operator *= scalar_operator`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     auto scalar_op = cudaq::scalar_operator(1.0);
-    
+
     product *= scalar_op;
 
     ASSERT_TRUE(product.term_count() == 3);
@@ -368,8 +379,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
   // `product_operator + product_operator`
   {
-    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+    auto term_0 = cudaq::elementary_operator::annihilate(0) *
+                  cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) *
+                  cudaq::elementary_operator::annihilate(2);
 
     auto sum = term_0 + term_1;
 
@@ -378,8 +391,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
   // `product_operator - product_operator`
   {
-    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+    auto term_0 = cudaq::elementary_operator::annihilate(0) *
+                  cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) *
+                  cudaq::elementary_operator::annihilate(2);
 
     auto difference = term_0 - term_1;
 
@@ -388,8 +403,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
   // `product_operator * product_operator`
   {
-    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+    auto term_0 = cudaq::elementary_operator::annihilate(0) *
+                  cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) *
+                  cudaq::elementary_operator::annihilate(2);
 
     auto product = term_0 * term_1;
 
@@ -398,8 +415,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
   // `product_operator *= product_operator`
   {
-    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+    auto term_0 = cudaq::elementary_operator::annihilate(0) *
+                  cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) *
+                  cudaq::elementary_operator::annihilate(2);
 
     term_0 *= term_1;
 
@@ -411,7 +430,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 
   // `product_operator + elementary_operator`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     auto elementary = cudaq::elementary_operator::create(1);
 
     auto sum = product + elementary;
@@ -423,7 +443,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 
   // `product_operator - elementary_operator`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     auto elementary = cudaq::elementary_operator::create(1);
 
     auto difference = product - elementary;
@@ -435,7 +456,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 
   // `product_operator * elementary_operator`
   {
-    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto term_0 = cudaq::elementary_operator::annihilate(0) *
+                  cudaq::elementary_operator::annihilate(1);
     auto elementary = cudaq::elementary_operator::create(1);
 
     auto product = term_0 * elementary;
@@ -447,7 +469,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 
   // `product_operator *= elementary_operator`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
     auto elementary = cudaq::elementary_operator::create(1);
 
     product *= elementary;
@@ -457,11 +480,13 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 }
 
 TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
-  
+
   // `product_operator + operator_sum`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
+    auto original_sum = cudaq::elementary_operator::create(1) +
+                        cudaq::elementary_operator::create(2);
 
     auto sum = product + original_sum;
     auto reverse = original_sum + product;
@@ -472,8 +497,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
 
   // `product_operator - operator_sum`
   {
-    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+    auto product = cudaq::elementary_operator::annihilate(0) *
+                   cudaq::elementary_operator::annihilate(1);
+    auto original_sum = cudaq::elementary_operator::create(1) +
+                        cudaq::elementary_operator::create(2);
 
     auto difference = product - original_sum;
     auto reverse = original_sum - product;
@@ -484,8 +511,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
 
   // `product_operator * operator_sum`
   {
-    auto original_product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-    auto sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+    auto original_product = cudaq::elementary_operator::annihilate(0) *
+                            cudaq::elementary_operator::annihilate(1);
+    auto sum = cudaq::elementary_operator::create(1) +
+               cudaq::elementary_operator::create(2);
 
     auto product = original_product * sum;
     auto reverse = sum * original_product;
@@ -501,5 +530,4 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
       ASSERT_TRUE(term.term_count() == 3);
     }
   }
-
 }

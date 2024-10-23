@@ -24,7 +24,8 @@ product_operator::product_operator(
 
 // complex_matrix kroneckerHelper(std::vector<complex_matrix> &matrices) {
 //   // essentially we pass in the list of elementary operators to
-//   // this function -- with lowest degree being leftmost -- then it computes the
+//   // this function -- with lowest degree being leftmost -- then it computes
+//   the
 //   // kronecker product of all of them.
 //   auto kronecker = [](complex_matrix self, complex_matrix other) {
 //     return self.kronecker(other);
@@ -81,14 +82,16 @@ product_operator::product_operator(
 //         std::cout << "here 77\n";
 //       } else {
 //         std::cout << "here 80\n";
-//         matrixWithIdentities.push_back(complex_matrix::identity(level, level));
+//         matrixWithIdentities.push_back(complex_matrix::identity(level,
+//         level));
 //       }
 //     }
 //     std::cout << "here 84\n";
 //     matricesFullVectorSpace.push_back(kroneckerHelper(matrixWithIdentities));
 //   }
 //   // Now just need to accumulate with matrix multiplication all of the
-//   // matrices in `matricesFullVectorSpace` -- they should all be the same size
+//   // matrices in `matricesFullVectorSpace` -- they should all be the same
+//   size
 //   // already.
 //   std::cout << "here 89\n";
 
@@ -117,17 +120,20 @@ std::vector<int> product_operator::degrees() const {
 }
 
 operator_sum product_operator::operator+(scalar_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {other};
+  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {
+      other};
   return operator_sum({*this, product_operator(_other)});
 }
 
 operator_sum product_operator::operator-(scalar_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {other};
+  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {
+      other};
   return operator_sum({*this, -1. * product_operator(_other)});
 }
 
 product_operator product_operator::operator*(scalar_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> combined_terms = m_terms;
+  std::vector<std::variant<scalar_operator, elementary_operator>>
+      combined_terms = m_terms;
   combined_terms.push_back(other);
   return product_operator(combined_terms);
 }
@@ -200,12 +206,15 @@ operator_sum product_operator::operator+(product_operator other) {
 }
 
 operator_sum product_operator::operator-(product_operator other) {
-  return operator_sum({*this, (-1.*other)});
+  return operator_sum({*this, (-1. * other)});
 }
 
 product_operator product_operator::operator*(product_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> combined_terms = m_terms;
-  combined_terms.insert(combined_terms.end(), std::make_move_iterator(other.m_terms.begin()), std::make_move_iterator(other.m_terms.end()));
+  std::vector<std::variant<scalar_operator, elementary_operator>>
+      combined_terms = m_terms;
+  combined_terms.insert(combined_terms.end(),
+                        std::make_move_iterator(other.m_terms.begin()),
+                        std::make_move_iterator(other.m_terms.end()));
   return product_operator(combined_terms);
 }
 
@@ -215,17 +224,20 @@ product_operator product_operator::operator*=(product_operator other) {
 }
 
 operator_sum product_operator::operator+(elementary_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {other};
+  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {
+      other};
   return operator_sum({*this, product_operator(_other)});
 }
 
 operator_sum product_operator::operator-(elementary_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {other};
+  std::vector<std::variant<scalar_operator, elementary_operator>> _other = {
+      other};
   return operator_sum({*this, -1. * product_operator(_other)});
 }
 
 product_operator product_operator::operator*(elementary_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> combined_terms = m_terms;
+  std::vector<std::variant<scalar_operator, elementary_operator>>
+      combined_terms = m_terms;
   combined_terms.push_back(other);
   return product_operator(combined_terms);
 }
@@ -255,6 +267,5 @@ operator_sum product_operator::operator*(operator_sum other) {
   }
   return operator_sum(other_terms);
 }
-
 
 } // namespace cudaq

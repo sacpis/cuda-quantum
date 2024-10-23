@@ -191,7 +191,6 @@ ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(/=);
     return returnOperator;                                                     \
   }
 
-/// FIXME: Broken implementation
 #define ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(op)                        \
   void operator op(scalar_operator &self, scalar_operator other) {             \
     /* Need to move the existing generating function to a new operator so      \
@@ -237,11 +236,6 @@ product_operator scalar_operator::operator*(elementary_operator other) {
   return product_operator({*this, other});
 }
 
-/// FIXME: division on elementary op needed
-// product_operator scalar_operator::operator/(elementary_operator other) {
-//   return product_operator({*this, (1./other)});
-// }
-
 operator_sum scalar_operator::operator+(product_operator other) {
   return operator_sum({product_operator({*this}), other});
 }
@@ -251,12 +245,12 @@ operator_sum scalar_operator::operator-(product_operator other) {
 }
 
 product_operator scalar_operator::operator*(product_operator other) {
-  std::vector<std::variant<scalar_operator, elementary_operator>> other_terms = other.get_terms();
+  std::vector<std::variant<scalar_operator, elementary_operator>> other_terms =
+      other.get_terms();
   /// Insert this scalar operator to the front of the terms list.
   other_terms.insert(other_terms.begin(), *this);
   return product_operator(other_terms);
 }
-
 
 operator_sum scalar_operator::operator+(operator_sum other) {
   std::vector<product_operator> other_terms = other.get_terms();
@@ -277,14 +271,5 @@ operator_sum scalar_operator::operator*(operator_sum other) {
     term = *this * term;
   return operator_sum(other_terms);
 }
-
-/// FIXME: Need to implement division
-// operator_sum scalar_operator::operator/(operator_sum other) {
-//   std::vector<product_operator> other_terms = other.get_terms();
-//   for (auto &term : other_terms)
-//     term = *this / term;
-//   return operator_sum(other_terms);
-// }
-
 
 } // namespace cudaq

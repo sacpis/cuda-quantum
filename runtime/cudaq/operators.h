@@ -102,12 +102,10 @@ public:
   operator_sum operator*=(const product_operator &other);
   operator_sum operator+=(const product_operator &other);
   operator_sum operator-=(const product_operator &other);
-  
-
   operator_sum operator+(const elementary_operator &other) const;
   operator_sum operator-(const elementary_operator &other) const;
-  /// TODO: implement *=
-  // operator_sum operator*=(const product_operator &other);
+  operator_sum operator*(const elementary_operator &other) const;
+  operator_sum operator*=(const elementary_operator &other);
   operator_sum operator+=(const elementary_operator &other);
   operator_sum operator-=(const elementary_operator &other);
 
@@ -215,7 +213,8 @@ public:
   /// order.
   std::vector<int> degrees() const;
 
-  /// @brief Return the number of operator terms that make up this product operator.
+  /// @brief Return the number of operator terms that make up this product
+  /// operator.
   int term_count() const { return m_terms.size(); }
 
   /// @brief A map of the paramter names to their concrete, complex values.
