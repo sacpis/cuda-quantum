@@ -409,10 +409,12 @@ operator_sum elementary_operator::operator+(operator_sum other) {
   return selfOpSum + other;
 }
 
-// operator_sum elementary_operator::operator-(operator_sum other);
-// operator_sum elementary_operator::operator+=(operator_sum other);
-// operator_sum elementary_operator::operator-=(operator_sum other);
-
+operator_sum elementary_operator::operator-(operator_sum other) {
+  std::vector<std::variant<scalar_operator, elementary_operator>> _this = {*this};
+  std::vector<product_operator> _prods  = {product_operator(_this)};
+  auto selfOpSum = operator_sum(_prods);
+  return selfOpSum - other;
+}
 
 operator_sum elementary_operator::operator+(product_operator other) {
   std::vector<std::variant<scalar_operator, elementary_operator>> _this = {*this};

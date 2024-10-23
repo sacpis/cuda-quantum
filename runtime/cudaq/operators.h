@@ -74,10 +74,8 @@ public:
   // Arithmetic operators
   operator_sum operator+(const operator_sum &other) const;
   operator_sum operator-(const operator_sum &other) const;
-  operator_sum operator*(const operator_sum &other) const;
-  operator_sum operator/(const operator_sum &other) const;
-  /// FIXME: implement *=
-  operator_sum operator*=(const operator_sum &other);
+  operator_sum operator*(operator_sum &other) const;
+  operator_sum operator*=(operator_sum &other);
   operator_sum operator+=(const operator_sum &other);
   operator_sum operator-=(const operator_sum &other);
   operator_sum operator*(const scalar_operator &other) const;
@@ -98,15 +96,13 @@ public:
   operator_sum operator*=(double other);
   operator_sum operator+=(double other);
   operator_sum operator-=(double other);
-
-
   operator_sum operator*(const product_operator &other) const;
   operator_sum operator+(const product_operator &other) const;
   operator_sum operator-(const product_operator &other) const;
-  /// TODO: implement *=
-  // operator_sum operator*=(const product_operator &other);
+  operator_sum operator*=(const product_operator &other);
   operator_sum operator+=(const product_operator &other);
   operator_sum operator-=(const product_operator &other);
+  
 
   operator_sum operator+(const elementary_operator &other) const;
   operator_sum operator-(const elementary_operator &other) const;
@@ -411,17 +407,12 @@ public:
   operator_sum operator+(elementary_operator other);
   operator_sum operator-(elementary_operator other);
   product_operator operator*(elementary_operator other);
-  product_operator operator/(elementary_operator other);
   operator_sum operator+(product_operator other);
   operator_sum operator-(product_operator other);
   product_operator operator*(product_operator other);
-  /// FIXME: division
-  product_operator operator/(product_operator other);
   operator_sum operator+(operator_sum other);
   operator_sum operator-(operator_sum other);
   operator_sum operator*(operator_sum other);
-  /// FIXME: division
-  operator_sum operator/(operator_sum other);
 
   /// @brief Return the scalar operator as a concrete complex value.
   std::complex<double>

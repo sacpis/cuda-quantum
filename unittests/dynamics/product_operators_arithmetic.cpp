@@ -470,18 +470,17 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
-  /// FIXME:
-  // // `product_operator - operator_sum`
-  // {
-  //   auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
-  //   auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+  // `product_operator - operator_sum`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
 
-  //   auto difference = product - original_sum;
-  //   auto reverse = original_sum - product;
+    auto difference = product - original_sum;
+    auto reverse = original_sum - product;
 
-  //   ASSERT_TRUE(sum.term_count() == 3);
-  //   ASSERT_TRUE(reverse.term_count() == 3);
-  // }
+    ASSERT_TRUE(difference.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
+  }
 
   // `product_operator * operator_sum`
   {

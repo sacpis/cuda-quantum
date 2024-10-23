@@ -241,13 +241,12 @@ operator_sum product_operator::operator+(operator_sum other) {
   return operator_sum(other_terms);
 }
 
-/// FIXME: need to support scalar multiplication on operator sum first
-// operator_sum product_operator::operator-(operator_sum other) {
-//   auto negative_other = (-1. * other);
-//   std::vector<product_operator> other_terms = negative_other.get_terms();
-//   other_terms.insert(other_terms.begin(), *this);
-//   return operator_sum(other_terms);
-// }
+operator_sum product_operator::operator-(operator_sum other) {
+  auto negative_other = (-1. * other);
+  std::vector<product_operator> other_terms = negative_other.get_terms();
+  other_terms.insert(other_terms.begin(), *this);
+  return operator_sum(other_terms);
+}
 
 operator_sum product_operator::operator*(operator_sum other) {
   std::vector<product_operator> other_terms = other.get_terms();

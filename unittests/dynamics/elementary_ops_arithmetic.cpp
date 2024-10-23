@@ -158,7 +158,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
 /// sums.
 TEST(ExpressionTester, checkElementaryOpsAgainstOpSum) {
 
-  /// Addition.
+  /// `elementary_operator + operator_sum` and `operator_sum + elementary_operator`
   {
     auto self = cudaq::elementary_operator::annihilate(0);
     /// Creating an arbitrary operator sum to work against.
@@ -166,6 +166,41 @@ TEST(ExpressionTester, checkElementaryOpsAgainstOpSum) {
                         cudaq::elementary_operator::identity(1);
 
     auto got = self + operator_sum;
+    auto reverse = operator_sum + self;
+
     ASSERT_TRUE(got.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
+  }
+
+  /// `elementary_operator - operator_sum` and `operator_sum - elementary_operator`
+  {
+    auto self = cudaq::elementary_operator::annihilate(0);
+    /// Creating an arbitrary operator sum to work against.
+    auto operator_sum = cudaq::elementary_operator::create(0) +
+                        cudaq::elementary_operator::identity(1);
+
+    auto got = self - operator_sum;
+    auto reverse = operator_sum - self;
+
+    ASSERT_TRUE(got.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
+  }
+
+  /// `operator_sum += elementary_operator`
+  {
+    auto operator_sum = cudaq::elementary_operator::create(0) +
+                    cudaq::elementary_operator::identity(1);
+    operator_sum += cudaq::elementary_operator::annihilate(0);
+
+    ASSERT_TRUE(operator_sum.term_count() == 3);
+  }
+
+  /// `operator_sum -= elementary_operator`
+  {
+    auto operator_sum = cudaq::elementary_operator::create(0) +
+                    cudaq::elementary_operator::identity(1);
+    operator_sum -= cudaq::elementary_operator::annihilate(0);
+
+    ASSERT_TRUE(operator_sum.term_count() == 3);
   }
 }
