@@ -242,8 +242,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto sum = value_0 + product_op;
     auto reverse = product_op + value_0;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator + double`
@@ -253,8 +253,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto sum = 2.0 + product_op;
     auto reverse = product_op + 2.0;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator + scalar_operator`
@@ -265,8 +265,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto sum = scalar_op + product_op;
     auto reverse = product_op + scalar_op;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator - complex<double>`
@@ -276,8 +276,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto difference = value_0 - product_op;
     auto reverse = product_op - value_0;
 
-    ASSERT_TRUE(difference.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(difference.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator - double`
@@ -287,8 +287,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto difference = 2.0 - product_op;
     auto reverse = product_op - 2.0;
 
-    ASSERT_TRUE(difference.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(difference.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator - scalar_operator`
@@ -299,8 +299,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto difference = scalar_op - product_op;
     auto reverse = product_op - scalar_op;
 
-    ASSERT_TRUE(difference.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(difference.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   /// `product_operator * complex<double>`
@@ -310,8 +310,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto product = value_0 * product_op;
     auto reverse = product_op * value_0;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
-    ASSERT_TRUE(reverse.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   /// `product_operator * double`
@@ -321,8 +321,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto product = 2.0 * product_op;
     auto reverse = product_op * 2.0;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
-    ASSERT_TRUE(reverse.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   /// `product_operator * scalar_operator`
@@ -333,8 +333,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto product = scalar_op * product_op;
     auto reverse = product_op * scalar_op;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
-    ASSERT_TRUE(reverse.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   /// `product_operator *= complex<double>`
@@ -342,7 +342,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
     product *= value_0;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
   }
 
   /// `product_operator *= double`
@@ -350,7 +350,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
     product *= 2.0;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
   }
 
   /// `product_operator *= scalar_operator`
@@ -360,7 +360,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     
     product *= scalar_op;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
   }
 }
 
@@ -373,7 +373,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
     auto sum = term_0 + term_1;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
   }
 
   // `product_operator - product_operator`
@@ -383,7 +383,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
     auto difference = term_0 - term_1;
 
-    ASSERT_TRUE(difference.get_terms().size() == 2);
+    ASSERT_TRUE(difference.term_count() == 2);
   }
 
   // `product_operator * product_operator`
@@ -393,7 +393,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
     auto product = term_0 * term_1;
 
-    ASSERT_TRUE(product.get_terms().size() == 4);
+    ASSERT_TRUE(product.term_count() == 4);
   }
 
   // `product_operator *= product_operator`
@@ -403,7 +403,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
 
     term_0 *= term_1;
 
-    ASSERT_TRUE(term_0.get_terms().size() == 4);
+    ASSERT_TRUE(term_0.term_count() == 4);
   }
 }
 
@@ -417,8 +417,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
     auto sum = product + elementary;
     auto reverse = elementary + product;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   // `product_operator - elementary_operator`
@@ -429,8 +429,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
     auto difference = product - elementary;
     auto reverse = elementary - product;
 
-    ASSERT_TRUE(difference.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(difference.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
   // `product_operator * elementary_operator`
@@ -441,8 +441,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
     auto product = term_0 * elementary;
     auto reverse = elementary * term_0;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
-    ASSERT_TRUE(reverse.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `product_operator *= elementary_operator`
@@ -452,7 +452,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
 
     product *= elementary;
 
-    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(product.term_count() == 3);
   }
 }
 
@@ -466,8 +466,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
     auto sum = product + original_sum;
     auto reverse = original_sum + product;
 
-    ASSERT_TRUE(sum.get_terms().size() == 3);
-    ASSERT_TRUE(reverse.get_terms().size() == 3);
+    ASSERT_TRUE(sum.term_count() == 3);
+    ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   /// FIXME:
@@ -479,8 +479,8 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
   //   auto difference = product - original_sum;
   //   auto reverse = original_sum - product;
 
-  //   ASSERT_TRUE(sum.get_terms().size() == 3);
-  //   ASSERT_TRUE(reverse.get_terms().size() == 3);
+  //   ASSERT_TRUE(sum.term_count() == 3);
+  //   ASSERT_TRUE(reverse.term_count() == 3);
   // }
 
   // `product_operator * operator_sum`
@@ -491,15 +491,15 @@ TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
     auto product = original_product * sum;
     auto reverse = sum * original_product;
 
-    ASSERT_TRUE(product.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(product.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
 
     for (auto term : product.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+      ASSERT_TRUE(term.term_count() == 3);
     }
 
     for (auto term : reverse.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+      ASSERT_TRUE(term.term_count() == 3);
     }
   }
 

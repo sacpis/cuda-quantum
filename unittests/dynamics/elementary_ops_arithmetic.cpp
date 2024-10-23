@@ -29,8 +29,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto sum = self + other;
     auto reverse = other + self;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
    // `elementary_operator + scalar_operator`
@@ -41,8 +41,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto sum = self + other;
     auto reverse = other + self;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
    // `elementary_operator - scalar_operator`
@@ -53,8 +53,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto sum = self - other;
     auto reverse = other - self;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
    // `elementary_operator - scalar_operator`
@@ -65,8 +65,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto sum = self - other;
     auto reverse = other - self;
 
-    ASSERT_TRUE(sum.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
    // `elementary_operator * scalar_operator`
@@ -77,8 +77,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto product = self * other;
     auto reverse = other * self;
 
-    ASSERT_TRUE(product.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(product.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 
    // `elementary_operator * scalar_operator`
@@ -89,34 +89,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto product = self * other;
     auto reverse = other * self;
 
-    ASSERT_TRUE(product.get_terms().size() == 2);
-    ASSERT_TRUE(reverse.get_terms().size() == 2);
-  }
-
-   // `elementary_operator / scalar_operator`
-  {
-    auto self = cudaq::elementary_operator::annihilate(0);
-    auto other = cudaq::scalar_operator(1.0);
-
-    auto product = self / other;
-    /// FIXME:
-    // auto reverse = other / self;
-
-    ASSERT_TRUE(product.get_terms().size() == 2);
-    // ASSERT_TRUE(reverse.get_terms().size() == 2);
-  }
-
-   // `elementary_operator / scalar_operator`
-  {
-    auto self = cudaq::elementary_operator::annihilate(0);
-    auto other = cudaq::scalar_operator(function);
-
-    auto product = self / other;
-    /// FIXME:
-    // auto reverse = other / self;
-
-    ASSERT_TRUE(product.get_terms().size() == 2);
-    // ASSERT_TRUE(reverse.get_terms().size() == 2);
+    ASSERT_TRUE(product.term_count() == 2);
+    ASSERT_TRUE(reverse.term_count() == 2);
   }
 }
 
@@ -131,7 +105,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(0);
 
     auto sum = self + other;
-    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
   }
 
   // Addition, different DOF's.
@@ -140,7 +114,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(1);
 
     auto sum = self + other;
-    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
   }
 
   // Subtraction, same DOF.
@@ -149,7 +123,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(0);
 
     auto sum = self - other;
-    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
   }
 
   // Subtraction, different DOF's.
@@ -158,7 +132,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(1);
 
     auto sum = self - other;
-    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(sum.term_count() == 2);
   }
 
   // Multiplication, same DOF.
@@ -167,7 +141,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(0);
 
     auto product = self * other;
-    ASSERT_TRUE(product.get_terms().size() == 2);
+    ASSERT_TRUE(product.term_count() == 2);
   }
 
   // Multiplication, different DOF's.
@@ -176,7 +150,7 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto other = cudaq::elementary_operator::create(1);
 
     auto product = self * other;
-    ASSERT_TRUE(product.get_terms().size() == 2);
+    ASSERT_TRUE(product.term_count() == 2);
   }
 }
 
@@ -192,9 +166,6 @@ TEST(ExpressionTester, checkElementaryOpsAgainstOpSum) {
                         cudaq::elementary_operator::identity(1);
 
     auto got = self + operator_sum;
-    std::cout << "term count of original op sum = "
-              << operator_sum.get_terms().size() << "\n";
-    std::cout << "term count = " << got.get_terms().size() << "\n";
-    ASSERT_TRUE(got.get_terms().size() == 3);
+    ASSERT_TRUE(got.term_count() == 3);
   }
 }

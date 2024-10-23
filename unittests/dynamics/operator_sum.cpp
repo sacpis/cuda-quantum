@@ -156,6 +156,15 @@
 // }
 
 
+TEST(ExpressionTester, checkTest) {
+  auto op = cudaq::elementary_operator::create(1);
+  std::vector<std::variant<cudaq::scalar_operator, cudaq::elementary_operator>> ops = {op};
+  auto prod = cudaq::product_operator({op});
+  // auto prod = cudaq::product_operator(ops);
+  std::cout << "\nsize = " << prod.term_count() << "\n";
+}
+
+
 TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
 
   // `operator_sum * scalar_operator` and `scalar_operator * operator_sum`
@@ -165,15 +174,15 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
      auto product = sum * cudaq::scalar_operator(1.0);
      auto reverse = cudaq::scalar_operator(1.0) * sum;
 
-     ASSERT_TRUE(product.get_terms().size() == 2);
-     ASSERT_TRUE(reverse.get_terms().size() == 2);
+     ASSERT_TRUE(product.term_count() == 2);
+     ASSERT_TRUE(reverse.term_count() == 2);
 
-    for (auto term : sum.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+    for (auto term : product.get_terms()) {
+      ASSERT_TRUE(term.term_count() == 2);
     }
 
     for (auto term : reverse.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+      ASSERT_TRUE(term.term_count() == 2);
     }
   }
 
@@ -184,8 +193,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
      auto sum = original + cudaq::scalar_operator(1.0);
      auto reverse = cudaq::scalar_operator(1.0) + original;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum - scalar_operator` and `scalar_operator - operator_sum`
@@ -195,8 +204,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
      auto difference = original - cudaq::scalar_operator(1.0);
      auto reverse = cudaq::scalar_operator(1.0) - original;
 
-     ASSERT_TRUE(difference.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(difference.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum *= scalar_operator`
@@ -205,9 +214,9 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
 
      sum *= cudaq::scalar_operator(1.0);
 
-     ASSERT_TRUE(sum.get_terms().size() == 2);
+     ASSERT_TRUE(sum.term_count() == 2);
       for (auto term : sum.get_terms()) {
-        ASSERT_TRUE(term.get_terms().size() == 2);
+        ASSERT_TRUE(term.term_count() == 2);
       }
   }
 
@@ -217,7 +226,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
 
      sum += cudaq::scalar_operator(1.0);
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 
   // `operator_sum -= scalar_operator`
@@ -226,7 +235,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalarOperator) {
 
      sum -= cudaq::scalar_operator(1.0);
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 }
 
@@ -242,15 +251,15 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto product = sum * 2.0;
      auto reverse = 2.0 * sum;
 
-     ASSERT_TRUE(product.get_terms().size() == 2);
-     ASSERT_TRUE(reverse.get_terms().size() == 2);
+     ASSERT_TRUE(product.term_count() == 2);
+     ASSERT_TRUE(reverse.term_count() == 2);
 
-    for (auto term : sum.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+    for (auto term : product.get_terms()) {
+      ASSERT_TRUE(term.term_count() == 2);
     }
 
     for (auto term : reverse.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+      ASSERT_TRUE(term.term_count() == 2);
     }
   }
 
@@ -261,8 +270,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto sum = original + 2.0;
      auto reverse = 2.0 + original;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum - double` and `double - operator_sum`
@@ -272,8 +281,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto difference = original - 2.0;
      auto reverse = 2.0 - original;
 
-     ASSERT_TRUE(difference.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(difference.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum *= double`
@@ -282,9 +291,9 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum *= 2.0;
 
-     ASSERT_TRUE(sum.get_terms().size() == 2);
+     ASSERT_TRUE(sum.term_count() == 2);
       for (auto term : sum.get_terms()) {
-        ASSERT_TRUE(term.get_terms().size() == 2);
+        ASSERT_TRUE(term.term_count() == 2);
       }
   }
 
@@ -294,7 +303,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum += 2.0;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 
   // `operator_sum -= double`
@@ -303,7 +312,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum -= 2.0;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 
   // `operator_sum * std::complex<double>` and `std::complex<double> * operator_sum`
@@ -313,15 +322,15 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto product = sum * value;
      auto reverse = value * sum;
 
-     ASSERT_TRUE(product.get_terms().size() == 2);
-     ASSERT_TRUE(reverse.get_terms().size() == 2);
+     ASSERT_TRUE(product.term_count() == 2);
+     ASSERT_TRUE(reverse.term_count() == 2);
 
-    for (auto term : sum.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+    for (auto term : product.get_terms()) {
+      ASSERT_TRUE(term.term_count() == 2);
     }
 
     for (auto term : reverse.get_terms()) {
-      ASSERT_TRUE(term.get_terms().size() == 2);
+      ASSERT_TRUE(term.term_count() == 2);
     }
   }
 
@@ -332,8 +341,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto sum = original + value;
      auto reverse = value + original;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum - std::complex<double>` and `std::complex<double> - operator_sum`
@@ -343,8 +352,8 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
      auto difference = original - value;
      auto reverse = value - original;
 
-     ASSERT_TRUE(difference.get_terms().size() == 3);
-     ASSERT_TRUE(reverse.get_terms().size() == 3);
+     ASSERT_TRUE(difference.term_count() == 3);
+     ASSERT_TRUE(reverse.term_count() == 3);
   }
 
   // `operator_sum *= std::complex<double>`
@@ -353,9 +362,9 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum *= value;
 
-     ASSERT_TRUE(sum.get_terms().size() == 2);
+     ASSERT_TRUE(sum.term_count() == 2);
       for (auto term : sum.get_terms()) {
-        ASSERT_TRUE(term.get_terms().size() == 2);
+        ASSERT_TRUE(term.term_count() == 2);
       }
   }
 
@@ -365,7 +374,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum += value;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 
   // `operator_sum -= std::complex<double>`
@@ -374,7 +383,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstScalars) {
 
      sum -= value;
 
-     ASSERT_TRUE(sum.get_terms().size() == 3);
+     ASSERT_TRUE(sum.term_count() == 3);
   }
 }
 
@@ -390,7 +399,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstOperatorSum) {
 
     auto sum = sum_0 + sum_1;
 
-    ASSERT_TRUE(sum.get_terms().size() == 4);
+    ASSERT_TRUE(sum.term_count() == 4);
   }
 
   // `operator_sum - operator_sum`
@@ -416,7 +425,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstOperatorSum) {
 
 //     sum += product;
 
-//     ASSERT_TRUE(sum.get_terms().size() == 3);
+//     ASSERT_TRUE(sum.term_count() == 3);
 //   }
 
 //   /// FIXME:
@@ -427,7 +436,7 @@ TEST(ExpressionTester, checkOperatorSumAgainstOperatorSum) {
 
 //     // auto sum -= product;
 
-//     // ASSERT_TRUE(sum.get_terms().size() == 3);
+//     // ASSERT_TRUE(sum.term_count() == 3);
 //   // }
 
 //   // `operator_sum *= product_operator`
@@ -437,10 +446,10 @@ TEST(ExpressionTester, checkOperatorSumAgainstOperatorSum) {
 
 //     sum *= product;
 
-//     ASSERT_TRUE(sum.get_terms().size() == 2);
+//     ASSERT_TRUE(sum.term_count() == 2);
 
 //     for (auto term : sum.get_terms()) {
-//       ASSERT_TRUE(term.get_terms().size() == 2);
+//       ASSERT_TRUE(term.term_count() == 2);
 //     }
 
 //   }

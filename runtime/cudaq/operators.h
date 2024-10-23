@@ -118,6 +118,9 @@ public:
   /// @brief Return the operator_sum as a string.
   std::string to_string() const;
 
+  /// @brief Return the number of operator terms that make up this operator sum.
+  int term_count() const { return m_terms.size(); }
+
   /// @brief  True, if the other value is an operator_sum with equivalent terms,
   /// and False otherwise. The equality takes into account that operator
   /// addition is commutative, as is the product of two operators if they
@@ -144,18 +147,16 @@ operator_sum operator-(double other, operator_sum self);
 /// that can.
 class product_operator : public operator_sum {
 private:
-  /// FIXME: Not sure if this is quite correct but using it as a dummy
-  /// type for now.
   std::vector<std::variant<scalar_operator, elementary_operator>> m_terms;
 
 public:
   product_operator() = default;
   ~product_operator() = default;
 
-  /// @brief Constructor for an operator expression that represents a product
-  /// of scalar and elementary operators.
-  /// @arg atomic_operators : The operators of which to compute the product when
-  ///                         evaluating the operator expression.
+  // Constructor for an operator expression that represents a product
+  // of scalar and elementary operators.
+  // arg atomic_operators : The operators of which to compute the product when
+  //                         evaluating the operator expression.
   product_operator(
       std::vector<std::variant<scalar_operator, elementary_operator>>
           atomic_operators);
@@ -218,6 +219,9 @@ public:
   /// order.
   std::vector<int> degrees() const;
 
+  /// @brief Return the number of operator terms that make up this product operator.
+  int term_count() const { return m_terms.size(); }
+
   /// @brief A map of the paramter names to their concrete, complex values.
   std::map<std::string, std::complex<double>> parameters;
 
@@ -255,23 +259,18 @@ public:
   operator_sum operator+(std::complex<double> other);
   operator_sum operator-(std::complex<double> other);
   product_operator operator*(std::complex<double> other);
-  product_operator operator/(std::complex<double> other);
   operator_sum operator+(double other);
   operator_sum operator-(double other);
   product_operator operator*(double other);
-  product_operator operator/(double other);
   operator_sum operator+(scalar_operator other);
   operator_sum operator-(scalar_operator other);
   product_operator operator*(scalar_operator other);
-  product_operator operator/(scalar_operator other);
   operator_sum operator+(elementary_operator other);
   operator_sum operator-(elementary_operator other);
   product_operator operator*(elementary_operator other);
-  product_operator operator/(elementary_operator other);
   operator_sum operator+(product_operator other);
   operator_sum operator-(product_operator other);
   product_operator operator*(product_operator other);
-  product_operator operator/(product_operator other);
 
   /// TODO: implement and test the below
   operator_sum operator+(operator_sum other);
@@ -377,12 +376,9 @@ operator_sum operator+(std::complex<double> other, elementary_operator self);
 operator_sum operator-(std::complex<double> other, elementary_operator self);
 product_operator operator*(std::complex<double> other,
                            elementary_operator self);
-product_operator operator/(std::complex<double> other,
-                           elementary_operator self);
 operator_sum operator+(double other, elementary_operator self);
 operator_sum operator-(double other, elementary_operator self);
 product_operator operator*(double other, elementary_operator self);
-product_operator operator/(double other, elementary_operator self);
 
 class scalar_operator : public product_operator {
 private:
