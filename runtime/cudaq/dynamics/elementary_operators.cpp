@@ -6,8 +6,8 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include "cudaq/operators.h"
 #include "common/EigenDense.h"
+#include "cudaq/operators.h"
 
 #include <iostream>
 #include <set>
@@ -280,7 +280,6 @@ complex_matrix elementary_operator::to_matrix(
   return m_ops[id].generator(dimensions, parameters);
 }
 
-
 /// Elementary Operator Arithmetic.
 
 operator_sum elementary_operator::operator+(scalar_operator other) {
@@ -292,7 +291,8 @@ operator_sum elementary_operator::operator+(scalar_operator other) {
 operator_sum elementary_operator::operator-(scalar_operator other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
-  return operator_sum({product_operator({*this}), product_operator({-1.*other})});
+  return operator_sum(
+      {product_operator({*this}), product_operator({-1. * other})});
 }
 
 product_operator elementary_operator::operator*(scalar_operator other) {
@@ -300,21 +300,23 @@ product_operator elementary_operator::operator*(scalar_operator other) {
 }
 
 product_operator elementary_operator::operator/(scalar_operator other) {
-  return product_operator({*this, (1./other)});
+  return product_operator({*this, (1. / other)});
 }
 
 operator_sum elementary_operator::operator+(std::complex<double> other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
   auto other_scalar = scalar_operator(other);
-  return operator_sum({product_operator({*this}), product_operator({other_scalar})});
+  return operator_sum(
+      {product_operator({*this}), product_operator({other_scalar})});
 }
 
 operator_sum elementary_operator::operator-(std::complex<double> other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
-  auto other_scalar = scalar_operator((-1.*other));
-  return operator_sum({product_operator({*this}), product_operator({other_scalar})});
+  auto other_scalar = scalar_operator((-1. * other));
+  return operator_sum(
+      {product_operator({*this}), product_operator({other_scalar})});
 }
 
 product_operator elementary_operator::operator*(std::complex<double> other) {
@@ -323,58 +325,62 @@ product_operator elementary_operator::operator*(std::complex<double> other) {
 }
 
 product_operator elementary_operator::operator/(std::complex<double> other) {
-  auto other_scalar = scalar_operator((1./other));
+  auto other_scalar = scalar_operator((1. / other));
   return product_operator({*this, other_scalar});
 }
 
 operator_sum elementary_operator::operator+(double other) {
-  std::complex<double> value(other,0.0);
+  std::complex<double> value(other, 0.0);
   return *this + value;
 }
 
 operator_sum elementary_operator::operator-(double other) {
-  std::complex<double> value(other,0.0);
+  std::complex<double> value(other, 0.0);
   return *this - value;
 }
 
 product_operator elementary_operator::operator*(double other) {
-  std::complex<double> value(other,0.0);
+  std::complex<double> value(other, 0.0);
   return *this * value;
 }
 
 product_operator elementary_operator::operator/(double other) {
-  std::complex<double> value(other,0.0);
+  std::complex<double> value(other, 0.0);
   return *this / value;
 }
 
 operator_sum operator+(std::complex<double> other, elementary_operator self) {
   auto other_scalar = scalar_operator(other);
-  return operator_sum({product_operator({other_scalar}), product_operator({self})});
+  return operator_sum(
+      {product_operator({other_scalar}), product_operator({self})});
 }
 
 operator_sum operator-(std::complex<double> other, elementary_operator self) {
   auto other_scalar = scalar_operator(other);
-  return operator_sum({product_operator({other_scalar}), (-1.*self)});
+  return operator_sum({product_operator({other_scalar}), (-1. * self)});
 }
 
-product_operator operator*(std::complex<double> other, elementary_operator self) {
+product_operator operator*(std::complex<double> other,
+                           elementary_operator self) {
   auto other_scalar = scalar_operator(other);
   return product_operator({other_scalar, self});
 }
 
-product_operator operator/(std::complex<double> other, elementary_operator self) {
-  auto other_scalar = scalar_operator((1./other));
+product_operator operator/(std::complex<double> other,
+                           elementary_operator self) {
+  auto other_scalar = scalar_operator((1. / other));
   return product_operator({other_scalar, self});
 }
 
 operator_sum operator+(double other, elementary_operator self) {
   auto other_scalar = scalar_operator(other);
-  return operator_sum({product_operator({other_scalar}), product_operator({self})});
+  return operator_sum(
+      {product_operator({other_scalar}), product_operator({self})});
 }
 
 operator_sum operator-(double other, elementary_operator self) {
   auto other_scalar = scalar_operator(other);
-  return operator_sum({product_operator({other_scalar}), (-1.*self)});
+  return operator_sum({product_operator({other_scalar}), (-1. * self)});
 }
 
 product_operator operator*(double other, elementary_operator self) {
@@ -383,7 +389,7 @@ product_operator operator*(double other, elementary_operator self) {
 }
 
 product_operator operator/(double other, elementary_operator self) {
-  auto other_scalar = scalar_operator((1./other));
+  auto other_scalar = scalar_operator((1. / other));
   return product_operator({other_scalar, self});
 }
 
@@ -396,7 +402,7 @@ operator_sum elementary_operator::operator+(elementary_operator other) {
 }
 
 operator_sum elementary_operator::operator-(elementary_operator other) {
-  return operator_sum({product_operator({*this}), (-1.*other)});
+  return operator_sum({product_operator({*this}), (-1. * other)});
 }
 
 /// FIXME:
@@ -404,143 +410,33 @@ operator_sum elementary_operator::operator-(elementary_operator other) {
 //   return product_operator({*this, (1./other)});
 // }
 
-// /// temporary helper
-// std::vector<int> reverseArange(int start, int stop, int step = 1) {
-//   std::vector<int> values;
-//   if (start == stop) {
-//     values = {start};
-//   } else {
-//     for (int value = stop; value > start; value -= step)
-//       values.push_back(value);
-//   }
-//   return values;
-// }
+operator_sum elementary_operator::operator+(operator_sum other) {
+  auto selfOpSum = operator_sum({product_operator({*this})});
+  std::cout << "selfOpSum term count = " << selfOpSum.get_terms().size()
+            << "\n";
+  return selfOpSum + other;
+}
 
-// /// Temporary helper function.
-// /// FIXME: Needs a bunch of performance improvement but the initial goal
-// /// is just to get something working.
-// complex_matrix _cast_to_full_hilbert(complex_matrix &mat, int degree,
-//                                      std::vector<int> allDegreesReverseOrder,
-//                                      std::map<int, int> dimensions) {
-//   std::cout << "\nL343\n";
-//   std::vector<int> degreesSubset;
-//   for (auto degree_index : allDegreesReverseOrder) {
-//     // If we don't have a dimension defined for this degree of freedom,
-//     // skip it.
-//     if (dimensions.find(degree_index) == dimensions.end()) {
-//       continue;
-//     } else {
-//       degreesSubset.push_back(degree_index);
-//     }
-//   }
-//   std::cout << "\nL354\n";
-
-//   // Create an identity matrix appropriately sized for the initial degree of
-//   // freedom in our reveresed subset.
-//   complex_matrix returnMatrix = complex_matrix::identity(
-//       dimensions[degreesSubset[0]], dimensions[degreesSubset[0]]);
-//   // Now we can just loop through the degrees of freedom that we have levels
-//   // defined for.
-//   // If the initial degree of freedom is for the current `mat`, then we will
-//   // start with that instead of an identity matrix.
-//   if (degreesSubset[0] == degree) {
-//     returnMatrix = mat;
-//   }
-//   for (auto degree_index : degreesSubset) {
-//     if (degree != degree_index) {
-//       auto identity = complex_matrix::identity(dimensions[degree_index],
-//                                                dimensions[degree_index]);
-//       returnMatrix = returnMatrix.kronecker(identity);
-//     }
-//     // If this is the degree of our operator, no identity padding is needed.
-//     else {
-//       continue;
-//     }
-//   }
-//   std::cout << "\nL379\n";
-//   return returnMatrix;
-// }
-
-/// FIXME: Assuming each operator only acts on a single degree of freedom
-/// for right now.
-// product_operator elementary_operator::operator*(elementary_operator other) {
-//   /// FIXME: See above about assuming only 1 DOF per operator for right now.
-//   int thisDegree = this->degrees[0];
-//   int otherDegree = other.degrees[0];
-//   auto allDegrees = reverseArange(std::min(thisDegree, otherDegree),
-//                                   std::max(thisDegree, otherDegree));
-
-  // auto returnOperator = product_operator({*this, other});
-
-  // if (thisDegree == otherDegree) {
-  //   auto func = [&](std::map<int, int> dimensions,
-  //                   std::map<std::string, std::complex<double>> parameters) {
-  //     /// FIXME: Making everything its own explicit variable for now while
-  //     /// I work out testing bugs.
-  //     auto thisMatrix = this->to_matrix(dimensions, parameters);
-  //     auto otherMatrix = other.to_matrix(dimensions, parameters);
-  //     auto returnMatrix = thisMatrix * otherMatrix;
-  //     return returnMatrix;
-  //   };
-  //   returnOperator.m_generator = CallbackFunction(func);
-  // }
-
-  // else if (thisDegree != otherDegree) {
-  //   std::cout << "defining function.\n";
-  //   auto func = [&](std::map<int, int> dimensions,
-  //                   std::map<std::string, std::complex<double>> parameters) {
-  //     std::cout << "inside function.\n";
-  //     auto thisMatrix = this->to_matrix(dimensions, parameters);
-  //     std::cout << "calling _to_full_hilbert.\n";
-  //     // auto thisFullSpace =
-  //     //     _cast_to_full_hilbert(thisMatrix, thisDegree, allDegrees,
-  //     dimensions);
-  //     // std::cout << "back from _to_full_hilbert.\n";
-  //     // thisFullSpace.dump();
-
-  //     // auto otherMatrix = other.to_matrix(dimensions, parameters);
-  //     // auto otherFullSpace =
-  //     //     _cast_to_full_hilbert(otherMatrix, otherDegree, allDegrees,
-  //     dimensions);
-  //     // otherFullSpace.dump();
-
-  //     // auto returnMatrix = thisFullSpace * otherFullSpace;
-  //     // return returnMatrix;
-  //     return thisFullSpace;
-  //   };
-  //   std::cout << "function defined.\n";
-  //   returnOperator.m_generator = CallbackFunction(func);
-  // }
-
-//   // else {
-//   //   throw std::runtime_error("unexpected error encountered.");
-//   // }
-
-//   return returnOperator;
-// }
+// operator_sum elementary_operator:operator-(operator_sum other);
+// operator_sum elementary_operator:operator+=(operator_sum other);
+// operator_sum elementary_operator:operator-=(operator_sum other);
 
 
-// operator_sum
-// elementary_operator::operator+(const elementary_operator &other) const {
-// std::map<std::string, std::string> merged_params =
-//     aggregate_parameters(this->m_ops, other.m_ops);
+operator_sum elementary_operator::operator+(product_operator other) {
+  return operator_sum({product_operator({*this}), other});
+}
 
-// auto merged_func =
-//     [this, other](std::vector<int> degrees,
-//                   std::vector<VariantArg> parameters) -> complex_matrix {
-//   complex_matrix result1 = this->func(degrees, parameters);
-//   complex_matrix result2 = other.func(degrees, parameters);
+operator_sum elementary_operator::operator-(product_operator other) {
+  return *this + (-1. * other);
+}
 
-//   for (size_t i = 0; i < result1.rows(); i++) {
-//     for (size_t j = 0; j < result1.cols(); j++) {
-//       result1(i, j) += result2(i, j);
-//     }
-//   }
+product_operator elementary_operator::operator*(product_operator other) {
+  std::vector<std::variant<scalar_operator, elementary_operator>> other_terms = other.get_terms();
+  /// Insert this elementary operator to the front of the terms list.
+  other_terms.insert(other_terms.begin(), *this);
+  return product_operator(other_terms);
+}
 
-//   return result1;
-// };
-
-// return operator_sum(merged_func);
-// }
+// product_operator elementary_operator::operator/(product_operator other);
 
 } // namespace cudaq

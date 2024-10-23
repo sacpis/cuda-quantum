@@ -6,8 +6,8 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include "cudaq/operators.h"
 #include "common/EigenDense.h"
+#include "cudaq/operators.h"
 
 #include <iostream>
 #include <set>
@@ -44,14 +44,15 @@ std::complex<double> scalar_operator::evaluate(
   return generator(parameters);
 }
 
-complex_matrix scalar_operator::to_matrix(std::map<int, int> dimensions,
-          std::map<std::string, std::complex<double>> parameters) {
-  auto returnOperator = complex_matrix(1,1);
-  returnOperator(0,0) = evaluate(parameters);
+complex_matrix scalar_operator::to_matrix(
+    std::map<int, int> dimensions,
+    std::map<std::string, std::complex<double>> parameters) {
+  auto returnOperator = complex_matrix(1, 1);
+  returnOperator(0, 0) = evaluate(parameters);
   return returnOperator;
 }
 
-#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES(op)                                      \
+#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES(op)                              \
   scalar_operator operator op(std::complex<double> other,                      \
                               scalar_operator self) {                          \
     /* Create an operator for the complex double value. */                     \
@@ -77,7 +78,7 @@ complex_matrix scalar_operator::to_matrix(std::map<int, int> dimensions,
     return returnOperator;                                                     \
   }
 
-#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES_REVERSE(op)                              \
+#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES_REVERSE(op)                      \
   scalar_operator operator op(scalar_operator self,                            \
                               std::complex<double> other) {                    \
     /* Create an operator for the complex double value. */                     \
@@ -103,7 +104,7 @@ complex_matrix scalar_operator::to_matrix(std::map<int, int> dimensions,
     return returnOperator;                                                     \
   }
 
-#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES_ASSIGNMENT(op)                           \
+#define ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES_ASSIGNMENT(op)                   \
   void operator op(scalar_operator &self, std::complex<double> other) {        \
     /* Create an operator for the complex double value. */                     \
     auto otherOperator = scalar_operator(other);                               \
@@ -128,22 +129,21 @@ complex_matrix scalar_operator::to_matrix(std::map<int, int> dimensions,
   }
 
 #define ARITHMETIC_OPERATIONS_DOUBLES(op)                                      \
-  scalar_operator operator op(double other,                                     \
-                              scalar_operator self) {                          \
-    std::complex<double> value(other, 0.0); \
-    return self op value; \
+  scalar_operator operator op(double other, scalar_operator self) {            \
+    std::complex<double> value(other, 0.0);                                    \
+    return self op value;                                                      \
   }
 
-#define ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(op)                               \
-  scalar_operator operator op(scalar_operator self, double other) {             \
-    std::complex<double> value(other, 0.0); \
-    return value op self; \
+#define ARITHMETIC_OPERATIONS_DOUBLES_REVERSE(op)                              \
+  scalar_operator operator op(scalar_operator self, double other) {            \
+    std::complex<double> value(other, 0.0);                                    \
+    return value op self;                                                      \
   }
 
-#define ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(op)                   \
-  void operator op(scalar_operator &self, double other) {        \
-    std::complex<double> value(other, 0.0); \
-    self op value; \
+#define ARITHMETIC_OPERATIONS_DOUBLES_ASSIGNMENT(op)                           \
+  void operator op(scalar_operator &self, double other) {                      \
+    std::complex<double> value(other, 0.0);                                    \
+    self op value;                                                             \
   }
 
 ARITHMETIC_OPERATIONS_COMPLEX_DOUBLES(+);
@@ -220,7 +220,6 @@ ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(-=);
 ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(*=);
 ARITHMETIC_OPERATIONS_SCALAR_OPS_ASSIGNMENT(/=);
 
-
 operator_sum scalar_operator::operator+(elementary_operator other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
@@ -230,7 +229,8 @@ operator_sum scalar_operator::operator+(elementary_operator other) {
 operator_sum scalar_operator::operator-(elementary_operator other) {
   // Operator sum is composed of product operators, so we must convert
   // both underlying types to `product_operators` to perform the arithmetic.
-  return operator_sum({product_operator({*this}), product_operator({-1.*other})});
+  return operator_sum(
+      {product_operator({*this}), product_operator({-1. * other})});
 }
 
 product_operator scalar_operator::operator*(elementary_operator other) {
@@ -241,5 +241,21 @@ product_operator scalar_operator::operator*(elementary_operator other) {
 // product_operator scalar_operator::operator/(elementary_operator other) {
 //   return product_operator({*this, (1./other)});
 // }
+
+operator_sum scalar_operator::operator+(product_operator other) {
+  return operator_sum({product_operator({*this}), other});
+}
+
+operator_sum scalar_operator::operator-(product_operator other) {
+  return operator_sum({product_operator({*this}), (-1. * other)});
+}
+
+product_operator scalar_operator::operator*(product_operator other) {
+  std::vector<std::variant<scalar_operator, elementary_operator>> other_terms = other.get_terms();
+  /// Insert this scalar operator to the front of the terms list.
+  other_terms.insert(other_terms.begin(), *this);
+  return product_operator(other_terms);
+}
+
 
 } // namespace cudaq

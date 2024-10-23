@@ -34,10 +34,11 @@ cudaq::complex_matrix _create_matrix(int size) {
 TEST(ExpressionTester, checkProductOperatorSimple) {
   std::vector<int> levels = {2, 3, 4};
 
-
   // std::set<int> uniqueDegrees;
-  // std::copy(this->degrees.begin(), this->degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));
-  // std::copy(other.degrees.begin(), other.degrees.end(), std::inserter(uniqueDegrees, uniqueDegrees.begin()));
+  // std::copy(this->degrees.begin(), this->degrees.end(),
+  // std::inserter(uniqueDegrees, uniqueDegrees.begin()));
+  // std::copy(other.degrees.begin(), other.degrees.end(),
+  // std::inserter(uniqueDegrees, uniqueDegrees.begin()));
 
   // Arithmetic only between elementary operators with
   // same number of levels.
@@ -108,7 +109,8 @@ TEST(ExpressionTester, checkProductOperatorSimple) {
 
     //     // cudaq::product_operator got = op0 * op1;
     //     // auto got_matrix =
-    //     // got.to_matrix({{0,level_count},{1,level_count},{2,level_count}}, {});
+    //     // got.to_matrix({{0,level_count},{1,level_count},{2,level_count}},
+    //     {});
     //   }
     // }
   }
@@ -152,3 +154,12 @@ TEST(ExpressionTester, checkProductOperatorSimple) {
 //     }
 //   }
 // }
+
+
+TEST(ExpressionTester, checkOperatorSumAgainstScalar) {
+  // `operator_sum + 
+  {
+
+  }
+
+}

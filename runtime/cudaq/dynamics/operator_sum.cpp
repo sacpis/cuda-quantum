@@ -6,8 +6,8 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include "cudaq/operators.h"
 #include "common/EigenDense.h"
+#include "cudaq/operators.h"
 
 #include <iostream>
 #include <set>
@@ -23,32 +23,32 @@ operator_sum::operator_sum(const std::vector<product_operator> &terms)
 //   std::vector<std::tuple<scalar_operator, elementary_operator>>
 //       canonicalized_terms;
 
-  // std::vector<int> all_degrees;
-  // std::vector<scalar_operator> scalars;
-  // std::vector<elementary_operator> non_scalars;
+// std::vector<int> all_degrees;
+// std::vector<scalar_operator> scalars;
+// std::vector<elementary_operator> non_scalars;
 
-  // for (const auto &op : prod.get_terms()) {
-  //   if (std::holds_alternative<scalar_operator>(op)) {
-  //     scalars.push_back(*std::get<scalar_operator>(op));
-  //   } else {
-  //     non_scalars.push_back(*std::get<elementary_operator>(op));
-  //     all_degrees.insert(all_degrees.end(),
-  //                        std::get<elementary_operator>(op).degrees.begin(),
-  //                        std::get<elementary_operator>(op).degrees.end());
-  //   }
-  // }
+// for (const auto &op : prod.get_terms()) {
+//   if (std::holds_alternative<scalar_operator>(op)) {
+//     scalars.push_back(*std::get<scalar_operator>(op));
+//   } else {
+//     non_scalars.push_back(*std::get<elementary_operator>(op));
+//     all_degrees.insert(all_degrees.end(),
+//                        std::get<elementary_operator>(op).degrees.begin(),
+//                        std::get<elementary_operator>(op).degrees.end());
+//   }
+// }
 
-  // if (all_degrees.size() ==
-  //     std::set<int>(all_degrees.begin(), all_degrees.end()).size()) {
-  //   std::sort(non_scalars.begin(), non_scalars.end(),
-  //             [](const elementary_operator &a, const elementary_operator &b) {
-  //               return a.degrees < b.degrees;
-  //             });
-  // }
+// if (all_degrees.size() ==
+//     std::set<int>(all_degrees.begin(), all_degrees.end()).size()) {
+//   std::sort(non_scalars.begin(), non_scalars.end(),
+//             [](const elementary_operator &a, const elementary_operator &b) {
+//               return a.degrees < b.degrees;
+//             });
+// }
 
-  // for (size_t i = 0; std::min(scalars.size(), non_scalars.size()); i++) {
-  //   canonicalized_terms.push_back(std::make_tuple(scalars[i], non_scalars[i]));
-  // }
+// for (size_t i = 0; std::min(scalars.size(), non_scalars.size()); i++) {
+//   canonicalized_terms.push_back(std::make_tuple(scalars[i], non_scalars[i]));
+// }
 
 //   return canonicalized_terms;
 // }
@@ -64,7 +64,8 @@ operator_sum::operator_sum(const std::vector<product_operator> &terms)
 //   // std::sort(terms.begin(), terms.end(), [](const auto &a, const auto &b) {
 //   //   // return std::to_string(product_operator(a)) <
 //   //   //        std::to_string(product_operator(b));
-//   //   return product_operator(a).to_string() < product_operator(b).to_string();
+//   //   return product_operator(a).to_string() <
+//   product_operator(b).to_string();
 //   // });
 
 //   return terms;
@@ -87,7 +88,8 @@ operator_sum::operator_sum(const std::vector<product_operator> &terms)
 //   std::set<int> unique_degrees;
 //   for (const auto &term : m_terms) {
 //     for (const auto &op : term.get_terms()) {
-//       unique_degrees.insert(op.get_degrees().begin(), op.get_degrees().end());
+//       unique_degrees.insert(op.get_degrees().begin(),
+//       op.get_degrees().end());
 //     }
 //   }
 
@@ -163,7 +165,6 @@ operator_sum operator_sum::operator+=(const operator_sum &other) {
 //   return operator_sum(divided_terms);
 // }
 
-
 operator_sum operator_sum::operator+(const scalar_operator &other) const {
   std::vector<product_operator> combined_terms = m_terms;
   combined_terms.push_back(product_operator({other}));
@@ -205,6 +206,42 @@ operator_sum operator_sum::operator+=(const product_operator &other) {
 //   *this = *this - other;
 //   return *this;
 // }
+
+
+operator_sum operator_sum::operator+(const elementary_operator &other) const {
+  std::vector<product_operator> combined_terms = m_terms;
+  combined_terms.push_back(product_operator({other}));
+  return operator_sum(combined_terms);
+}
+
+operator_sum operator_sum::operator-(const elementary_operator &other) const {
+  std::vector<product_operator> combined_terms = m_terms;
+  combined_terms.push_back(product_operator({-1. * other}));
+  return operator_sum(combined_terms);
+}
+
+operator_sum operator_sum::operator+=(const elementary_operator &other) {
+  *this = *this + product_operator({other});
+  return *this;
+}
+
+/// FIXME:
+// operator_sum operator_sum::operator-=(const elementary_operator &other) {
+//   *this = *this - product_operator({other});
+//   return *this;
+// }
+
+operator_sum operator_sum::operator*(const product_operator &other) const {
+  std::vector<product_operator> combined_terms = m_terms;
+  for (auto &term : combined_terms) {
+    term *= other;
+  }
+  return operator_sum(combined_terms);
+}
+
+// operator_sum operator*(const scalar_operator &other) const;
+
+
 
 /// FIXME:
 // complex_matrix

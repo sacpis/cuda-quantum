@@ -212,8 +212,7 @@ complex_matrix complex_matrix::kronecker(complex_matrix &other) {
 }
 
 complex_matrix kronecker(complex_matrix &self, complex_matrix &other) {
-  Eigen::Map<Eigen::MatrixXcd> map(self.data(), self.rows(),
-                                        self.cols());
+  Eigen::Map<Eigen::MatrixXcd> map(self.data(), self.rows(), self.cols());
   Eigen::Map<Eigen::MatrixXcd> otherMap(other.data(), other.rows(),
                                         other.cols());
   Eigen::MatrixXcd ret = Eigen::kroneckerProduct(map, otherMap).eval();

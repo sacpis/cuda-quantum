@@ -33,15 +33,18 @@ cudaq::complex_matrix _create_matrix(int size) {
   return mat;
 }
 
-cudaq::complex_matrix kroneckerHelper(std::vector<cudaq::complex_matrix> &matrices) {
+cudaq::complex_matrix
+kroneckerHelper(std::vector<cudaq::complex_matrix> &matrices) {
   // essentially we pass in the list of elementary operators to
   // this function -- with lowest degree being leftmost -- then it computes the
   // kronecker product of all of them in reverse order.
-  // E.g, if degrees = {0, 1, 2}, it computes as `matrix(2) kron matrix(1) kron matrix(0)`.
-  auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix other) { 
-    return cudaq::kronecker(self,other);
+  // E.g, if degrees = {0, 1, 2}, it computes as `matrix(2) kron matrix(1) kron
+  // matrix(0)`.
+  auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix other) {
+    return cudaq::kronecker(self, other);
   };
-  return std::reduce(begin(matrices), end(matrices), cudaq::complex_matrix::identity(1,1), kronecker);
+  return std::reduce(begin(matrices), end(matrices),
+                     cudaq::complex_matrix::identity(1, 1), kronecker);
 }
 
 // TEST(ExpressionTester, checkKronecker) {
@@ -54,7 +57,8 @@ cudaq::complex_matrix kroneckerHelper(std::vector<cudaq::complex_matrix> &matric
 
 //     std::vector<cudaq::complex_matrix> matrices = {id0, id1, id2, id3};
 
-//     auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix other) { 
+//     auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix
+//     other) {
 //       // return self.kronecker(other);
 //       return cudaq::kronecker(self,other);
 //     };
@@ -67,13 +71,12 @@ cudaq::complex_matrix kroneckerHelper(std::vector<cudaq::complex_matrix> &matric
 //     // new_1.dump();
 //     // std::cout << "\n";
 
-//     std::vector<cudaq::complex_matrix> kronMats = {cudaq::complex_matrix::identity(1,1)};
-//     auto start = cudaq::complex_matrix::identity(1,1);
-//     for (auto &matrix : matrices) {
+//     std::vector<cudaq::complex_matrix> kronMats =
+//     {cudaq::complex_matrix::identity(1,1)}; auto start =
+//     cudaq::complex_matrix::identity(1,1); for (auto &matrix : matrices) {
 //       start = kronecker(kronMats[idx], matrix);
 //     }
 //     start.dump();
-
 
 //     // // auto got_matrix = kroneckerHelper(matrices);
 //     // // auto want_matrix = cudaq::complex_matrix::identity(16,16);
@@ -88,7 +91,7 @@ cudaq::complex_matrix kroneckerHelper(std::vector<cudaq::complex_matrix> &matric
 
 /// TODO: Not yet testing the output matrices coming from this arithmetic.
 
-TEST(ExpressionTester, checkProductOperatorElementaryOnly) {
+TEST(ExpressionTester, checkProductOperatorSimpleMatrixChecks) {
   std::vector<int> levels = {2, 3, 4};
 
   {
@@ -184,7 +187,7 @@ TEST(ExpressionTester, checkProductOperatorElementaryOnly) {
   }
 }
 
-TEST(ExpressionTester, checkProductOperatorMixed) {
+TEST(ExpressionTester, checkProductOperatorSimpleContinued) {
 
   std::complex<double> value_0 = 0.1 + 0.1;
   std::complex<double> value_1 = 0.1 + 1.0;
@@ -192,8 +195,7 @@ TEST(ExpressionTester, checkProductOperatorMixed) {
   std::complex<double> value_3 = 2.0 + 1.0;
 
   auto local_variable = true;
-  auto function = [&](std::map<std::string, std::complex<double>> parameters)
-  {
+  auto function = [&](std::map<std::string, std::complex<double>> parameters) {
     if (!local_variable)
       throw std::runtime_error("Local variable not detected.");
     return parameters["value"];
@@ -227,4 +229,274 @@ TEST(ExpressionTester, checkProductOperatorMixed) {
       ASSERT_TRUE(got_reverse.degrees() == want_degrees);
     }
   }
+}
+
+
+TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
+  std::complex<double> value_0 = 0.1 + 0.1;
+
+  /// `product_operator + complex<double>`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+   
+    auto sum = value_0 + product_op;
+    auto reverse = product_op + value_0;
+
+    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator + double`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+   
+    auto sum = 2.0 + product_op;
+    auto reverse = product_op + 2.0;
+
+    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator + scalar_operator`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto scalar_op = cudaq::scalar_operator(1.0);
+    
+    auto sum = scalar_op + product_op;
+    auto reverse = product_op + scalar_op;
+
+    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator - complex<double>`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    
+    auto difference = value_0 - product_op;
+    auto reverse = product_op - value_0;
+
+    ASSERT_TRUE(difference.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator - double`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    
+    auto difference = 2.0 - product_op;
+    auto reverse = product_op - 2.0;
+
+    ASSERT_TRUE(difference.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator - scalar_operator`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto scalar_op = cudaq::scalar_operator(1.0);
+    
+    auto difference = scalar_op - product_op;
+    auto reverse = product_op - scalar_op;
+
+    ASSERT_TRUE(difference.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  /// `product_operator * complex<double>`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+   
+    auto product = value_0 * product_op;
+    auto reverse = product_op * value_0;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(reverse.get_terms().size() == 3);
+  }
+
+  /// `product_operator * double`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+   
+    auto product = 2.0 * product_op;
+    auto reverse = product_op * 2.0;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(reverse.get_terms().size() == 3);
+  }
+
+  /// `product_operator * scalar_operator`
+  {
+    auto product_op = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto scalar_op = cudaq::scalar_operator(1.0);
+    
+    auto product = scalar_op * product_op;
+    auto reverse = product_op * scalar_op;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(reverse.get_terms().size() == 3);
+  }
+
+  /// `product_operator *= complex<double>`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    product *= value_0;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+  }
+
+  /// `product_operator *= double`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    product *= 2.0;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+  }
+
+  /// `product_operator *= scalar_operator`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto scalar_op = cudaq::scalar_operator(1.0);
+    
+    product *= scalar_op;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+  }
+}
+
+TEST(ExpressionTester, checkProductOperatorAgainstProduct) {
+
+  // `product_operator + product_operator`
+  {
+    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+
+    auto sum = term_0 + term_1;
+
+    ASSERT_TRUE(sum.get_terms().size() == 2);
+  }
+
+  // `product_operator - product_operator`
+  {
+    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+
+    auto difference = term_0 - term_1;
+
+    ASSERT_TRUE(difference.get_terms().size() == 2);
+  }
+
+  // `product_operator * product_operator`
+  {
+    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+
+    auto product = term_0 * term_1;
+
+    ASSERT_TRUE(product.get_terms().size() == 4);
+  }
+
+  // `product_operator *= product_operator`
+  {
+    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto term_1 = cudaq::elementary_operator::create(1) * cudaq::elementary_operator::annihilate(2);
+
+    term_0 *= term_1;
+
+    ASSERT_TRUE(term_0.get_terms().size() == 4);
+  }
+}
+
+TEST(ExpressionTester, checkProductOperatorAgainstElementary) {
+
+  // `product_operator + elementary_operator`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto elementary = cudaq::elementary_operator::create(1);
+
+    auto sum = product + elementary;
+    auto reverse = elementary + product;
+
+    ASSERT_TRUE(sum.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  // `product_operator - elementary_operator`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto elementary = cudaq::elementary_operator::create(1);
+
+    auto difference = product - elementary;
+    auto reverse = elementary - product;
+
+    ASSERT_TRUE(difference.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+  }
+
+  // `product_operator * elementary_operator`
+  {
+    auto term_0 = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto elementary = cudaq::elementary_operator::create(1);
+
+    auto product = term_0 * elementary;
+    auto reverse = elementary * term_0;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+    ASSERT_TRUE(reverse.get_terms().size() == 3);
+  }
+
+  // `product_operator *= elementary_operator`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto elementary = cudaq::elementary_operator::create(1);
+
+    product *= elementary;
+
+    ASSERT_TRUE(product.get_terms().size() == 3);
+  }
+}
+
+TEST(ExpressionTester, checkProductOperatorAgainstOperatorSum) {
+  
+  // `product_operator + operator_sum`
+  {
+    auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+
+    auto sum = product + original_sum;
+
+    ASSERT_TRUE(sum.get_terms().size() == 3);
+  }
+
+  /// FIXME:
+  // // `product_operator - operator_sum`
+  // {
+  //   auto product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+  //   auto original_sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+
+  //   auto difference = product - original_sum;
+
+  //   ASSERT_TRUE(sum.get_terms().size() == 3);
+  // }
+
+  // `product_operator * operator_sum`
+  {
+    auto original_product = cudaq::elementary_operator::annihilate(0) * cudaq::elementary_operator::annihilate(1);
+    auto sum = cudaq::elementary_operator::create(1) + cudaq::elementary_operator::create(2);
+
+    auto product = original_product * sum;
+    auto reverse = sum * original_product;
+
+    ASSERT_TRUE(product.get_terms().size() == 2);
+    ASSERT_TRUE(reverse.get_terms().size() == 2);
+
+    for (auto term : product.get_terms()) {
+      ASSERT_TRUE(term.get_terms().size() == 2);
+    }
+
+    for (auto term : reverse.get_terms()) {
+      ASSERT_TRUE(term.get_terms().size() == 2);
+    }
+  }
+
 }

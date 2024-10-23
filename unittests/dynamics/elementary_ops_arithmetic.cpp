@@ -10,12 +10,10 @@
 #include "cudaq/operators.h"
 #include <gtest/gtest.h>
 
-
 /// NOTE: Not yet testing any of the matrix conversions. Just testing
 /// the attributes of the output data type coming from the arithmetic.
 /// These tests should be built upon to do actual numeric checks once
 /// the implementations are complete.
-
 
 TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
 
@@ -94,7 +92,6 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsScalars) {
     auto product = self / other;
     ASSERT_TRUE(product.get_terms().size() == 2);
   }
-
 }
 
 /// Prebuilt elementary ops against one another.
@@ -155,5 +152,23 @@ TEST(ExpressionTester, checkPreBuiltElementaryOpsSelf) {
     auto product = self * other;
     ASSERT_TRUE(product.get_terms().size() == 2);
   }
+}
 
+/// Testing arithmetic between elementary operators and operator
+/// sums.
+TEST(ExpressionTester, checkElementaryOpsAgainstOpSum) {
+
+  /// Addition.
+  {
+    auto self = cudaq::elementary_operator::annihilate(0);
+    /// Creating an arbitrary operator sum to work against.
+    auto operator_sum = cudaq::elementary_operator::create(0) +
+                        cudaq::elementary_operator::identity(1);
+
+    auto got = self + operator_sum;
+    std::cout << "term count of original op sum = "
+              << operator_sum.get_terms().size() << "\n";
+    std::cout << "term count = " << got.get_terms().size() << "\n";
+    ASSERT_TRUE(got.get_terms().size() == 3);
+  }
 }
