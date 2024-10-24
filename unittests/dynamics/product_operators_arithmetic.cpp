@@ -33,62 +33,6 @@
 //   return mat;
 // }
 
-cudaq::complex_matrix
-kroneckerHelper(std::vector<cudaq::complex_matrix> &matrices) {
-  // essentially we pass in the list of elementary operators to
-  // this function -- with lowest degree being leftmost -- then it computes the
-  // kronecker product of all of them in reverse order.
-  // E.g, if degrees = {0, 1, 2}, it computes as `matrix(2) kron matrix(1) kron
-  // matrix(0)`.
-  auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix other) {
-    return cudaq::kronecker(self, other);
-  };
-  return std::reduce(begin(matrices), end(matrices),
-                     cudaq::complex_matrix::identity(1, 1), kronecker);
-}
-
-// TEST(ExpressionTester, checkKronecker) {
-//   {
-//     std::cout << "\n\n\n\n hello \n\n\n\n";
-//     auto id0 = cudaq::complex_matrix::identity(2,2);
-//     auto id1 = cudaq::complex_matrix::identity(1,1);
-//     auto id2 = cudaq::complex_matrix::identity(1,1);
-//     auto id3 = cudaq::complex_matrix::identity(1,1);
-
-//     std::vector<cudaq::complex_matrix> matrices = {id0, id1, id2, id3};
-
-//     auto kronecker = [](cudaq::complex_matrix self, cudaq::complex_matrix
-//     other) {
-//       // return self.kronecker(other);
-//       return cudaq::kronecker(self,other);
-//     };
-
-//     // auto start = cudaq::complex_matrix::identity(1,1);
-//     // auto new_ = kronecker(start, id0);
-//     // auto new_1 = kronecker(new_, id0);
-
-//     // std::cout << "\n";
-//     // new_1.dump();
-//     // std::cout << "\n";
-
-//     std::vector<cudaq::complex_matrix> kronMats =
-//     {cudaq::complex_matrix::identity(1,1)}; auto start =
-//     cudaq::complex_matrix::identity(1,1); for (auto &matrix : matrices) {
-//       start = kronecker(kronMats[idx], matrix);
-//     }
-//     start.dump();
-
-//     // // auto got_matrix = kroneckerHelper(matrices);
-//     // // auto want_matrix = cudaq::complex_matrix::identity(16,16);
-
-//     // // std::cout << "\n";
-//     // // got_matrix.dump();
-//     // // std::cout << "\n";
-
-//     // // ASSERT_TRUE(want_matrix == got_matrix);
-//   }
-// }
-
 /// TODO: Not yet testing the output matrices coming from this arithmetic.
 
 TEST(ExpressionTester, checkProductOperatorSimpleMatrixChecks) {
@@ -244,6 +188,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(sum.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator + double`
@@ -256,6 +204,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(sum.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator + scalar_operator`
@@ -269,6 +221,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(sum.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator - complex<double>`
@@ -281,6 +237,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(difference.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator - double`
@@ -293,6 +253,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(difference.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator - scalar_operator`
@@ -306,6 +270,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(difference.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator * complex<double>`
@@ -318,6 +286,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator * double`
@@ -330,6 +302,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator * scalar_operator`
@@ -343,6 +319,10 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
+    // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
 
   /// `product_operator *= complex<double>`
@@ -352,6 +332,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     product *= value_0;
 
     ASSERT_TRUE(product.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 
   /// `product_operator *= double`
@@ -361,6 +344,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     product *= 2.0;
 
     ASSERT_TRUE(product.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 
   /// `product_operator *= scalar_operator`
@@ -372,6 +358,9 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     product *= scalar_op;
 
     ASSERT_TRUE(product.term_count() == 3);
+
+    std::vector<int> want_degrees = {0,1};
+    // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 }
 

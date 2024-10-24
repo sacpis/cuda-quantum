@@ -126,6 +126,8 @@ public:
   /// are guaranteed to represent the same transformation for all arguments.
   bool operator==(const operator_sum &other) const;
 
+/// FIXME: Protect this once I can do deeper testing in unittests.
+// protected:
   std::vector<product_operator> get_terms() { return m_terms; }
 };
 operator_sum operator*(std::complex<double> other, operator_sum self);
@@ -220,6 +222,8 @@ public:
   /// @brief A map of the paramter names to their concrete, complex values.
   std::map<std::string, std::complex<double>> parameters;
 
+/// FIXME: Protect this once I can do deeper testing in unittests.
+// protected:
   std::vector<std::variant<scalar_operator, elementary_operator>> get_terms() {
     return m_terms;
   };
@@ -249,8 +253,6 @@ public:
   elementary_operator(elementary_operator &other);
 
   // Arithmetic overloads against all other operator types.
-  /// FIXME: All of below arithmetic implemented except for the division between
-  ///       two elementary ops. Further testing at the matrix level is needed.
   operator_sum operator+(std::complex<double> other);
   operator_sum operator-(std::complex<double> other);
   product_operator operator*(std::complex<double> other);
@@ -266,14 +268,10 @@ public:
   operator_sum operator+(product_operator other);
   operator_sum operator-(product_operator other);
   product_operator operator*(product_operator other);
-
-  /// TODO: implement and test the below
   operator_sum operator+(operator_sum other);
   operator_sum operator-(operator_sum other);
   operator_sum operator+=(operator_sum other);
   operator_sum operator-=(operator_sum other);
-  /// I will need to loop through the terms of the operator sum
-  /// and insert this into each product operator.
   operator_sum operator*(operator_sum other);
 
   /// @brief True, if the other value is an elementary operator with the same id
@@ -402,7 +400,6 @@ public:
   scalar_operator operator/(scalar_operator other);
   /// TODO: implement and test pow
   scalar_operator pow(scalar_operator other);
-  /// TODO: All of the below need deeper testing but are implemented.
   operator_sum operator+(elementary_operator other);
   operator_sum operator-(elementary_operator other);
   product_operator operator*(elementary_operator other);
