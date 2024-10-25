@@ -270,3 +270,23 @@ TEST(TensorTest, checkNullaryConstructor) {
 
   t.copy(data.data(), shape);
 }
+
+
+// TEST(CoreTester, checkNewFunctions) {
+
+//   // Kronecker.
+//   {
+//     cudaq::tensor a({2,2});
+//     cudaq::tensor b({2,2});
+
+
+
+//     auto c = a * b;
+//     c.dump();
+
+//     // auto d = a.kronecker(b);
+//     // d.dump();
+
+//   }
+
+// }

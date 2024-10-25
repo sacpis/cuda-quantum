@@ -6,7 +6,6 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include "cudaq/qis/state.h"
 #include "definition.h"
 #include "matrix.h"
 

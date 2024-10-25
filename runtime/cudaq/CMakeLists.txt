@@ -39,7 +39,8 @@ if (CUDA_FOUND)
             $<BUILD_INTERFACE:${CUDAToolkit_INCLUDE_DIRS}>
     PRIVATE .
             ${CMAKE_SOURCE_DIR}/tpls/xtl/include 
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include)
+            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include
+            ${CMAKE_SOURCE_DIR}/tpls/xtensor-blas/include)
 
   target_link_libraries(${LIBRARY_NAME}
     PUBLIC dl cudaq-spin cudaq-operators cudaq-common cudaq-nlopt cudaq-ensmallen
@@ -53,7 +54,8 @@ else()
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tpls/eigen>
     PRIVATE . 
             ${CMAKE_SOURCE_DIR}/tpls/xtl/include 
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include)
+            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include
+            ${CMAKE_SOURCE_DIR}/tpls/xtensor-blas/include)
 
   target_link_libraries(${LIBRARY_NAME}
     PUBLIC dl cudaq-spin cudaq-operators cudaq-common cudaq-nlopt cudaq-ensmallen
