@@ -272,21 +272,14 @@ TEST(TensorTest, checkNullaryConstructor) {
 }
 
 
-// TEST(CoreTester, checkNewFunctions) {
+TEST(CoreTester, checkMultiplication) {
 
-//   // Kronecker.
-//   {
-//     cudaq::tensor a({2,2});
-//     cudaq::tensor b({2,2});
+  {
+    cudaq::tensor a({2,2});
+    cudaq::tensor b({2,2});
 
+    // auto c = a * b;
+    // c.dump();
+  }
 
-
-//     auto c = a * b;
-//     c.dump();
-
-//     // auto d = a.kronecker(b);
-//     // d.dump();
-
-//   }
-
-// }
+}

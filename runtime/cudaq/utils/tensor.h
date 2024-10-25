@@ -180,7 +180,7 @@ public:
 /// Multiplication of two tensors.
 template <typename T>
 tensor<T> operator*(const tensor<T> &left, const tensor<T> &right) {
-  return {(*left.pimpl) * (*right.pimpl)};
+  return tensor((*left.pimpl) * (*right.pimpl));
 }
 
 /// Addition of two tensors.

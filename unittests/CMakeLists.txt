@@ -228,10 +228,14 @@ set(CUDAQ_OPERATOR_TEST_SOURCES
    dynamics/temporary_tensor_tester.cpp
 )
 add_executable(test_operators main.cpp ${CUDAQ_OPERATOR_TEST_SOURCES})
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT APPLE)
+  target_link_options(test_operators PRIVATE -Wl,--no-as-needed)
+endif()
 target_link_libraries(test_operators
-  PRIVATE 
+  PRIVATE
   cudaq-spin
   cudaq-operators
+  cudaq
   gtest_main)
 gtest_discover_tests(test_operators)
 

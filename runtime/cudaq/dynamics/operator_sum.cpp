@@ -348,7 +348,7 @@ operator_sum operator_sum::operator*=(const elementary_operator &other) {
 }
 
 /// FIXME:
-// complex_matrix
+// tensor
 // operator_sum::to_matrix(const std::map<int, int> &dimensions,
 //                         const std::map<std::string, double> &params) const {
 // // todo

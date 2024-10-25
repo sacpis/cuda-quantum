@@ -35,11 +35,11 @@ elementary_operator elementary_operator::identity(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       int degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       // Build up the identity matrix.
       for (std::size_t i = 0; i < dimension; i++) {
-        mat(i, i) = 1.0 + 0.0 * 'j';
+        mat.at({i, i}) = 1.0 + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -64,9 +64,8 @@ elementary_operator elementary_operator::zero(int degree) {
       // argument to the outer function goes out of scope when
       // the user invokes this later on via, e.g, `to_matrix()`.
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
-      mat.set_zero();
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       std::cout << "dumping the complex mat: \n";
       mat.dump();
       std::cout << "\ndone\n";
@@ -87,10 +86,10 @@ elementary_operator elementary_operator::annihilate(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat(i, i + 1) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i, i + 1}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -112,10 +111,10 @@ elementary_operator elementary_operator::create(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat(i + 1, i) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i + 1, i}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -137,12 +136,12 @@ elementary_operator elementary_operator::position(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = cudaq::complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       // position = 0.5 * (create + annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat(i + 1, i) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        mat(i, i + 1) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i + 1, i}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i, i + 1}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -164,13 +163,13 @@ elementary_operator elementary_operator::momentum(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = cudaq::complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       // momentum = 0.5j * (create - annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat(i + 1, i) =
+        mat.at({i + 1, i}) =
             (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        mat(i, i + 1) =
+        mat.at({i, i + 1}) =
             -1. * (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
@@ -193,10 +192,10 @@ elementary_operator elementary_operator::number(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       for (std::size_t i = 0; i < dimension; i++) {
-        mat(i, i) = static_cast<double>(i) + 0.0j;
+        mat.at({i, i}) = static_cast<double>(i) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -218,10 +217,10 @@ elementary_operator elementary_operator::parity(int degree) {
     auto func = [&](std::map<int, int> dimensions,
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto mat = complex_matrix(dimension, dimension);
+      std::size_t dimension = dimensions[degree];
+      auto mat = tensor<std::complex<double>>({dimension, dimension});
       for (std::size_t i = 0; i < dimension; i++) {
-        mat(i, i) = std::pow(-1., static_cast<double>(i)) + 0.0j;
+        mat.at({i, i}) = std::pow(-1., static_cast<double>(i)) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -240,31 +239,31 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   auto op = elementary_operator(op_id, degrees);
   // A dimension of -1 indicates this operator can act on any dimension.
   op.expected_dimensions[degree] = -1;
-  if (op.m_ops.find(op_id) == op.m_ops.end()) {
-    auto func = [&](std::map<int, int> dimensions,
-                    std::map<std::string, std::complex<double>> _none) {
-      auto degree = op.degrees[0];
-      int dimension = dimensions[degree];
-      auto temp_mat = cudaq::complex_matrix(dimension, dimension);
-      // displace = exp[ (amplitude * create) - (conj(amplitude) * annihilate) ]
-      for (std::size_t i = 0; i + 1 < dimension; i++) {
-        temp_mat(i + 1, i) =
-            amplitude * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        temp_mat(i, i + 1) =
-            -1. * std::conj(amplitude) * std::sqrt(static_cast<double>(i + 1)) +
-            0.0 * 'j';
-      }
-      // Not ideal that our method of computing the matrix exponential
-      // requires copies here. Maybe we can just use eigen directly here
-      // to limit to one copy, but we can address that later.
-      auto mat = temp_mat.exp();
-      std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
-      return mat;
-    };
-    op.define(op_id, op.expected_dimensions, func);
-  }
+  // if (op.m_ops.find(op_id) == op.m_ops.end()) {
+  //   auto func = [&](std::map<int, int> dimensions,
+  //                   std::map<std::string, std::complex<double>> _none) {
+  //     auto degree = op.degrees[0];
+  //     std::size_t dimension = dimensions[degree];
+  //     auto temp_mat = tensor<std::complex<double>>({dimension, dimension});
+  //     // // displace = exp[ (amplitude * create) - (conj(amplitude) * annihilate) ]
+  //     // for (std::size_t i = 0; i + 1 < dimension; i++) {
+  //     //   temp_mat(i + 1, i) =
+  //     //       amplitude * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+  //     //   temp_mat(i, i + 1) =
+  //     //       -1. * std::conj(amplitude) * std::sqrt(static_cast<double>(i + 1)) +
+  //     //       0.0 * 'j';
+  //     // }
+  //     // Not ideal that our method of computing the matrix exponential
+  //     // requires copies here. Maybe we can just use eigen directly here
+  //     // to limit to one copy, but we can address that later.
+  //     auto mat = temp_mat.exp();
+  //     std::cout << "dumping the complex mat: \n";
+  //     mat.dump();
+  //     std::cout << "\ndone\n";
+  //     return mat;
+  //   };
+  //   op.define(op_id, op.expected_dimensions, func);
+  // }
   throw std::runtime_error("currently have a bug in implementation.");
   return op;
 }
@@ -274,7 +273,7 @@ elementary_operator::squeeze(int degree, std::complex<double> amplitude) {
   throw std::runtime_error("Not yet implemented.");
 }
 
-complex_matrix elementary_operator::to_matrix(
+tensor<std::complex<double>> elementary_operator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
   return m_ops[id].generator(dimensions, parameters);

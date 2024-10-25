@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 #include "definition.h"
-#include "matrix.h"
+#include "utils/tensor.h"
 
 #include <functional>
 #include <iostream>
@@ -66,7 +66,7 @@ public:
   ///                      degrees of freedom: `{0:2, 1:2}`.
   /// @arg `parameters` : A map of the paramter names to their concrete, complex
   /// values.
-  complex_matrix
+  tensor<std::complex<double>>
   to_matrix(const std::map<int, int> &dimensions,
             const std::map<std::string, double> &params = {}) const;
 
@@ -202,7 +202,7 @@ public:
   ///                      degrees of freedom: `{0:2, 1:2}`.
   /// @arg `parameters` : A map of the paramter names to their concrete, complex
   /// values.
-  complex_matrix
+  tensor<std::complex<double>>
   to_matrix(std::map<int, int> dimensions,
             std::map<std::string, std::complex<double>> parameters);
 
@@ -285,7 +285,7 @@ public:
   ///                      that is, the dimension of each degree of freedom
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0 : 2, 1 : 2}`.
-  complex_matrix
+  tensor<std::complex<double>>
   to_matrix(std::map<int, int> dimensions,
             std::map<std::string, std::complex<double>> parameters);
 
@@ -415,7 +415,7 @@ public:
 
   // Return the scalar operator as a 1x1 matrix. This is needed for
   // compatability with the other inherited classes.
-  complex_matrix
+  tensor<std::complex<double>>
   to_matrix(std::map<int, int> dimensions,
             std::map<std::string, std::complex<double>> parameters);
 

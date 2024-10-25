@@ -39,11 +39,9 @@
 TEST(ExpressionTester, checkTensor) {
 
   {
-    // auto mat = cudaq::tensor({2, 2});
-    // cudaq::tensor t({1, 2, 1});
-    // mat.dump();
+    auto mat = cudaq::tensor({2, 2});
+    cudaq::tensor t({1, 2, 1});
+    mat.dump();
   }
-
-
 
 }

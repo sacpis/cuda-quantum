@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 #include "cudaq/qis/state.h"
-#include "matrix.h"
+#include "cudaq/utils/tensor.h"
 
 #include <complex>
 #include <functional>
@@ -21,7 +21,7 @@ namespace cudaq {
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
 // concrete parameter values.
-using Func = std::function<complex_matrix(
+using Func = std::function<tensor<std::complex<double>>(
     std::map<int, int>, std::map<std::string, std::complex<double>>)>;
 
 class CallbackFunction {
@@ -36,9 +36,9 @@ public:
   template <typename Callable>
   CallbackFunction(Callable &&callable) {
     static_assert(
-        std::is_invocable_r_v<complex_matrix, Callable, std::map<int, int>,
+        std::is_invocable_r_v<tensor<std::complex<double>>, Callable, std::map<int, int>,
                               std::map<std::string, std::complex<double>>>,
-        "Invalid callback function. Must have signature complex_matrix("
+        "Invalid callback function. Must have signature tensor<std::complex<double>>("
         "std::map<int,int>, "
         "std::map<std::string, std::complex<double>>)");
     _callback_func = std::forward<Callable>(callable);
@@ -53,7 +53,7 @@ public:
     _callback_func = other._callback_func;
   }
 
-  complex_matrix
+  tensor<std::complex<double>>
   operator()(std::map<int, int> degrees,
              std::map<std::string, std::complex<double>> parameters) const {
     return _callback_func(std::move(degrees), std::move(parameters));
@@ -109,7 +109,7 @@ public:
 
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
-  // `cudaq::complex_matrix` type representing the operator matrix.
+  // `cudaq::tensor<std::complex<double>>` type representing the operator matrix.
   CallbackFunction generator;
 
   // Constructor.
@@ -123,7 +123,7 @@ public:
                          CallbackFunction &&create);
 
   // To call the generator function
-  complex_matrix generate_matrix(
+  tensor<std::complex<double>> generate_matrix(
       const std::map<int, int> &degrees,
       const std::map<std::string, std::complex<double>> &parameters) const;
 

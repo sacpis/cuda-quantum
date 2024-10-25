@@ -22,21 +22,21 @@ product_operator::product_operator(
         atomic_operators)
     : m_terms(atomic_operators) {}
 
-// complex_matrix kroneckerHelper(std::vector<complex_matrix> &matrices) {
+// tensor kroneckerHelper(std::vector<tensor> &matrices) {
 //   // essentially we pass in the list of elementary operators to
 //   // this function -- with lowest degree being leftmost -- then it computes
 //   the
 //   // kronecker product of all of them.
-//   auto kronecker = [](complex_matrix self, complex_matrix other) {
+//   auto kronecker = [](tensor self, tensor other) {
 //     return self.kronecker(other);
 //   };
 
 //   return std::accumulate(begin(matrices), end(matrices),
-//                          complex_matrix::identity(1, 1), kronecker);
+//                          tensor::identity(1, 1), kronecker);
 // }
 
 // /// IMPLEMENT:
-// complex_matrix product_operator::to_matrix(
+// tensor product_operator::to_matrix(
 //     std::map<int, int> dimensions,
 //     std::map<std::string, std::complex<double>> parameters) {
 
@@ -58,14 +58,14 @@ product_operator::product_operator(
 //     outMatrix.dump();
 //     return outMatrix;
 //   };
-//   std::vector<complex_matrix> matricesFullVectorSpace;
+//   std::vector<tensor> matricesFullVectorSpace;
 //   for (auto &term : m_terms) {
 //     auto op_degrees = std::visit(getDegrees, term);
 //     std::cout << "here 58\n";
 //     // Keeps track of if we've already inserted the operator matrix
 //     // into the full list of matrices.
 //     bool alreadyInserted = false;
-//     std::vector<complex_matrix> matrixWithIdentities;
+//     std::vector<tensor> matrixWithIdentities;
 //     /// General procedure for inserting identities:
 //     // * check if the operator acts on this degree by looking through
 //     // `op_degrees`
@@ -82,7 +82,7 @@ product_operator::product_operator(
 //         std::cout << "here 77\n";
 //       } else {
 //         std::cout << "here 80\n";
-//         matrixWithIdentities.push_back(complex_matrix::identity(level,
+//         matrixWithIdentities.push_back(tensor::identity(level,
 //         level));
 //       }
 //     }
@@ -96,7 +96,7 @@ product_operator::product_operator(
 //   std::cout << "here 89\n";
 
 //   // temporary
-//   auto out = complex_matrix::identity(1, 1);
+//   auto out = tensor::identity(1, 1);
 //   std::cout << "here 93\n";
 //   return out;
 // }
