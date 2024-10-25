@@ -18,11 +18,11 @@ class Tensor:
     interface for quantum tensor operations.
 
     Attributes:
-        _tensor: The underlying CUDA-Q core tensor object.
-        _dtype: The data type of the tensor elements.
+        `_tensor`: The underlying CUDA-Q core tensor object.
+        `_dtype`: The data type of the tensor elements.
     """
 
-    def __init__(self, data=None, shape=None, dtype=None):
+    def __init__(self, shape=None, data=None, dtype=None):
         """
         Initialize a Tensor object.
 
@@ -56,14 +56,16 @@ class Tensor:
                 raise RuntimeError(
                     "Tensor init from CUDA-QX Tensor must provide `dtype`.")
             self._tensor = data
-            self._dtype = dtype
+            self._dtype = self._scalar_type_to_numpy(dtype)
             return
 
         if data is not None:
             if isinstance(data, (list, tuple, np.ndarray)):
-                data = np.array(data)
                 if dtype is None:
-                    dtype = data.dtype
+                    data = np.array(data)
+                else:
+                    data = np.array(data, dtype=dtype)
+                dtype = self._scalar_type_to_numpy(data.dtype)
             else:
                 raise ValueError("Data must be a list, tuple, or NumPy array")
 
@@ -76,6 +78,23 @@ class Tensor:
             if dtype is None:
                 dtype = np.float64
             self._create_empty_tensor([], dtype)
+
+    def _scalar_type_to_numpy(self, dtype):
+        """
+        Convert scalar type to NumPy `dtype`.
+        """
+        if dtype in [
+                np.uint8, np.int32, np.int64, np.float32, np.float64,
+                np.complex64, np.complex128
+        ]:
+            return dtype
+        if dtype == int:
+            return np.int32
+        if dtype == float:
+            return np.float64
+        if dtype == complex:
+            return np.complex128
+        raise ValueError("Unsupported dtype")
 
     def _create_tensor(self, data, dtype):
         """
@@ -113,7 +132,7 @@ class Tensor:
         Create an empty tensor with given shape and `dtype`.
 
         Args:
-           `shape (tuple)`: The shape of the tensor.
+            `shape (tuple)`: The shape of the tensor.
             `dtype (numpy.dtype)`: The data type of the tensor elements.
 
         Raises:
@@ -149,6 +168,8 @@ class Tensor:
         Returns:
             The value(s) at the specified index/indices.
         """
+        if isinstance(key, int):
+            return self.at([key])
         return self.at(list(key))
 
     def __setitem__(self, key, value):
@@ -159,15 +180,20 @@ class Tensor:
             key: Index or slice object.
             value: Value(s) to set.
         """
-        self._tensor[key] = value
+        if isinstance(key, int):
+            self._tensor[[key]] = value
+        else:
+            self._tensor[key] = value
 
-    def __array__(self, dtype=None):
+    def __array__(self, dtype=None, copy=None):
         """
         Convert the tensor to a NumPy array.
 
         Args:
             `dtype (numpy.dtype, optional)`:
                 The desired `dtype` of the resulting array.
+            `copy (bool)`:
+                Copy the array data iff true.
 
         Returns:
            `numpy.ndarray:`
@@ -178,14 +204,25 @@ class Tensor:
                 If the requested `dtype` doesn't match the `dtype` of the
                 tensor.
         """
+
+        # Ensure compatibility with older NumPy versions
+        # See: https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword.
+        if np.lib.NumpyVersion(np.__version__) >= "2.0.0":
+            copy_if_needed = None
+        elif np.lib.NumpyVersion(np.__version__) < "1.28.0":
+            copy_if_needed = False
+
+        if copy is None and copy_if_needed is False:
+            copy = False
+
         if dtype is None:
-            return np.array(self._tensor, copy=False, dtype=dtype)
+            return np.array(self._tensor, dtype=dtype, copy=copy)
         else:
             if dtype != self._dtype:
                 raise RuntimeError(
                     f"invalid NumPy `dtype` conversion ({dtype} vs {self._dtype})"
                 )
-            return np.array(self._tensor, copy=False, dtype=dtype)
+            return np.array(self._tensor, dtype=dtype, copy=copy)
 
     def rank(self):
         """

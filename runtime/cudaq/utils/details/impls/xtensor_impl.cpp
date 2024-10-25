@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 NVIDIA Corporation & Affiliates.                         *
+ * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
  * All rights reserved.                                                        *
  *                                                                             *
  * This source code and the accompanying materials are made available under    *
@@ -50,6 +50,7 @@ private:
     case Borrowed:
       return borrow_data;
     }
+    return nullptr;
   }
 
   // Clear the data.
@@ -165,7 +166,8 @@ public:
     auto size = compute_shape_size(shape);
     auto newData = std::make_unique<Scalar[]>(size);
     owned_data.swap(newData);
-    std::copy(d, d + size, owned_data.get());
+    if (d)
+      std::copy(d, d + size, owned_data.get());
     m_shape = shape;
   }
 
@@ -202,6 +204,34 @@ public:
   void dump() const override {
     std::cerr << xt::adapt(m_data(), size(), xt::no_ownership(), m_shape)
               << '\n';
+  }
+
+  // Double dispatch to make sure both arguments are this derived class.
+  details::tensor_impl<Scalar> *
+  dd_multiply(const details::tensor_impl<Scalar> &left) const override {
+    return left.multiply(*this);
+  }
+  details::tensor_impl<Scalar> *
+  dd_add(const details::tensor_impl<Scalar> &left) const override {
+    return left.add(*this);
+  }
+
+  details::tensor_impl<Scalar> *
+  multiply(const xtensor<Scalar> &right) const override {
+    auto &left = *this;
+
+    // TODO: call some library here
+
+    return new xtensor<Scalar>(nullptr, xtensor_shape_type{});
+  }
+
+  details::tensor_impl<Scalar> *
+  add(const xtensor<Scalar> &right) const override {
+    auto &left = *this;
+
+    // TODO: call some library here
+
+    return new xtensor<Scalar>(nullptr, xtensor_shape_type{});
   }
 
   static constexpr auto ScalarAsString = cudaq::type_to_string<Scalar>();

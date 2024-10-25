@@ -14,7 +14,20 @@
 #include <numeric>
 #include <vector>
 
+namespace cudaq {
+template <typename T>
+class xtensor;
+}
+
 namespace cudaq::details {
+
+// Forward declarations.
+template <typename T>
+class tensor_impl;
+template <typename T>
+tensor_impl<T> *operator*(const tensor_impl<T> &, const tensor_impl<T> &);
+template <typename T>
+tensor_impl<T> *operator+(const tensor_impl<T> &, const tensor_impl<T> &);
 
 /// @brief Implementation class for tensor operations following the PIMPL idiom
 template <typename Scalar = std::complex<double>>
@@ -132,6 +145,39 @@ public:
   virtual void dump() const = 0;
 
   virtual ~tensor_impl() = default;
+
+  // Operator friends.
+  template <typename T>
+  friend tensor_impl<T> operator*(const tensor_impl<T> &,
+                                  const tensor_impl<T> &);
+  template <typename T>
+  friend tensor_impl<T> operator+(const tensor_impl<T> &,
+                                  const tensor_impl<T> &);
+
+  // Double-dispatch hooks. We use double dispatch to ensure that both arguments
+  // are in fact the same derived class of `tensor_impl`.
+  virtual tensor_impl<Scalar> *
+  dd_multiply(const tensor_impl<Scalar> &left) const = 0;
+  virtual tensor_impl<Scalar> *
+  dd_add(const tensor_impl<Scalar> &left) const = 0;
+
+  // Terminal implementation of operators.
+  virtual tensor_impl<Scalar> *multiply(const xtensor<Scalar> &right) const = 0;
+  virtual tensor_impl<Scalar> *add(const xtensor<Scalar> &right) const = 0;
 };
+
+/// Multiplication of two tensors.
+template <typename T>
+tensor_impl<T> *operator*(const tensor_impl<T> &left,
+                          const tensor_impl<T> &right) {
+  return right.dd_multiply(left);
+}
+
+/// Addition of two tensors.
+template <typename T>
+tensor_impl<T> *operator+(const tensor_impl<T> &left,
+                          const tensor_impl<T> &right) {
+  return right.dd_add(left);
+}
 
 } // namespace cudaq::details
