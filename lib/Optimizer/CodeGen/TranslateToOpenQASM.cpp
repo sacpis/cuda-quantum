@@ -171,7 +171,18 @@ static LogicalResult emitOperation(Emitter &emitter, quake::ApplyOp op) {
     return op.emitError("cannot return classical results");
   if (!op.getControls().empty())
     return op.emitError("cannot add controls to a gate call");
-  emitter.os << op.getCallee();
+
+  auto calleeAttr = op.getCallee();
+  if (!calleeAttr.has_value()) {
+    return op.emitError("adjoint operation requires a valid callee");
+  }
+  StringRef callee = calleeAttr->getLeafReference().getValue();
+
+  if (op.getIsAdj()) {
+    emitter.os << callee << "dg ";
+  } else {
+    emitter.os << callee << " ";
+  }
 
   // Separate classical and quantum arguments.
   SmallVector<Value> parameters;
