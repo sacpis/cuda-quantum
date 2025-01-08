@@ -11,6 +11,8 @@
 #include "extension_point.h"
 #include "type_traits.h"
 
+#include <list>
+
 namespace cudaq {
 
 // Forward declarations.
@@ -173,20 +175,178 @@ public:
 
   template <typename T>
   friend tensor<T> operator*(const tensor<T> &, const tensor<T> &);
+  // template <typename T>
+  // friend tensor<T> operator*(const tensor<T> &, const T &);
   template <typename T>
   friend tensor<T> operator+(const tensor<T> &, const tensor<T> &);
+  template <typename T>
+  friend tensor<T> kronecker(const tensor<T> &, const tensor<T> &);
 };
 
 /// Multiplication of two tensors.
 template <typename T>
 tensor<T> operator*(const tensor<T> &left, const tensor<T> &right) {
-  return tensor((*left.pimpl) * (*right.pimpl));
+  if (left.shape() != right.shape()) {
+    throw std::runtime_error("expected tensors of equal dimension.");
+  }
+  // Hard-coding this for 2D tensors only.
+  if (left.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensor.");
+  }
+  tensor<T> returnTensor(left.shape());
+  for (std::size_t i = 0; i < left.shape()[0]; i++) {
+    for (std::size_t j = 0; j < left.shape()[1]; j++) {
+      T sum = 0;
+      for (std::size_t k = 0; k < right.shape()[1]; k++) {
+        sum += left.at({i, k}) * right.at({k, j});
+      }
+      returnTensor.at({i, j}) = sum;
+    }
+  }
+  return returnTensor;
+  // return tensor((*left.pimpl) * (*right.pimpl));
+}
+
+/// Multiplication of scalar against tensor.
+template <typename T>
+tensor<T> operator*(const T &left, const tensor<T> &right) {
+  // Hard-coding this for 2D tensors only.
+  if (right.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensor.");
+  }
+  tensor<T> returnTensor(right.shape());
+  for (std::size_t i = 0; i < right.shape()[0]; i++) {
+    for (std::size_t j = 0; j < right.shape()[1]; j++) {
+      returnTensor.at({i, j}) = (right.at({i, j}) * left);
+    }
+  }
+  return returnTensor;
+  // return tensor(left * (*right.pimpl));
+}
+template <typename T>
+tensor<T> operator*(const tensor<T> &left, const T &right) {
+  // Hard-coding this for 2D tensors only.
+  if (left.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensor.");
+  }
+  tensor<T> returnTensor(left.shape());
+  for (std::size_t i = 0; i < left.shape()[0]; i++) {
+    for (std::size_t j = 0; j < left.shape()[1]; j++) {
+      returnTensor.at({i, j}) = (left.at({i, j}) * right);
+    }
+  }
+  return returnTensor;
+  // return tensor((*left.pimpl) * right);
 }
 
 /// Addition of two tensors.
 template <typename T>
 tensor<T> operator+(const tensor<T> &left, const tensor<T> &right) {
-  return {(*left.pimpl) + (*right.pimpl)};
+  if (left.shape() != right.shape()) {
+    throw std::runtime_error("expected tensors of equal dimension.");
+  }
+  // Hard-coding this for 2D tensors only.
+  if (right.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensor.");
+  }
+  tensor<T> returnTensor(right.shape());
+  for (std::size_t i = 0; i < right.shape()[0]; i++) {
+    for (std::size_t j = 0; j < right.shape()[1]; j++) {
+      returnTensor.at({i, j}) = right.at({i, j}) + left.at({i, j});
+    }
+  }
+  return returnTensor;
+  // return {(*left.pimpl) + (*right.pimpl)};
+}
+
+/// Subtraction of two tensors.
+template <typename T>
+tensor<T> operator-(const tensor<T> &left, const tensor<T> &right) {
+  if (left.shape() != right.shape()) {
+    throw std::runtime_error("expected tensors of equal dimension.");
+  }
+  // Hard-coding this for 2D tensors only.
+  if (right.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensor.");
+  }
+  tensor<T> returnTensor(right.shape());
+  for (std::size_t i = 0; i < right.shape()[0]; i++) {
+    for (std::size_t j = 0; j < right.shape()[1]; j++) {
+      returnTensor.at({i, j}) = left.at({i, j}) - right.at({i, j});
+    }
+  }
+  return returnTensor;
+  // return {(*left.pimpl) + (*right.pimpl)};
+}
+
+/// Kronecker between two tensors.
+template <typename T>
+tensor<T> kronecker(const tensor<T> &left, const tensor<T> &right) {
+  // Hard-coding this for 2D tensors only.
+  if (left.shape().size() != 2 || right.shape().size() != 2) {
+    throw std::runtime_error("expected 2D tensors.");
+  }
+  // If either of these is a 1x1 matrix, we will circumvent
+  // the full kronecker product loop.
+  if (left.size() == 1)
+    return left.at({0,0}) * right;
+  else if (right.size() == 1)
+    return right.at({0,0}) * left;
+
+  auto rowA = left.shape()[0];
+  auto colA = left.shape()[1];
+  auto rowB = right.shape()[0];
+  auto colB = right.shape()[1];
+
+  auto new_shape = {rowA * rowB, colA * colB};
+  tensor<T> returnTensor(new_shape);
+
+  std::cout << "rowA = " << left.shape()[0] << " \n";
+  std::cout << "colA = " << left.shape()[1] << " \n";
+  std::cout << "rowB = " << right.shape()[0] << " \n";
+  std::cout << "colB = " << right.shape()[1] << " \n";
+
+  for (std::size_t i = 0; i < rowA; i++) {
+    for (std::size_t k = 0; k < colA; k++) {
+      for (std::size_t j = 0; j < rowB; j++) {
+        for (std::size_t l = 0; l < colB; l++) {
+          std::cout << "i,k,j,l = " << i << ", " << k << ", " << j << ", " << l << "\n";
+          std::cout << "first index = " << ((i * rowB) + k) << "\n";
+          std::cout << "second index = " << ((j * colB) + l) << "\n";
+          returnTensor.at(
+              {(i * rowB) + k, (j * colB) + l}) =
+              left.at({i, j}) * right.at({k, l});
+              // left.at({i, k}) * right.at({j, l});
+          returnTensor.dump();
+        }
+      }
+    }
+  }
+
+  return returnTensor;
+  // return {(*left.pimpl).kronecker((*right.pimpl))};
+}
+
+/// Kronecker product between a list of tensors.
+template <typename T>
+tensor<T> kronecker(std::list<tensor<T>> &tensors) {
+  // tensor<T> start({1,1});
+  // start.at({0,0}) = 1.0+0.0j;
+  // auto func = [&](auto &&a, auto &&b) { return kronecker<T>(a,b); };
+  // return std::accumulate(begin(tensors), end(tensors), start, func);
+  std::vector<tensor<T>> returnTensors = {tensors.front()};
+  tensors.pop_front();
+  int idx = 0;
+  for (auto tensor : tensors) {
+    // tenstor<t> returnTensor({
+    //   returnTensors[idx].shape()[0] * tensor.shape()[0],
+    //   returnTensors[idx].shape()[1] * tensor.shape()[1]
+    //  });
+    auto returnTensor = kronecker(returnTensors[idx], tensor);
+    returnTensors.push_back(returnTensor);
+    idx++;
+  }
+  return returnTensors.back();
 }
 
 } // namespace cudaq

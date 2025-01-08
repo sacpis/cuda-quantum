@@ -9,10 +9,11 @@
 #include "cudaq/operators.h"
 #include <gtest/gtest.h>
 
-void checkEqual(cudaq::tensor<std::complex<double>> a, cudaq::tensor<std::complex<double>> b) {
+void checkEqual(cudaq::tensor<std::complex<double>> a,
+                cudaq::tensor<std::complex<double>> b) {
   ASSERT_EQ(a.size(), b.size());
-  for (std::size_t i=0; i<a.shape()[0]; i++) {
-    for (std::size_t j=0; j<a.shape()[1]; j++) {
+  for (std::size_t i = 0; i < a.shape()[0]; i++) {
+    for (std::size_t j = 0; j < a.shape()[1]; j++) {
       EXPECT_NEAR(a.at({i, j}).real(), b.at({i, j}).real(), 1e-8);
     }
   }
@@ -47,8 +48,10 @@ cudaq::tensor<std::complex<double>> create_matrix(std::size_t size) {
 cudaq::tensor<std::complex<double>> position_matrix(std::size_t size) {
   auto mat = cudaq::tensor<std::complex<double>>({size, size});
   for (std::size_t i = 0; i + 1 < size; i++) {
-    mat.at({i + 1, i}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-    mat.at({i, i + 1}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat.at({i + 1, i}) =
+        0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat.at({i, i + 1}) =
+        0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   }
   return mat;
 }
@@ -56,7 +59,8 @@ cudaq::tensor<std::complex<double>> position_matrix(std::size_t size) {
 cudaq::tensor<std::complex<double>> momentum_matrix(std::size_t size) {
   auto mat = cudaq::tensor<std::complex<double>>({size, size});
   for (std::size_t i = 0; i + 1 < size; i++) {
-    mat.at({i + 1, i}) = (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat.at({i + 1, i}) =
+        (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
     mat.at({i, i + 1}) =
         -1. * (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   }
@@ -184,7 +188,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // //     auto amplitude = 1.0 + 1.0j;
   // //     auto displace = cudaq::elementary_operator::displace(degree_index,
   // //     amplitude); auto got_displace = displace.to_matrix({{degree_index,
-  // //     level_count}}, {}); auto want_displace = displace_matrix(level_count,
+  // //     level_count}}, {}); auto want_displace =
+  // displace_matrix(level_count,
   // //     amplitude); checkEqual(want_displace, got_displace);
   // //   }
   // // }

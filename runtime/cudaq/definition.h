@@ -36,9 +36,11 @@ public:
   template <typename Callable>
   CallbackFunction(Callable &&callable) {
     static_assert(
-        std::is_invocable_r_v<tensor<std::complex<double>>, Callable, std::map<int, int>,
+        std::is_invocable_r_v<tensor<std::complex<double>>, Callable,
+                              std::map<int, int>,
                               std::map<std::string, std::complex<double>>>,
-        "Invalid callback function. Must have signature tensor<std::complex<double>>("
+        "Invalid callback function. Must have signature "
+        "tensor<std::complex<double>>("
         "std::map<int,int>, "
         "std::map<std::string, std::complex<double>>)");
     _callback_func = std::forward<Callable>(callable);
@@ -109,7 +111,8 @@ public:
 
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
-  // `cudaq::tensor<std::complex<double>>` type representing the operator matrix.
+  // `cudaq::tensor<std::complex<double>>` type representing the operator
+  // matrix.
   CallbackFunction generator;
 
   // Constructor.

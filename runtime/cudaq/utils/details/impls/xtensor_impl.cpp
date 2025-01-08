@@ -211,9 +211,17 @@ public:
   dd_multiply(const details::tensor_impl<Scalar> &left) const override {
     return left.multiply(*this);
   }
+  // details::tensor_impl<Scalar> *
+  // dd_multiply(const Scalar &left) const override {
+  //   return *this->multiply(left);
+  // }
   details::tensor_impl<Scalar> *
   dd_add(const details::tensor_impl<Scalar> &left) const override {
     return left.add(*this);
+  }
+  details::tensor_impl<Scalar> *
+  dd_kronecker(const details::tensor_impl<Scalar> &left) const override {
+    return left.kronecker(*this);
   }
 
   details::tensor_impl<Scalar> *
@@ -225,8 +233,26 @@ public:
     return new xtensor<Scalar>(nullptr, xtensor_shape_type{});
   }
 
+  // details::tensor_impl<Scalar> *
+  // multiply(const Scalar &right) const override {
+  //   auto &left = *this;
+
+  //   // TODO: call some library here
+
+  //   return new xtensor<Scalar>(nullptr, xtensor_shape_type{});
+  // }
+
   details::tensor_impl<Scalar> *
   add(const xtensor<Scalar> &right) const override {
+    auto &left = *this;
+
+    // TODO: call some library here
+
+    return new xtensor<Scalar>(nullptr, xtensor_shape_type{});
+  }
+
+  details::tensor_impl<Scalar> *
+  kronecker(const xtensor<Scalar> &right) const override {
     auto &left = *this;
 
     // TODO: call some library here

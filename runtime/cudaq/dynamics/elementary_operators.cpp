@@ -140,8 +140,10 @@ elementary_operator elementary_operator::position(int degree) {
       auto mat = tensor<std::complex<double>>({dimension, dimension});
       // position = 0.5 * (create + annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat.at({i + 1, i}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        mat.at({i, i + 1}) = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i + 1, i}) =
+            0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat.at({i, i + 1}) =
+            0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -245,12 +247,14 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   //     auto degree = op.degrees[0];
   //     std::size_t dimension = dimensions[degree];
   //     auto temp_mat = tensor<std::complex<double>>({dimension, dimension});
-  //     // // displace = exp[ (amplitude * create) - (conj(amplitude) * annihilate) ]
+  //     // // displace = exp[ (amplitude * create) - (conj(amplitude) *
+  //     annihilate) ]
   //     // for (std::size_t i = 0; i + 1 < dimension; i++) {
   //     //   temp_mat(i + 1, i) =
   //     //       amplitude * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   //     //   temp_mat(i, i + 1) =
-  //     //       -1. * std::conj(amplitude) * std::sqrt(static_cast<double>(i + 1)) +
+  //     //       -1. * std::conj(amplitude) * std::sqrt(static_cast<double>(i +
+  //     1)) +
   //     //       0.0 * 'j';
   //     // }
   //     // Not ideal that our method of computing the matrix exponential

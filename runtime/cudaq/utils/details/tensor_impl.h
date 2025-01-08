@@ -14,6 +14,8 @@
 #include <numeric>
 #include <vector>
 
+#include <cassert>
+
 namespace cudaq {
 template <typename T>
 class xtensor;
@@ -158,12 +160,19 @@ public:
   // are in fact the same derived class of `tensor_impl`.
   virtual tensor_impl<Scalar> *
   dd_multiply(const tensor_impl<Scalar> &left) const = 0;
+  // virtual tensor_impl<Scalar> *
+  // dd_multiply(const Scalar &left) const = 0;
   virtual tensor_impl<Scalar> *
   dd_add(const tensor_impl<Scalar> &left) const = 0;
+  virtual tensor_impl<Scalar> *
+  dd_kronecker(const tensor_impl<Scalar> &left) const = 0;
 
   // Terminal implementation of operators.
   virtual tensor_impl<Scalar> *multiply(const xtensor<Scalar> &right) const = 0;
+  // virtual tensor_impl<Scalar> *multiply(const Scalar &right) const = 0;
   virtual tensor_impl<Scalar> *add(const xtensor<Scalar> &right) const = 0;
+  virtual tensor_impl<Scalar> *
+  kronecker(const xtensor<Scalar> &right) const = 0;
 };
 
 /// Multiplication of two tensors.
@@ -173,11 +182,30 @@ tensor_impl<T> *operator*(const tensor_impl<T> &left,
   return right.dd_multiply(left);
 }
 
+// /// Multiplication of scalar against tensor.
+// template <typename T>
+// tensor_impl<T> *operator*(const T &left,
+//                           const tensor_impl<T> &right) {
+//   return right.dd_multiply(left);
+// }
+// template <typename T>
+// tensor_impl<T> *operator*(const tensor_impl<T> &left,
+//                           const T &right) {
+//   return left.dd_multiply(right);
+// }
+
 /// Addition of two tensors.
 template <typename T>
 tensor_impl<T> *operator+(const tensor_impl<T> &left,
                           const tensor_impl<T> &right) {
   return right.dd_add(left);
+}
+
+/// Kronecker of two tensors.
+template <typename T>
+tensor_impl<T> *kronecker(const tensor_impl<T> &left,
+                          const tensor_impl<T> &right) {
+  return right.dd_kronecker(left);
 }
 
 } // namespace cudaq::details

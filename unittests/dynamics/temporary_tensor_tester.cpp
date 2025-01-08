@@ -6,10 +6,9 @@
  * the terms of the Apache License 2.0 which accompanies this distribution.    *
  ******************************************************************************/
 
-#include "cudaq/utils/tensor.h"
 #include "cudaq/operators.h"
+#include "cudaq/utils/tensor.h"
 #include <gtest/gtest.h>
-
 
 // cudaq::tensor _id_matrix(int size) {
 //   auto mat = cudaq::tensor(size, size);
@@ -32,7 +31,6 @@
 //   return mat;
 // }
 
-
 /// REMOVEME: This file is temporary and is just working out operator specific
 /// routines using the new tensor class.
 
@@ -43,5 +41,4 @@ TEST(ExpressionTester, checkTensor) {
     cudaq::tensor t({1, 2, 1});
     mat.dump();
   }
-
 }

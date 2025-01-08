@@ -189,7 +189,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(sum.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -205,7 +205,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(sum.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -222,7 +222,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(sum.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(sum.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -238,7 +238,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(difference.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -254,7 +254,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(difference.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -271,7 +271,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(difference.term_count() == 2);
     ASSERT_TRUE(reverse.term_count() == 2);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(difference.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -287,7 +287,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -303,7 +303,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -320,7 +320,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
     ASSERT_TRUE(product.term_count() == 3);
     ASSERT_TRUE(reverse.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
     // ASSERT_TRUE(reverse.degrees() == want_degrees);
   }
@@ -333,7 +333,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 
@@ -345,7 +345,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 
@@ -359,7 +359,7 @@ TEST(ExpressionTester, checkProductOperatorAgainstScalars) {
 
     ASSERT_TRUE(product.term_count() == 3);
 
-    std::vector<int> want_degrees = {0,1};
+    std::vector<int> want_degrees = {0, 1};
     // ASSERT_TRUE(product.degrees() == want_degrees);
   }
 }

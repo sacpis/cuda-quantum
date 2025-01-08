@@ -271,15 +271,136 @@ TEST(TensorTest, checkNullaryConstructor) {
   t.copy(data.data(), shape);
 }
 
+cudaq::tensor<std::complex<double>>
+id_matrix(std::size_t size, std::complex<double> value = 1.0 + 0.0j) {
+  cudaq::tensor<std::complex<double>> mat({size, size});
+  for (std::size_t i = 0; i < size; i++)
+    mat.at({i, i}) = value;
+  return mat;
+}
 
-TEST(CoreTester, checkMultiplication) {
+void checkEqual(cudaq::tensor<std::complex<double>> a,
+                cudaq::tensor<std::complex<double>> b) {
+  ASSERT_EQ(a.size(), b.size());
+  for (std::size_t i = 0; i < a.shape()[0]; i++) {
+    for (std::size_t j = 0; j < a.shape()[1]; j++) {
+      EXPECT_NEAR(a.at({i, j}).real(), b.at({i, j}).real(), 1e-8);
+    }
+  }
+}
 
+TEST(CoreTester, checkLinearAlgebra) {
+
+  // {
+  //   cudaq::tensor a({2, 2});
+  //   cudaq::tensor b({2, 2});
+
+  //   auto c = a * b;
+  //   // c.dump();
+  // }
+
+  // /// 2D Matrix multiplication.
+  std::vector<std::size_t> sizes = {2, 3, 4, 5};
+  // {
+  //   for (auto size : sizes) {
+  //     auto a = id_matrix(size);
+  //     auto b = id_matrix(size);
+  //     auto c = a * b;
+
+  //     // c.dump();
+
+  //     /// Multiplication should've given us back another identity.
+  //     checkEqual(c, a);
+  //   }
+  // }
+
+  // /// Scaling matrices by a constant value.
+  // {
+  //   for (auto size : sizes) {
+  //     std::complex<double> value = 2.5;
+  //     auto a = id_matrix(size);
+  //     auto b = value * a;
+  //     auto c = a * value;
+
+  //     auto want = id_matrix(size, value);
+
+  //     /// Multiplication should've given us back a scaled identity.
+  //     checkEqual(b, want);
+  //     checkEqual(c, want);
+  //   }
+  // }
+
+  // /// Matrix addition.
+  // {
+  //   for (auto size : sizes) {
+  //     auto a = id_matrix(size);
+  //     auto b = id_matrix(size);
+  //     auto c = a + b;
+
+  //     auto want = id_matrix(size, 2.0 + 0.0j);
+
+  //     /// Multiplication should've given us back another identity.
+  //     checkEqual(c, want);
+  //   }
+  // }
+
+  // /// Matrix subtraction.
+  // {
+  //   for (auto size : sizes) {
+  //     auto a = id_matrix(size, 3.0 + 0.0j);
+  //     auto b = id_matrix(size);
+  //     auto c = a - b;
+
+  //     auto want = id_matrix(size, 2.0 + 0.0j);
+  //     want.dump();
+
+  //     /// Multiplication should've given us back another identity.
+  //     checkEqual(c, want);
+  //   }
+  // }
+
+  // /// Kronecker product.
+  // {
+  //   for (auto size : sizes) {
+  //     auto a = id_matrix(size);
+  //     auto b = id_matrix(size);
+
+  //     auto c = cudaq::kronecker(a, b);
+  //     c.dump();
+
+  //     auto want = id_matrix(size * size);
+  //     checkEqual(c, want);
+  //   }
+  // }
+
+    /// Kronecker product mismatched sizes. REMOVEME:
   {
-    cudaq::tensor a({2,2});
-    cudaq::tensor b({2,2});
+    std::size_t size = 2;
+    auto a = id_matrix(size);
+    auto b = id_matrix(size*2);
 
-    // auto c = a * b;
-    // c.dump();
+    auto c = cudaq::kronecker(a, b);
+    c.dump();
+
+    auto want = id_matrix(size * size);
+    checkEqual(c, want);
+    
   }
 
+  // /// Kronecker product of many.
+  // {
+  //   sizes = {2};
+  //   for (auto size : sizes) {
+  //     auto a = id_matrix(size);
+  //     auto b = id_matrix(size);
+  //     auto c = id_matrix(size);
+
+  //     std::list<cudaq::tensor<std::complex<double>>> tensors = {a,b,c};
+  //     auto d = cudaq::kronecker(tensors);
+  //     d.dump();
+
+  //     auto want = id_matrix(size * size * size);
+  //     // checkEqual(c, want);
+  //   }
+  // }
 }

@@ -125,8 +125,8 @@ public:
   /// are guaranteed to represent the same transformation for all arguments.
   bool operator==(const operator_sum &other) const;
 
-/// FIXME: Protect this once I can do deeper testing in unittests.
-// protected:
+  /// FIXME: Protect this once I can do deeper testing in unittests.
+  // protected:
   std::vector<product_operator> get_terms() { return m_terms; }
 };
 operator_sum operator*(std::complex<double> other, operator_sum self);
@@ -218,11 +218,11 @@ public:
   /// operator.
   int term_count() const { return m_terms.size(); }
 
-  /// @brief A map of the paramter names to their concrete, complex values.
-  std::map<std::string, std::complex<double>> parameters;
+  // /// @brief A map of the paramter names to their concrete, complex values.
+  // std::map<std::string, std::complex<double>> parameters;
 
-/// FIXME: Protect this once I can do deeper testing in unittests.
-// protected:
+  /// FIXME: Protect this once I can do deeper testing in unittests.
+  // protected:
   std::vector<std::variant<scalar_operator, elementary_operator>> get_terms() {
     return m_terms;
   };
