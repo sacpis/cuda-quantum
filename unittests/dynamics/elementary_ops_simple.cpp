@@ -9,6 +9,7 @@
 #include "cudaq/operators.h"
 #include <gtest/gtest.h>
 
+namespace utils {
 void checkEqual(cudaq::matrix_2 a, cudaq::matrix_2 b) {
   ASSERT_EQ(a.get_rank(), b.get_rank());
   ASSERT_EQ(a.get_rows(), b.get_rows());
@@ -96,6 +97,8 @@ cudaq::matrix_2 parity_matrix(std::size_t size) {
 //   return mat.exp();
 // }
 
+} // namespace utils
+
 TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   std::vector<std::size_t> levels = {2, 3, 4, 5};
 
@@ -108,8 +111,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
       // cudaq::operators::identity(int degree)
       auto id = cudaq::elementary_operator::identity(degree_index);
       auto got_id = id.to_matrix({{degree_index, level_count}}, {});
-      auto want_id = id_matrix(level_count);
-      checkEqual(want_id, got_id);
+      auto want_id = utils::id_matrix(level_count);
+      utils::checkEqual(want_id, got_id);
     }
   }
 
@@ -118,8 +121,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto zero = cudaq::elementary_operator::zero(degree_index);
       auto got_zero = zero.to_matrix({{degree_index, level_count}}, {});
-      auto want_zero = zero_matrix(level_count);
-      checkEqual(want_zero, got_zero);
+      auto want_zero = utils::zero_matrix(level_count);
+      utils::checkEqual(want_zero, got_zero);
     }
   }
 
@@ -129,8 +132,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
       auto annihilate = cudaq::elementary_operator::annihilate(degree_index);
       auto got_annihilate =
           annihilate.to_matrix({{degree_index, level_count}}, {});
-      auto want_annihilate = annihilate_matrix(level_count);
-      checkEqual(want_annihilate, got_annihilate);
+      auto want_annihilate = utils::annihilate_matrix(level_count);
+      utils::checkEqual(want_annihilate, got_annihilate);
     }
   }
 
@@ -139,8 +142,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto create = cudaq::elementary_operator::create(degree_index);
       auto got_create = create.to_matrix({{degree_index, level_count}}, {});
-      auto want_create = create_matrix(level_count);
-      checkEqual(want_create, got_create);
+      auto want_create = utils::create_matrix(level_count);
+      utils::checkEqual(want_create, got_create);
     }
   }
 
@@ -149,8 +152,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto position = cudaq::elementary_operator::position(degree_index);
       auto got_position = position.to_matrix({{degree_index, level_count}}, {});
-      auto want_position = position_matrix(level_count);
-      checkEqual(want_position, got_position);
+      auto want_position = utils::position_matrix(level_count);
+      utils::checkEqual(want_position, got_position);
     }
   }
 
@@ -159,8 +162,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto momentum = cudaq::elementary_operator::momentum(degree_index);
       auto got_momentum = momentum.to_matrix({{degree_index, level_count}}, {});
-      auto want_momentum = momentum_matrix(level_count);
-      checkEqual(want_momentum, got_momentum);
+      auto want_momentum = utils::momentum_matrix(level_count);
+      utils::checkEqual(want_momentum, got_momentum);
     }
   }
 
@@ -169,8 +172,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto number = cudaq::elementary_operator::number(degree_index);
       auto got_number = number.to_matrix({{degree_index, level_count}}, {});
-      auto want_number = number_matrix(level_count);
-      checkEqual(want_number, got_number);
+      auto want_number = utils::number_matrix(level_count);
+      utils::checkEqual(want_number, got_number);
     }
   }
 
@@ -179,8 +182,8 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
     for (auto level_count : levels) {
       auto parity = cudaq::elementary_operator::parity(degree_index);
       auto got_parity = parity.to_matrix({{degree_index, level_count}}, {});
-      auto want_parity = parity_matrix(level_count);
-      checkEqual(want_parity, got_parity);
+      auto want_parity = utils::parity_matrix(level_count);
+      utils::checkEqual(want_parity, got_parity);
     }
   }
 
@@ -189,10 +192,11 @@ TEST(ExpressionTester, checkPreBuiltElementaryOps) {
   // //   for (auto level_count : levels) {
   // //     auto amplitude = 1.0 + 1.0j;
   // //     auto displace = cudaq::elementary_operator::displace(degree_index,
-  // //     amplitude); auto got_displace = displace.to_matrix({{degree_index,
+  // //     amplitude); auto got_displace =
+  // utils::displace.to_matrix({{degree_index,
   // //     level_count}}, {}); auto want_displace =
   // displace_matrix(level_count,
-  // //     amplitude); checkEqual(want_displace, got_displace);
+  // //     amplitude); utils::checkEqual(want_displace, got_displace);
   // //   }
   // // }
 
