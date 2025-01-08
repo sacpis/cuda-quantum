@@ -44,8 +44,8 @@ elementary_operator elementary_operator::identity(int degree) {
       }
 
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "done\n\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -68,14 +68,9 @@ elementary_operator elementary_operator::zero(int degree) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
       auto mat = matrix_2(dimension, dimension);
-      for (std::size_t i = 0; i < dimension; i++) {
-        for (std::size_t j = 0; j < dimension; j++) {
-          mat[{i, j}] = 0.0 + 0.0 * 'j';
-        }
-      }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -99,8 +94,8 @@ elementary_operator elementary_operator::annihilate(int degree) {
         mat[{i, i + 1}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -124,8 +119,8 @@ elementary_operator elementary_operator::create(int degree) {
         mat[{i + 1, i}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -153,8 +148,8 @@ elementary_operator elementary_operator::position(int degree) {
             0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -182,8 +177,8 @@ elementary_operator elementary_operator::momentum(int degree) {
             -1. * (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "\ndone\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -207,8 +202,8 @@ elementary_operator elementary_operator::number(int degree) {
         mat[{i, i}] = static_cast<double>(i) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "done\n\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -232,8 +227,8 @@ elementary_operator elementary_operator::parity(int degree) {
         mat[{i, i}] = std::pow(-1., static_cast<double>(i)) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
-      mat.dump();
-      std::cout << "done\n\n";
+      std::cout << mat.dump();
+      std::cout << "\ndone\n\n";
       return mat;
     };
     op.define(op_id, op.expected_dimensions, func);
@@ -270,7 +265,7 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   //     auto mat = temp_mat.exp();
   //     std::cout << "dumping the complex mat: \n";
   //     mat.dump();
-  //     std::cout << "\ndone\n";
+  //     std::cout << "\ndone\n\n";
   //     return mat;
   //   };
   //   op.define(op_id, op.expected_dimensions, func);

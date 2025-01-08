@@ -51,8 +51,6 @@ public:
   /// order.
   std::vector<int> degrees() const;
 
-  // std::map<std::string, std::complex<double>> parameters() const;
-
   bool _is_spinop() const;
 
   /// TODO: implement
@@ -66,9 +64,8 @@ public:
   ///                      degrees of freedom: `{0:2, 1:2}`.
   /// @arg `parameters` : A map of the paramter names to their concrete, complex
   /// values.
-  matrix_2
-  to_matrix(const std::map<int, int> &dimensions,
-            const std::map<std::string, double> &params = {}) const;
+  matrix_2 to_matrix(const std::map<int, int> &dimensions,
+                     const std::map<std::string, double> &params = {}) const;
 
   // Arithmetic operators
   operator_sum operator+(const operator_sum &other) const;
@@ -202,9 +199,8 @@ public:
   ///                      degrees of freedom: `{0:2, 1:2}`.
   /// @arg `parameters` : A map of the paramter names to their concrete, complex
   /// values.
-  matrix_2
-  to_matrix(std::map<int, int> dimensions,
-            std::map<std::string, std::complex<double>> parameters);
+  matrix_2 to_matrix(std::map<int, int> dimensions,
+                     std::map<std::string, std::complex<double>> parameters);
 
   /// @brief Creates a representation of the operator as a `cudaq::pauli_word`
   /// that can be passed as an argument to quantum kernels.
@@ -217,9 +213,6 @@ public:
   /// @brief Return the number of operator terms that make up this product
   /// operator.
   int term_count() const { return m_terms.size(); }
-
-  // /// @brief A map of the paramter names to their concrete, complex values.
-  // std::map<std::string, std::complex<double>> parameters;
 
   /// FIXME: Protect this once I can do deeper testing in unittests.
   // protected:
@@ -285,9 +278,8 @@ public:
   ///                      that is, the dimension of each degree of freedom
   ///                      that the operator acts on. Example for two, 2-level
   ///                      degrees of freedom: `{0 : 2, 1 : 2}`.
-  matrix_2
-  to_matrix(std::map<int, int> dimensions,
-            std::map<std::string, std::complex<double>> parameters);
+  matrix_2 to_matrix(std::map<int, int> dimensions,
+                     std::map<std::string, std::complex<double>> parameters);
 
   // Predefined operators.
   static elementary_operator identity(int degree);
@@ -352,11 +344,6 @@ public:
   /// @brief The degrees of freedom that the operator acts on in canonical
   /// order.
   std::vector<int> degrees;
-  /// @brief A map of the paramter names to their concrete, complex values.
-  /// This will be enabled once we can handle generalized callback function
-  /// arguments.
-  /// @FIXME: Not needed until generalizing the function arguments.
-  // std::map<std::string, std::complex<double>> parameters;
   std::string id;
 
   // /// @brief Creates a representation of the operator as `pauli_word` that
@@ -415,9 +402,8 @@ public:
 
   // Return the scalar operator as a 1x1 matrix. This is needed for
   // compatability with the other inherited classes.
-  matrix_2
-  to_matrix(std::map<int, int> dimensions,
-            std::map<std::string, std::complex<double>> parameters);
+  matrix_2 to_matrix(std::map<int, int> dimensions,
+                     std::map<std::string, std::complex<double>> parameters);
 
   // /// @brief Returns true if other is a scalar operator with the same
   // /// generator.

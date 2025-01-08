@@ -9,26 +9,22 @@
 #include "cudaq/operators.h"
 #include <gtest/gtest.h>
 
-void checkEqual(cudaq::matrix_2 a,
-                cudaq::matrix_2 b) {
+void checkEqual(cudaq::matrix_2 a, cudaq::matrix_2 b) {
   ASSERT_EQ(a.get_rank(), b.get_rank());
   ASSERT_EQ(a.get_rows(), b.get_rows());
   ASSERT_EQ(a.get_columns(), b.get_columns());
   ASSERT_EQ(a.get_size(), b.get_size());
   for (std::size_t i = 0; i < a.get_rows(); i++) {
     for (std::size_t j = 0; j < a.get_columns(); j++) {
-      // EXPECT_NEAR(a[{i, j}].real(), b[{i, j}].real(), 1e-8);
-      // FIXME
+      double a_val = a[{i, j}].real();
+      double b_val = b[{i, j}].real();
+      EXPECT_NEAR(a_val, b_val, 1e-8);
     }
   }
 }
 
 cudaq::matrix_2 zero_matrix(std::size_t size) {
   auto mat = cudaq::matrix_2(size, size);
-  for (std::size_t i = 0; i < size; i++) {
-    for (std::size_t j = 0; j < size; j++)
-      mat[{i, j}] = 0.0 + 0.0j;
-  }
   return mat;
 }
 
@@ -56,10 +52,8 @@ cudaq::matrix_2 create_matrix(std::size_t size) {
 cudaq::matrix_2 position_matrix(std::size_t size) {
   auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i + 1 < size; i++) {
-    mat[{i + 1, i}] =
-        0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-    mat[{i, i + 1}] =
-        0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat[{i + 1, i}] = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat[{i, i + 1}] = 0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   }
   return mat;
 }

@@ -36,8 +36,7 @@ public:
   template <typename Callable>
   CallbackFunction(Callable &&callable) {
     static_assert(
-        std::is_invocable_r_v<matrix_2, Callable,
-                              std::map<int, int>,
+        std::is_invocable_r_v<matrix_2, Callable, std::map<int, int>,
                               std::map<std::string, std::complex<double>>>,
         "Invalid callback function. Must have signature "
         "matrix_2("
