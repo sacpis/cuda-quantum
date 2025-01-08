@@ -17,6 +17,8 @@ namespace cudaq {
 
 class state_helper;
 
+using tensor = SimulationState::Tensor;
+
 /// @brief The cudaq::state encapsulate backend simulation state vector or
 /// density matrix data.
 class state {
@@ -50,10 +52,10 @@ public:
   /// @brief Return the tensor at the given index for this state representation.
   /// For state-vector and density matrix simulation states, there is just one
   /// tensor with rank 1 or 2 respectively.
-  SimulationState::Tensor get_tensor(std::size_t tensorIdx = 0) const;
+  tensor get_tensor(std::size_t tensorIdx = 0) const;
 
   /// @brief Return all tensors that represent this simulation state.
-  std::vector<SimulationState::Tensor> get_tensors() const;
+  std::vector<tensor> get_tensors() const;
 
   /// @brief Return the number of tensors that represent this state.
   std::size_t get_num_tensors() const;
