@@ -36,11 +36,13 @@ elementary_operator elementary_operator::identity(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       int degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
+
       // Build up the identity matrix.
       for (std::size_t i = 0; i < dimension; i++) {
-        mat.at({i, i}) = 1.0 + 0.0 * 'j';
+        mat[{i, i}] = 1.0 + 0.0 * 'j';
       }
+
       std::cout << "dumping the complex mat: \n";
       mat.dump();
       std::cout << "done\n\n";
@@ -65,7 +67,12 @@ elementary_operator elementary_operator::zero(int degree) {
       // the user invokes this later on via, e.g, `to_matrix()`.
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
+      for (std::size_t i = 0; i < dimension; i++) {
+        for (std::size_t j = 0; j < dimension; j++) {
+          mat[{i, j}] = 0.0 + 0.0 * 'j';
+        }
+      }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
       std::cout << "\ndone\n";
@@ -87,9 +94,9 @@ elementary_operator elementary_operator::annihilate(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat.at({i, i + 1}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat[{i, i + 1}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -112,9 +119,9 @@ elementary_operator elementary_operator::create(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat.at({i + 1, i}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+        mat[{i + 1, i}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -137,12 +144,12 @@ elementary_operator elementary_operator::position(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       // position = 0.5 * (create + annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat.at({i + 1, i}) =
+        mat[{i + 1, i}] =
             0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        mat.at({i, i + 1}) =
+        mat[{i, i + 1}] =
             0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
@@ -166,12 +173,12 @@ elementary_operator elementary_operator::momentum(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       // momentum = 0.5j * (create - annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
-        mat.at({i + 1, i}) =
+        mat[{i + 1, i}] =
             (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-        mat.at({i, i + 1}) =
+        mat[{i, i + 1}] =
             -1. * (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
       std::cout << "dumping the complex mat: \n";
@@ -195,9 +202,9 @@ elementary_operator elementary_operator::number(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       for (std::size_t i = 0; i < dimension; i++) {
-        mat.at({i, i}) = static_cast<double>(i) + 0.0j;
+        mat[{i, i}] = static_cast<double>(i) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -220,9 +227,9 @@ elementary_operator elementary_operator::parity(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = matrix_2({dimension, dimension});
+      auto mat = matrix_2(dimension, dimension);
       for (std::size_t i = 0; i < dimension; i++) {
-        mat.at({i, i}) = std::pow(-1., static_cast<double>(i)) + 0.0j;
+        mat[{i, i}] = std::pow(-1., static_cast<double>(i)) + 0.0j;
       }
       std::cout << "dumping the complex mat: \n";
       mat.dump();
@@ -246,13 +253,13 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   //                   std::map<std::string, std::complex<double>> _none) {
   //     auto degree = op.degrees[0];
   //     std::size_t dimension = dimensions[degree];
-  //     auto temp_mat = matrix_2({dimension, dimension});
+  //     auto temp_mat = matrix_2(dimension, dimension);
   //     // // displace = exp[ (amplitude * create) - (conj(amplitude) *
   //     annihilate) ]
   //     // for (std::size_t i = 0; i + 1 < dimension; i++) {
-  //     //   temp_mat(i + 1, i) =
+  //     //   temp_mat[{i + 1, i}] =
   //     //       amplitude * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-  //     //   temp_mat(i, i + 1) =
+  //     //   temp_mat[{i, i + 1}] =
   //     //       -1. * std::conj(amplitude) * std::sqrt(static_cast<double>(i +
   //     1)) +
   //     //       0.0 * 'j';

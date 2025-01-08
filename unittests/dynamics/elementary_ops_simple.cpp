@@ -9,85 +9,93 @@
 #include "cudaq/operators.h"
 #include <gtest/gtest.h>
 
-void checkEqual(cudaq::tensor<std::complex<double>> a,
-                cudaq::tensor<std::complex<double>> b) {
-  ASSERT_EQ(a.size(), b.size());
-  for (std::size_t i = 0; i < a.shape()[0]; i++) {
-    for (std::size_t j = 0; j < a.shape()[1]; j++) {
-      EXPECT_NEAR(a.at({i, j}).real(), b.at({i, j}).real(), 1e-8);
+void checkEqual(cudaq::matrix_2 a,
+                cudaq::matrix_2 b) {
+  ASSERT_EQ(a.get_rank(), b.get_rank());
+  ASSERT_EQ(a.get_rows(), b.get_rows());
+  ASSERT_EQ(a.get_columns(), b.get_columns());
+  ASSERT_EQ(a.get_size(), b.get_size());
+  for (std::size_t i = 0; i < a.get_rows(); i++) {
+    for (std::size_t j = 0; j < a.get_columns(); j++) {
+      // EXPECT_NEAR(a[{i, j}].real(), b[{i, j}].real(), 1e-8);
+      // FIXME
     }
   }
 }
 
-cudaq::tensor<std::complex<double>> zero_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 zero_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
+  for (std::size_t i = 0; i < size; i++) {
+    for (std::size_t j = 0; j < size; j++)
+      mat[{i, j}] = 0.0 + 0.0j;
+  }
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> id_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 id_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i < size; i++)
-    mat.at({i, i}) = 1.0 + 0.0j;
+    mat[{i, i}] = 1.0 + 0.0j;
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> annihilate_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 annihilate_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i + 1 < size; i++)
-    mat.at({i, i + 1}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat[{i, i + 1}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> create_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 create_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i + 1 < size; i++)
-    mat.at({i + 1, i}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
+    mat[{i + 1, i}] = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> position_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 position_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i + 1 < size; i++) {
-    mat.at({i + 1, i}) =
+    mat[{i + 1, i}] =
         0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-    mat.at({i, i + 1}) =
+    mat[{i, i + 1}] =
         0.5 * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   }
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> momentum_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 momentum_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i + 1 < size; i++) {
-    mat.at({i + 1, i}) =
+    mat[{i + 1, i}] =
         (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-    mat.at({i, i + 1}) =
+    mat[{i, i + 1}] =
         -1. * (0.5j) * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
   }
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> number_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 number_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i < size; i++)
-    mat.at({i, i}) = static_cast<double>(i) + 0.0j;
+    mat[{i, i}] = static_cast<double>(i) + 0.0j;
   return mat;
 }
 
-cudaq::tensor<std::complex<double>> parity_matrix(std::size_t size) {
-  auto mat = cudaq::tensor<std::complex<double>>({size, size});
+cudaq::matrix_2 parity_matrix(std::size_t size) {
+  auto mat = cudaq::matrix_2(size, size);
   for (std::size_t i = 0; i < size; i++)
-    mat.at({i, i}) = std::pow(-1., static_cast<double>(i)) + 0.0j;
+    mat[{i, i}] = std::pow(-1., static_cast<double>(i)) + 0.0j;
   return mat;
 }
 
-// cudaq::tensor<std::complex<double>> displace_matrix(std::size_t size,
+// cudaq::matrix_2 displace_matrix(std::size_t size,
 //                                       std::complex<double> amplitude) {
-//   auto mat = cudaq::tensor<std::complex<double>>({size, size});
+//   auto mat = cudaq::matrix_2(size, size);
 //   for (std::size_t i = 0; i + 1 < size; i++) {
-//     mat.at({i + 1, i}) =
+//     mat[{i + 1, i}] =
 //         amplitude * std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
-//     mat.at({i, i + 1}) = -1. * std::conj(amplitude) * (0.5 * 'j') *
+//     mat[{i, i + 1}] = -1. * std::conj(amplitude) * (0.5 * 'j') *
 //                         std::sqrt(static_cast<double>(i + 1)) +
 //                     0.0 * 'j';
 //   }

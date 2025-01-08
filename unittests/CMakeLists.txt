@@ -225,7 +225,6 @@ set(CUDAQ_OPERATOR_TEST_SOURCES
    dynamics/scalar_ops_simple.cpp
    dynamics/scalar_ops_arithmetic.cpp
    dynamics/product_operators_arithmetic.cpp
-   dynamics/temporary_tensor_tester.cpp
 )
 add_executable(test_operators main.cpp ${CUDAQ_OPERATOR_TEST_SOURCES})
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT APPLE)

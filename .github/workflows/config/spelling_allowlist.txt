@@ -70,7 +70,6 @@ NVIDIA
 NVLink
 NVQC
 NVQIR
-NumPy
 OQC
 ORCA
 OpenACC
@@ -94,7 +93,6 @@ QPU
 QPUs
 QPU’s
 QTX
-QX
 Qiskit
 QuEra
 QuTiP

@@ -47,8 +47,8 @@ std::complex<double> scalar_operator::evaluate(
 matrix_2 scalar_operator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
-  auto returnOperator = tensor({1, 1});
-  returnOperator.at({0, 0}) = evaluate(parameters);
+  auto returnOperator = matrix_2(1, 1);
+  returnOperator[{0, 0}] = evaluate(parameters);
   return returnOperator;
 }
 
