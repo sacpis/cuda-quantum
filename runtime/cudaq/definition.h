@@ -21,7 +21,7 @@ namespace cudaq {
 // Limit the signature of the users callback function to accept a vector of ints
 // for the degree of freedom dimensions, and a vector of complex doubles for the
 // concrete parameter values.
-using Func = std::function<tensor<std::complex<double>>(
+using Func = std::function<matrix_2(
     std::map<int, int>, std::map<std::string, std::complex<double>>)>;
 
 class CallbackFunction {
@@ -36,11 +36,11 @@ public:
   template <typename Callable>
   CallbackFunction(Callable &&callable) {
     static_assert(
-        std::is_invocable_r_v<tensor<std::complex<double>>, Callable,
+        std::is_invocable_r_v<matrix_2, Callable,
                               std::map<int, int>,
                               std::map<std::string, std::complex<double>>>,
         "Invalid callback function. Must have signature "
-        "tensor<std::complex<double>>("
+        "matrix_2("
         "std::map<int,int>, "
         "std::map<std::string, std::complex<double>>)");
     _callback_func = std::forward<Callable>(callable);
@@ -55,7 +55,7 @@ public:
     _callback_func = other._callback_func;
   }
 
-  tensor<std::complex<double>>
+  matrix_2
   operator()(std::map<int, int> degrees,
              std::map<std::string, std::complex<double>> parameters) const {
     return _callback_func(std::move(degrees), std::move(parameters));
@@ -111,7 +111,7 @@ public:
 
   // The user-provided generator function should take a variable number of
   // complex doubles for the parameters. It should return a
-  // `cudaq::tensor<std::complex<double>>` type representing the operator
+  // `cudaq::tensor` type representing the operator
   // matrix.
   CallbackFunction generator;
 
@@ -126,7 +126,7 @@ public:
                          CallbackFunction &&create);
 
   // To call the generator function
-  tensor<std::complex<double>> generate_matrix(
+  matrix_2 generate_matrix(
       const std::map<int, int> &degrees,
       const std::map<std::string, std::complex<double>> &parameters) const;
 

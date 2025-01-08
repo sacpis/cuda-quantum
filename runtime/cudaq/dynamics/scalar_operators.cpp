@@ -44,7 +44,7 @@ std::complex<double> scalar_operator::evaluate(
   return generator(parameters);
 }
 
-tensor<std::complex<double>> scalar_operator::to_matrix(
+matrix_2 scalar_operator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
   auto returnOperator = tensor({1, 1});

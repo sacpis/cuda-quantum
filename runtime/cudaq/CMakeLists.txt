@@ -37,10 +37,7 @@ if (CUDA_FOUND)
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/runtime>
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tpls/eigen>
             $<BUILD_INTERFACE:${CUDAToolkit_INCLUDE_DIRS}>
-    PRIVATE .
-            ${CMAKE_SOURCE_DIR}/tpls/xtl/include 
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor-blas/include)
+    PRIVATE .)
 
   target_link_libraries(${LIBRARY_NAME}
     PUBLIC dl cudaq-spin cudaq-operators cudaq-common cudaq-nlopt cudaq-ensmallen
@@ -52,10 +49,7 @@ else()
     PUBLIC $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/runtime>
             $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/tpls/eigen>
-    PRIVATE . 
-            ${CMAKE_SOURCE_DIR}/tpls/xtl/include 
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor/include
-            ${CMAKE_SOURCE_DIR}/tpls/xtensor-blas/include)
+    PRIVATE .)
 
   target_link_libraries(${LIBRARY_NAME}
     PUBLIC dl cudaq-spin cudaq-operators cudaq-common cudaq-nlopt cudaq-ensmallen
@@ -68,8 +62,6 @@ add_subdirectory(platform)
 add_subdirectory(builder)
 add_subdirectory(domains)
 add_subdirectory(dynamics)
-
-set_target_properties(${LIBRARY_NAME} PROPERTIES CXX_VISIBILITY_PRESET "default")
 
 install(TARGETS ${LIBRARY_NAME} EXPORT cudaq-targets DESTINATION lib)
 

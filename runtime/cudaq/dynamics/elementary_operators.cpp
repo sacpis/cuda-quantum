@@ -36,7 +36,7 @@ elementary_operator elementary_operator::identity(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       int degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       // Build up the identity matrix.
       for (std::size_t i = 0; i < dimension; i++) {
         mat.at({i, i}) = 1.0 + 0.0 * 'j';
@@ -65,7 +65,7 @@ elementary_operator elementary_operator::zero(int degree) {
       // the user invokes this later on via, e.g, `to_matrix()`.
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       std::cout << "dumping the complex mat: \n";
       mat.dump();
       std::cout << "\ndone\n";
@@ -87,7 +87,7 @@ elementary_operator elementary_operator::annihilate(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       for (std::size_t i = 0; i + 1 < dimension; i++) {
         mat.at({i, i + 1}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
@@ -112,7 +112,7 @@ elementary_operator elementary_operator::create(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       for (std::size_t i = 0; i + 1 < dimension; i++) {
         mat.at({i + 1, i}) = std::sqrt(static_cast<double>(i + 1)) + 0.0 * 'j';
       }
@@ -137,7 +137,7 @@ elementary_operator elementary_operator::position(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       // position = 0.5 * (create + annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
         mat.at({i + 1, i}) =
@@ -166,7 +166,7 @@ elementary_operator elementary_operator::momentum(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       // momentum = 0.5j * (create - annihilate)
       for (std::size_t i = 0; i + 1 < dimension; i++) {
         mat.at({i + 1, i}) =
@@ -195,7 +195,7 @@ elementary_operator elementary_operator::number(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       for (std::size_t i = 0; i < dimension; i++) {
         mat.at({i, i}) = static_cast<double>(i) + 0.0j;
       }
@@ -220,7 +220,7 @@ elementary_operator elementary_operator::parity(int degree) {
                     std::map<std::string, std::complex<double>> _none) {
       auto degree = op.degrees[0];
       std::size_t dimension = dimensions[degree];
-      auto mat = tensor<std::complex<double>>({dimension, dimension});
+      auto mat = matrix_2({dimension, dimension});
       for (std::size_t i = 0; i < dimension; i++) {
         mat.at({i, i}) = std::pow(-1., static_cast<double>(i)) + 0.0j;
       }
@@ -246,7 +246,7 @@ elementary_operator::displace(int degree, std::complex<double> amplitude) {
   //                   std::map<std::string, std::complex<double>> _none) {
   //     auto degree = op.degrees[0];
   //     std::size_t dimension = dimensions[degree];
-  //     auto temp_mat = tensor<std::complex<double>>({dimension, dimension});
+  //     auto temp_mat = matrix_2({dimension, dimension});
   //     // // displace = exp[ (amplitude * create) - (conj(amplitude) *
   //     annihilate) ]
   //     // for (std::size_t i = 0; i + 1 < dimension; i++) {
@@ -277,7 +277,7 @@ elementary_operator::squeeze(int degree, std::complex<double> amplitude) {
   throw std::runtime_error("Not yet implemented.");
 }
 
-tensor<std::complex<double>> elementary_operator::to_matrix(
+matrix_2 elementary_operator::to_matrix(
     std::map<int, int> dimensions,
     std::map<std::string, std::complex<double>> parameters) {
   return m_ops[id].generator(dimensions, parameters);

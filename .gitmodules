@@ -27,9 +27,6 @@
 [submodule "tpls/xtensor"]
 	path = tpls/xtensor
 	url = https://github.com/xtensor-stack/xtensor
-[submodule "tpls/xtensor-blas"]
-	path = tpls/xtensor-blas
-	url = https://github.com/xtensor-stack/xtensor-blas
 [submodule "tpls/pybind11"]
 	path = tpls/pybind11
 	url = https://github.com/pybind/pybind11

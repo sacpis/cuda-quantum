@@ -27,7 +27,7 @@ void Definition::create_definition(const std::string &operator_id,
   m_expected_dimensions = std::move(expected_dimensions);
 }
 
-tensor<std::complex<double>> Definition::generate_matrix(
+matrix_2 Definition::generate_matrix(
     const std::map<int, int> &degrees,
     const std::map<std::string, std::complex<double>> &parameters) const {
   return generator(degrees, parameters);
