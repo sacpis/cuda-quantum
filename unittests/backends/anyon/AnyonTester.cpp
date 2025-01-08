@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
+ * Copyright (c) 2022 - 2025 NVIDIA Corporation & Affiliates.                  *
  * All rights reserved.                                                        *
  *                                                                             *
  * This source code and the accompanying materials are made available under    *
@@ -15,7 +15,7 @@
 
 // port number and localhost connect to mock_qpu backend server within the
 // container (mock_qpu/anyon).
-std::string mockPort = "5000";
+std::string mockPort = "62446";
 std::string machine = "telegraph-8q";
 std::string backendStringTemplate =
     "anyon;emulate;false;url;http://localhost:{};credentials;{};machine;{}";

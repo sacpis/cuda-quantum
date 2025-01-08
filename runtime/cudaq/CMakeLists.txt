@@ -1,5 +1,5 @@
 # ============================================================================ #
-# Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                   #
+# Copyright (c) 2022 - 2025 NVIDIA Corporation & Affiliates.                   #
 # All rights reserved.                                                         #
 #                                                                              #
 # This source code and the accompanying materials are made available under     #
@@ -23,8 +23,8 @@ add_library(${LIBRARY_NAME}
                 qis/remote_state.cpp
                 qis/state.cpp
                 utils/cudaq_utils.cpp
-                distributed/mpi_plugin.cpp
-                utils/details/impls/xtensor_impl.cpp)
+                utils/tensor.cpp
+                distributed/mpi_plugin.cpp)
 
 set_property(GLOBAL APPEND PROPERTY CUDAQ_RUNTIME_LIBS ${LIBRARY_NAME})
 

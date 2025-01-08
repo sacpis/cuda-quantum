@@ -1,5 +1,5 @@
 # ============================================================================ #
-# Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                   #
+# Copyright (c) 2022 - 2025 NVIDIA Corporation & Affiliates.                   #
 # All rights reserved.                                                         #
 #                                                                              #
 # This source code and the accompanying materials are made available under     #
@@ -15,11 +15,6 @@ import sys
 
 import cudaq
 from cudaq import spin
-
-## [PYTHON_VERSION_FIX]
-skipIfPythonLessThan39 = pytest.mark.skipif(
-    sys.version_info < (3, 9),
-    reason="built-in collection types such as `list` not supported")
 
 
 @pytest.fixture(autouse=True)
@@ -190,16 +185,15 @@ def test_2grover_compute_action():
     assert '011' in counts
 
 
-@skipIfPythonLessThan39
 def test_pauli_word_input():
 
     h2_data = [
-        3, 1, 1, 3, 0.0454063, 0, 2, 0, 0, 0, 0.17028, 0, 0, 0, 2, 0,
-        -0.220041, -0, 1, 3, 3, 1, 0.0454063, 0, 0, 0, 0, 0, -0.106477, 0, 0,
-        2, 0, 0, 0.17028, 0, 0, 0, 0, 2, -0.220041, -0, 3, 3, 1, 1, -0.0454063,
-        -0, 2, 2, 0, 0, 0.168336, 0, 2, 0, 2, 0, 0.1202, 0, 0, 2, 0, 2, 0.1202,
-        0, 2, 0, 0, 2, 0.165607, 0, 0, 2, 2, 0, 0.165607, 0, 0, 0, 2, 2,
-        0.174073, 0, 1, 1, 3, 3, -0.0454063, -0, 15
+        3, 1, 1, 3, 0.0454063, 0, 2, 0, 0, 0, 0.17028, 0, 0, 0, 2, 0, -0.220041,
+        -0, 1, 3, 3, 1, 0.0454063, 0, 0, 0, 0, 0, -0.106477, 0, 0, 2, 0, 0,
+        0.17028, 0, 0, 0, 0, 2, -0.220041, -0, 3, 3, 1, 1, -0.0454063, -0, 2, 2,
+        0, 0, 0.168336, 0, 2, 0, 2, 0, 0.1202, 0, 0, 2, 0, 2, 0.1202, 0, 2, 0,
+        0, 2, 0.165607, 0, 0, 2, 2, 0, 0.165607, 0, 0, 0, 2, 2, 0.174073, 0, 1,
+        1, 3, 3, -0.0454063, -0, 15
     ]
     h = cudaq.SpinOperator(h2_data, 4)
 
@@ -242,12 +236,12 @@ def test_pauli_word_input():
 
 def test_exp_pauli():
     h2_data = [
-        3, 1, 1, 3, 0.0454063, 0, 2, 0, 0, 0, 0.17028, 0, 0, 0, 2, 0,
-        -0.220041, -0, 1, 3, 3, 1, 0.0454063, 0, 0, 0, 0, 0, -0.106477, 0, 0,
-        2, 0, 0, 0.17028, 0, 0, 0, 0, 2, -0.220041, -0, 3, 3, 1, 1, -0.0454063,
-        -0, 2, 2, 0, 0, 0.168336, 0, 2, 0, 2, 0, 0.1202, 0, 0, 2, 0, 2, 0.1202,
-        0, 2, 0, 0, 2, 0.165607, 0, 0, 2, 2, 0, 0.165607, 0, 0, 0, 2, 2,
-        0.174073, 0, 1, 1, 3, 3, -0.0454063, -0, 15
+        3, 1, 1, 3, 0.0454063, 0, 2, 0, 0, 0, 0.17028, 0, 0, 0, 2, 0, -0.220041,
+        -0, 1, 3, 3, 1, 0.0454063, 0, 0, 0, 0, 0, -0.106477, 0, 0, 2, 0, 0,
+        0.17028, 0, 0, 0, 0, 2, -0.220041, -0, 3, 3, 1, 1, -0.0454063, -0, 2, 2,
+        0, 0, 0.168336, 0, 2, 0, 2, 0, 0.1202, 0, 0, 2, 0, 2, 0.1202, 0, 2, 0,
+        0, 2, 0.165607, 0, 0, 2, 2, 0, 0.165607, 0, 0, 0, 2, 2, 0.174073, 0, 1,
+        1, 3, 3, -0.0454063, -0, 15
     ]
     h = cudaq.SpinOperator(h2_data, 4)
 
@@ -445,7 +439,6 @@ def test_no_dynamic_Lists():
         print(kernel)
 
 
-@skipIfPythonLessThan39
 def test_no_dynamic_lists():
     with pytest.raises(RuntimeError) as error:
 
@@ -534,7 +527,6 @@ def test_list_creation():
     assert '1' * 5 in counts
 
 
-@skipIfPythonLessThan39
 def test_list_creation_with_cast():
 
     @cudaq.kernel
@@ -550,7 +542,6 @@ def test_list_creation_with_cast():
     assert '1' * 5 in counts
 
 
-@skipIfPythonLessThan39
 def test_list_creation_with_cast():
 
     @cudaq.kernel
@@ -861,7 +852,6 @@ def test_invalid_cudaq_type():
         print(test)
 
 
-@skipIfPythonLessThan39
 def test_bool_list_elements():
 
     @cudaq.kernel
@@ -926,7 +916,6 @@ def test_aug_assign_add():
     assert test2() == 10
 
 
-@skipIfPythonLessThan39
 def test_empty_lists():
 
     @cudaq.kernel
@@ -1527,7 +1516,6 @@ def test_nested_loops_with_continue():
     print(prog)
 
 
-@skipIfPythonLessThan39
 def test_issue_1682():
 
     @cudaq.kernel
@@ -1776,15 +1764,17 @@ def test_disallow_quantum_struct_return():
 
         test()
 
+
 def test_disallow_recursive_quantum_struct():
     from dataclasses import dataclass
+
     @dataclass
     class T:
         q: cudaq.qview
 
     @dataclass
     class Holder:
-        t : T
+        t: T
 
     with pytest.raises(RuntimeError) as e:
 
@@ -1795,41 +1785,44 @@ def test_disallow_recursive_quantum_struct():
             hh = Holder(t)
 
         print(test)
-    
+
     with pytest.raises(RuntimeError) as e:
 
         @cudaq.kernel
-        def test(hh : Holder):
+        def test(hh: Holder):
             pass
 
         print(test)
 
+
 def test_disallow_struct_with_methods():
     from dataclasses import dataclass
+
     @dataclass
     class T:
         q: cudaq.qview
+
         def doSomething(self):
-            pass 
+            pass
 
     with pytest.raises(RuntimeError) as e:
 
         @cudaq.kernel
-        def test(t : T):
-            pass 
+        def test(t: T):
+            pass
 
         print(test)
-    
+
     with pytest.raises(RuntimeError) as e:
 
-        @cudaq.kernel 
+        @cudaq.kernel
         def test():
             q = cudaq.qvector(2)
             t = T(q)
+
         print(test)
 
 
-@skipIfPythonLessThan39
 def test_issue_9():
 
     @cudaq.kernel

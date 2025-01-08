@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
+ * Copyright (c) 2022 - 2025 NVIDIA Corporation & Affiliates.                  *
  * All rights reserved.                                                        *
  *                                                                             *
  * This source code and the accompanying materials are made available under    *
@@ -17,6 +17,11 @@ namespace cudaq {
 /// API.
 class OrcaExecutor : public Executor {
 public:
+  details::future execute(std::vector<KernelExecution> &codesToExecute,
+                          bool isObserve) override {
+    throw std::runtime_error(
+        "ORCA backend does not support executing arbitrary kernels");
+  }
   /// @brief Execute the provided ORCA quantum parameters and return a future
   /// object. The caller can make this synchronous by just immediately calling
   /// .get().

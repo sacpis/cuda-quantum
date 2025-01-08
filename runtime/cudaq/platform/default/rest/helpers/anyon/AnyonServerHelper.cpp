@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 - 2024 NVIDIA Corporation & Affiliates.                  *
+ * Copyright (c) 2022 - 2025 NVIDIA Corporation & Affiliates.                  *
  * All rights reserved.                                                        *
  *                                                                             *
  * This source code and the accompanying materials are made available under    *
@@ -281,7 +281,18 @@ AnyonServerHelper::processResults(ServerMessage &postJobResponse,
   // Store the combined results into the global register
   srs.emplace_back(counts, GlobalRegisterName);
   srs.back().sequentialData = bitstrings;
-  return sample_result(srs);
+  sample_result sampleResult(srs);
+
+  // Now reorder according to reorderIdx[]. This sorts the global bitstring in
+  // original user qubit allocation order.
+  auto thisJobReorderIdxIt = reorderIdx.find(jobId);
+  if (thisJobReorderIdxIt != reorderIdx.end()) {
+    auto &thisJobReorderIdx = thisJobReorderIdxIt->second;
+    if (!thisJobReorderIdx.empty())
+      sampleResult.reorder(thisJobReorderIdx);
+  }
+
+  return sampleResult;
 }
 
 std::map<std::string, std::string>
