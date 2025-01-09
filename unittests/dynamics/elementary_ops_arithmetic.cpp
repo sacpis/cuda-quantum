@@ -13,6 +13,7 @@
 /// 1. I've generated all of the `want` matrices for each test, and prepared
 ///    the test to check against the `got` matrix. Now waiting on finishing the
 ///    full `to_matrix` conversion to be able to do so.
+///
 
 namespace utils_0 {
 void checkEqual(cudaq::matrix_2 a, cudaq::matrix_2 b) {
