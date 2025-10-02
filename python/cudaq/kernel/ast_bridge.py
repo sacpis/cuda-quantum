@@ -3024,6 +3024,41 @@ class PyASTBridge(ast.NodeVisitor):
             self.emitFatalError(
                 f"Invalid function call - '{node.func.value.id}' is unknown.")
 
+        if not isinstance(node.func, (ast.Name, ast.Attribute)):
+            for arg in node.args:
+                self.visit(arg)
+            args = [self.popValue() for _ in node.args][::-1]
+            args = [self.ifPointerThenLoad(v) for v in args]
+
+            # evaluate the callee expression
+            self.visit(node.func)
+            callee = self.popValue()
+
+            cty = callee.type
+            if cc.PointerType.isinstance(cty):
+                elem_ty = cc.PointerType.getElementType(cty)
+                if cc.CallableType.isinstance(elem_ty):
+                    callee = cc.LoadOp(callee).result
+                    cty = callee.type
+
+            if cc.CallableType.isinstance(cty):
+                fnty = cc.CallableType.getFunctionType(cty)
+                if not self.argumentsValidForFunction(args, fnty):
+                    self.emitFatalError(f"invalid argument types for callable function ({[a.type for a in args]} vs {fnty})", node)
+                callable_val = cc.CallableFuncOp(fnty, callee).result
+                fnt = FunctionType(fnty)
+                print(len(fnt.results))
+                print(callable_val)
+                print(args)
+                if len(fnt.results) == 0:
+                    func.CallIndirectOp([], callable_val, args)
+                else:
+                    res = func.CallIndirectOp([fnt.results[0]], callable_val, args).result
+                    self.pushValue(res)
+                return
+
+            self.emitFatalError(f"callee expression is not callable (type={cty}).", node)
+
     def visit_ListComp(self, node):
         """
         This method currently supports lowering simple list comprehensions to
@@ -3260,6 +3295,31 @@ class PyASTBridge(ast.NodeVisitor):
         extraction for `veq` types and `stdvec` types. 
         """
         self.currentNode = node
+
+        self.visit(node.value)
+        container = self.popValue()
+        cty = container.type
+
+        idx_node = node.slice
+        if not isinstance(idx_node, ast.AST):
+            idx_node = ast.Constant(value=idx_node)
+        self.visit(idx_node)
+        idx_val = self.popValue()
+        idx_val = self.ifPointerThenLoad(idx_val)
+
+        if not IntegerType.isinstance(idx_val.type):
+            if F64Type.isinstance(idx_val.type):
+                idx_val = arith.FPToSIOp(self.getIntegerType(), idx_val).result
+            else:
+                self.emitFatalError("subscript index must be integer-typed.", node)
+
+        if str(cty).startswith("!quake.veq"):
+            if not (IntegerType.isinstance(idx_val.type)):
+                idx_val = arith.ExtSIOp(IntegerType.get_signless(64), idx_val).result
+            ref_ty = quake.RefType.get()
+            ref = quake.ExtractRefOp(ref_ty, container, idx_val).result
+            self.pushValue(ref)
+            return
 
         # handle complex slice, VAR[lower:upper]
         if isinstance(node.slice, ast.Slice):
