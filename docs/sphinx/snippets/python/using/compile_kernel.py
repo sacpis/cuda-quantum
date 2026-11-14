@@ -151,7 +151,7 @@ from cudaq._experimental import CustomPipelineLowering
 # Just decompose the gates and do nothing else.
 custom_pipeline = "decomposition{basis=" + ",".join(nisq_gates) + "}"
 custom_target = CompileTarget(custom_pipeline=CustomPipelineLowering(
-    mid_level_pipeline=custom_pipeline))
+    mid_level=custom_pipeline))
 cudaq.set_target("qpp-cpu", compile_target=custom_target)
 
 resources = cudaq.estimate(qpe).resources
