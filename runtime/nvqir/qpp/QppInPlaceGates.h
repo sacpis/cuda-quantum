@@ -83,6 +83,68 @@ inline std::complex<double> multiply(const std::complex<double> &a,
           a.real() * b.imag() + a.imag() * b.real()};
 }
 
+/// @brief Apply a 2x2 matrix to the amplitude pairs (`low[j]`, `high[j]`).
+/// Written on real and imaginary parts so the compiler can vectorize it.
+[[gnu::always_inline]] inline void
+transformPairs(std::complex<double> *low, std::complex<double> *high,
+               std::size_t count, const std::complex<double> *matrix) {
+  double *__restrict a = reinterpret_cast<double *>(low);
+  double *__restrict b = reinterpret_cast<double *>(high);
+  const double m00r = matrix[0].real(), m00i = matrix[0].imag(),
+               m01r = matrix[1].real(), m01i = matrix[1].imag(),
+               m10r = matrix[2].real(), m10i = matrix[2].imag(),
+               m11r = matrix[3].real(), m11i = matrix[3].imag();
+  for (std::size_t j = 0; j < count; ++j) {
+    const double ar = a[2 * j], ai = a[2 * j + 1];
+    const double br = b[2 * j], bi = b[2 * j + 1];
+    a[2 * j] = (m00r * ar - m00i * ai) + (m01r * br - m01i * bi);
+    a[2 * j + 1] = (m00r * ai + m00i * ar) + (m01r * bi + m01i * br);
+    b[2 * j] = (m10r * ar - m10i * ai) + (m11r * br - m11i * bi);
+    b[2 * j + 1] = (m10r * ai + m10i * ar) + (m11r * bi + m11i * br);
+  }
+}
+
+/// @brief A function that processes one run of amplitude pairs.
+using PairKernel = void (*)(std::complex<double> *, std::complex<double> *,
+                            std::size_t, const std::complex<double> *);
+
+inline void transformPairsGeneric(std::complex<double> *low,
+                                  std::complex<double> *high, std::size_t count,
+                                  const std::complex<double> *matrix) {
+  transformPairs(low, high, count, matrix);
+}
+
+#if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__))
+#define CUDAQ_QPP_HAS_AVX2_KERNEL
+/// @brief `transformPairs` compiled for AVX2. No FMA, so results match the
+/// generic version exactly.
+__attribute__((target("avx2"))) inline void
+transformPairsAvx2(std::complex<double> *low, std::complex<double> *high,
+                   std::size_t count, const std::complex<double> *matrix) {
+  transformPairs(low, high, count, matrix);
+}
+#endif
+
+/// @brief X gate: swap the two amplitudes.
+inline void swapPairs(std::complex<double> *low, std::complex<double> *high,
+                      std::size_t count, const std::complex<double> *) {
+  std::swap_ranges(low, low + count, high);
+}
+
+/// @brief Pick the kernel for the given 2x2 matrix.
+inline PairKernel selectPairKernel(const std::complex<double> *matrix) {
+  const std::complex<double> zero = 0.0, one = 1.0;
+  if (matrix[0] == zero && matrix[1] == one && matrix[2] == one &&
+      matrix[3] == zero)
+    return swapPairs;
+#if defined(CUDAQ_QPP_HAS_AVX2_KERNEL)
+  static const bool hasAvx2 = __builtin_cpu_supports("avx2");
+  if (hasAvx2)
+    return transformPairsAvx2;
+#endif
+  return transformPairsGeneric;
+}
+
 /// @brief Apply a (controlled) gate to a state vector, in place.
 ///
 /// Qubit `q` is bit `q` of the amplitude index. `matrix` is row-major, with
@@ -130,6 +192,36 @@ inline void applyGateInPlace(std::complex<double> *state, std::size_t numQubits,
 
   if (numTargets == 1) {
     const std::size_t targetBit = 1ULL << targets[0];
+
+    // Amplitudes below the lowest involved qubit are contiguous: process
+    // them one run at a time.
+    const std::size_t runLength = 1ULL << involved.front();
+    if (runLength >= 4) {
+      const PairKernel kernel = selectPairKernel(matrix.data());
+      const auto processGroups = [&](std::size_t begin, std::size_t end) {
+        for (std::size_t group = begin; group < end;) {
+          const std::size_t count =
+              std::min(runLength - (group & (runLength - 1)), end - group);
+          const std::size_t i0 = insertZeroBits(group, involved) | controlMask;
+          kernel(state + i0, state + (i0 | targetBit), count, matrix.data());
+          group += count;
+        }
+      };
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(numThreads) if (numThreads > 1)
+      {
+        const std::size_t thread = omp_get_thread_num();
+        const std::size_t team = omp_get_num_threads();
+        processGroups(numGroups * thread / team,
+                      numGroups * (thread + 1) / team);
+      }
+#else
+      processGroups(0, numGroups);
+#endif
+      return;
+    }
+
+    // Short runs: one pair at a time.
     const auto m00 = matrix[0], m01 = matrix[1], m10 = matrix[2],
                m11 = matrix[3];
 #if defined(_OPENMP)
