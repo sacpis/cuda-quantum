@@ -236,6 +236,42 @@ protected:
   /// The QPP state representation (qpp::ket or qpp::cmat)
   StateType state;
 
+  /// State vectors of at least this many amplitudes (32 MB) get fresh pages
+  /// from the allocator on every execution, which dominates their setup.
+  static constexpr std::size_t largeStateDimension = 1ULL << 21;
+
+  /// Largest state vector (64 MB) whose buffer is kept for the next execution.
+  static constexpr std::size_t maxRetainedDimension = 1ULL << 22;
+
+  /// Large state-vector buffer kept from the previous execution.
+  StateType spareState;
+
+  /// @brief Set the state vector to |0...0> of the given dimension. Large
+  /// states reuse the spare buffer if it fits, and are zeroed in parallel.
+  void resetKetToZero(std::size_t dimension) {
+    if (dimension < largeStateDimension) {
+      state = qpp::ket::Zero(dimension);
+      state(0) = 1.0;
+      return;
+    }
+    if (static_cast<std::size_t>(state.size()) != dimension) {
+      if (static_cast<std::size_t>(spareState.size()) == dimension) {
+        state.swap(spareState);
+        spareState.resize(0);
+      } else {
+        state.resize(dimension);
+      }
+    }
+    auto *data = state.data();
+    [[maybe_unused]] const int numThreads = details::parallelThreads(dimension);
+#if defined(_OPENMP)
+#pragma omp parallel for num_threads(numThreads) if (numThreads > 1)
+#endif
+    for (std::size_t i = 0; i < dimension; ++i)
+      data[i] = 0.0;
+    data[0] = 1.0;
+  }
+
   /// @brief Convert internal qubit index to Q++ qubit index.
   ///
   /// In Q++, qubits are indexed from left to right, and thus q0 is the leftmost
@@ -312,8 +348,12 @@ protected:
       // can already count qubits this call is not materializing.
       const auto dimension = calculateStateDim(qubitCount);
       if (stateData == nullptr) {
-        state = qpp::ket::Zero(dimension);
-        state(0) = 1.0;
+        if constexpr (std::is_same_v<StateType, qpp::ket>) {
+          resetKetToZero(dimension);
+        } else {
+          state = qpp::ket::Zero(dimension);
+          state(0) = 1.0;
+        }
       } else
         state = qpp::ket::Map(stateData, dimension);
       return;
@@ -346,6 +386,12 @@ protected:
 
   /// @brief Reset the qubit state.
   void deallocateStateImpl() override {
+    if constexpr (std::is_same_v<StateType, qpp::ket>) {
+      // Keep a large buffer for the next execution, within the size cap.
+      const auto dimension = static_cast<std::size_t>(state.size());
+      if (dimension >= largeStateDimension && dimension <= maxRetainedDimension)
+        state.swap(spareState);
+    }
     StateType tmp;
     state = tmp;
   }
@@ -384,8 +430,12 @@ protected:
   void setToZeroState() override {
     // `stateDimension` already counts queued allocations.
     flushPendingQubits();
-    state = qpp::ket::Zero(stateDimension);
-    state(0) = 1.0;
+    if constexpr (std::is_same_v<StateType, qpp::ket>) {
+      resetKetToZero(stateDimension);
+    } else {
+      state = qpp::ket::Zero(stateDimension);
+      state(0) = 1.0;
+    }
   }
 
   /// @brief Measure the qubit and return the result. Collapse the
