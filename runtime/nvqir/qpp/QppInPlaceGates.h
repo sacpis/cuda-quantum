@@ -39,6 +39,7 @@
 #include <complex>
 #include <cstddef>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 #if defined(_OPENMP)
 #include <omp.h>
@@ -83,6 +84,27 @@ inline std::complex<double> multiply(const std::complex<double> &a,
           a.real() * b.imag() + a.imag() * b.real()};
 }
 
+/// @brief A 2x2 complex matrix split into real and imaginary parts.
+struct SplitMatrix {
+  double m00r, m00i, m01r, m01i, m10r, m10i, m11r, m11i;
+  explicit SplitMatrix(const std::complex<double> *matrix)
+      : m00r(matrix[0].real()), m00i(matrix[0].imag()), m01r(matrix[1].real()),
+        m01i(matrix[1].imag()), m10r(matrix[2].real()), m10i(matrix[2].imag()),
+        m11r(matrix[3].real()), m11i(matrix[3].imag()) {}
+};
+
+/// @brief Apply the matrix to one amplitude pair, given as (re, im) doubles.
+/// The arithmetic is the same as `multiply`.
+[[gnu::always_inline]] inline void transformPair(double *a, double *b,
+                                                 const SplitMatrix &m) {
+  const double ar = a[0], ai = a[1];
+  const double br = b[0], bi = b[1];
+  a[0] = (m.m00r * ar - m.m00i * ai) + (m.m01r * br - m.m01i * bi);
+  a[1] = (m.m00r * ai + m.m00i * ar) + (m.m01r * bi + m.m01i * br);
+  b[0] = (m.m10r * ar - m.m10i * ai) + (m.m11r * br - m.m11i * bi);
+  b[1] = (m.m10r * ai + m.m10i * ar) + (m.m11r * bi + m.m11i * br);
+}
+
 /// @brief Apply a 2x2 matrix to the amplitude pairs (`low[j]`, `high[j]`).
 /// Written on real and imaginary parts so the compiler can vectorize it.
 [[gnu::always_inline]] inline void
@@ -90,18 +112,45 @@ transformPairs(std::complex<double> *low, std::complex<double> *high,
                std::size_t count, const std::complex<double> *matrix) {
   double *__restrict a = reinterpret_cast<double *>(low);
   double *__restrict b = reinterpret_cast<double *>(high);
-  const double m00r = matrix[0].real(), m00i = matrix[0].imag(),
-               m01r = matrix[1].real(), m01i = matrix[1].imag(),
-               m10r = matrix[2].real(), m10i = matrix[2].imag(),
-               m11r = matrix[3].real(), m11i = matrix[3].imag();
-  for (std::size_t j = 0; j < count; ++j) {
-    const double ar = a[2 * j], ai = a[2 * j + 1];
-    const double br = b[2 * j], bi = b[2 * j + 1];
-    a[2 * j] = (m00r * ar - m00i * ai) + (m01r * br - m01i * bi);
-    a[2 * j + 1] = (m00r * ai + m00i * ar) + (m01r * bi + m01i * br);
-    b[2 * j] = (m10r * ar - m10i * ai) + (m11r * br - m11i * bi);
-    b[2 * j + 1] = (m10r * ai + m10i * ar) + (m11r * bi + m11i * br);
+  const SplitMatrix m(matrix);
+  for (std::size_t j = 0; j < count; ++j)
+    transformPair(a + 2 * j, b + 2 * j, m);
+}
+
+/// @brief Apply a 2x2 matrix to consecutive blocks of 2 * `Run` amplitudes,
+/// pairing the first half of each block with its second half.
+template <std::size_t Run>
+[[gnu::always_inline]] inline void
+transformBlocks(std::complex<double> *blocks, std::size_t numBlocks,
+                const std::complex<double> *matrix) {
+  double *__restrict data = reinterpret_cast<double *>(blocks);
+  const SplitMatrix m(matrix);
+  for (std::size_t block = 0; block < numBlocks; ++block) {
+    double *a = data + 4 * Run * block;
+    for (std::size_t j = 0; j < Run; ++j)
+      transformPair(a + 2 * j, a + 2 * (Run + j), m);
   }
+}
+
+/// @brief Apply a 2x2 matrix to the pairs (`low[j * stride]`,
+/// `high[j * stride]`).
+inline void transformStrided(std::complex<double> *low,
+                             std::complex<double> *high, std::size_t count,
+                             std::size_t stride,
+                             const std::complex<double> *matrix) {
+  double *a = reinterpret_cast<double *>(low);
+  double *b = reinterpret_cast<double *>(high);
+  const SplitMatrix m(matrix);
+  for (std::size_t j = 0; j < count; ++j)
+    transformPair(a + 2 * stride * j, b + 2 * stride * j, m);
+}
+
+/// @brief X gate on strided pairs: swap the two amplitudes.
+inline void swapStrided(std::complex<double> *low, std::complex<double> *high,
+                        std::size_t count, std::size_t stride,
+                        const std::complex<double> *) {
+  for (std::size_t j = 0; j < count; ++j)
+    std::swap(low[j * stride], high[j * stride]);
 }
 
 /// @brief A function that processes one run of amplitude pairs.
@@ -116,6 +165,12 @@ inline void transformPairsGeneric(std::complex<double> *low,
 
 #if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__))
 #define CUDAQ_QPP_HAS_AVX2_KERNEL
+/// @brief True if the CPU supports AVX2.
+inline bool hasAvx2() {
+  static const bool supported = __builtin_cpu_supports("avx2");
+  return supported;
+}
+
 /// @brief `transformPairs` compiled for AVX2. No FMA, so results match the
 /// generic version exactly.
 __attribute__((target("avx2"))) inline void
@@ -131,18 +186,106 @@ inline void swapPairs(std::complex<double> *low, std::complex<double> *high,
   std::swap_ranges(low, low + count, high);
 }
 
+/// @brief True if the 2x2 matrix is the X gate.
+inline bool isXGate(const std::complex<double> *matrix) {
+  const std::complex<double> zero = 0.0, one = 1.0;
+  return matrix[0] == zero && matrix[1] == one && matrix[2] == one &&
+         matrix[3] == zero;
+}
+
 /// @brief Pick the kernel for the given 2x2 matrix.
 inline PairKernel selectPairKernel(const std::complex<double> *matrix) {
-  const std::complex<double> zero = 0.0, one = 1.0;
-  if (matrix[0] == zero && matrix[1] == one && matrix[2] == one &&
-      matrix[3] == zero)
+  if (isXGate(matrix))
     return swapPairs;
 #if defined(CUDAQ_QPP_HAS_AVX2_KERNEL)
-  static const bool hasAvx2 = __builtin_cpu_supports("avx2");
-  if (hasAvx2)
+  if (hasAvx2())
     return transformPairsAvx2;
 #endif
   return transformPairsGeneric;
+}
+
+/// @brief A function that processes consecutive blocks of amplitudes.
+using BlockKernel = void (*)(std::complex<double> *, std::size_t,
+                             const std::complex<double> *);
+
+template <std::size_t Run>
+inline void transformBlocksGeneric(std::complex<double> *blocks,
+                                   std::size_t numBlocks,
+                                   const std::complex<double> *matrix) {
+  transformBlocks<Run>(blocks, numBlocks, matrix);
+}
+
+#if defined(CUDAQ_QPP_HAS_AVX2_KERNEL)
+template <std::size_t Run>
+__attribute__((target("avx2"))) inline void
+transformBlocksAvx2(std::complex<double> *blocks, std::size_t numBlocks,
+                    const std::complex<double> *matrix) {
+  transformBlocks<Run>(blocks, numBlocks, matrix);
+}
+#endif
+
+/// @brief Pick the block kernel for a target qubit below 4, whose blocks
+/// hold 2^(target + 1) amplitudes.
+inline BlockKernel selectBlockKernel(std::size_t target) {
+#if defined(CUDAQ_QPP_HAS_AVX2_KERNEL)
+  static constexpr BlockKernel avx2[] = {
+      transformBlocksAvx2<1>, transformBlocksAvx2<2>, transformBlocksAvx2<4>,
+      transformBlocksAvx2<8>};
+  if (hasAvx2())
+    return avx2[target];
+#endif
+  static constexpr BlockKernel generic[] = {
+      transformBlocksGeneric<1>, transformBlocksGeneric<2>,
+      transformBlocksGeneric<4>, transformBlocksGeneric<8>};
+  return generic[target];
+}
+
+/// @brief Longest stretch of consecutive qubits that are not in
+/// `sortedInvolved`, as (first qubit, number of qubits).
+inline std::pair<std::size_t, std::size_t>
+longestFreeStretch(const std::vector<std::size_t> &sortedInvolved,
+                   std::size_t numQubits) {
+  std::size_t bestBegin = 0, bestBits = 0, begin = 0;
+  const auto consider = [&](std::size_t end) {
+    if (end - begin > bestBits) {
+      bestBegin = begin;
+      bestBits = end - begin;
+    }
+  };
+  for (auto qubit : sortedInvolved) {
+    consider(qubit);
+    begin = qubit + 1;
+  }
+  consider(numQubits);
+  return {bestBegin, bestBits};
+}
+
+/// @brief Call `body(outer, first, last)` so that the calls cover every
+/// `outer` in [0, numOuter) with [first, last) = [0, 2^innerBits), splitting
+/// that index space evenly across the threads.
+template <typename Body>
+inline void forEachSegment(std::size_t numOuter, std::size_t innerBits,
+                           [[maybe_unused]] int numThreads, Body &&body) {
+  const std::size_t inner = 1ULL << innerBits;
+  const std::size_t total = numOuter << innerBits;
+  const auto process = [&](std::size_t begin, std::size_t end) {
+    for (std::size_t i = begin; i < end;) {
+      const std::size_t first = i & (inner - 1);
+      const std::size_t last = std::min(inner, first + (end - i));
+      body(i >> innerBits, first, last);
+      i += last - first;
+    }
+  };
+#if defined(_OPENMP)
+#pragma omp parallel num_threads(numThreads) if (numThreads > 1)
+  {
+    const std::size_t thread = omp_get_thread_num();
+    const std::size_t team = omp_get_num_threads();
+    process(total * thread / team, total * (thread + 1) / team);
+  }
+#else
+  process(0, total);
+#endif
 }
 
 /// @brief Apply a (controlled) gate to a state vector, in place.
@@ -193,10 +336,13 @@ inline void applyGateInPlace(std::complex<double> *state, std::size_t numQubits,
   if (numTargets == 1) {
     const std::size_t targetBit = 1ULL << targets[0];
 
+    const std::size_t target = targets[0];
+    const std::size_t lowest = involved.front();
+
     // Amplitudes below the lowest involved qubit are contiguous: process
     // them one run at a time.
-    const std::size_t runLength = 1ULL << involved.front();
-    if (runLength >= 4) {
+    const std::size_t runLength = 1ULL << lowest;
+    if (lowest >= 4 || (lowest >= 2 && target != lowest)) {
       const PairKernel kernel = selectPairKernel(matrix.data());
       const auto processGroups = [&](std::size_t begin, std::size_t end) {
         for (std::size_t group = begin; group < end;) {
@@ -221,7 +367,54 @@ inline void applyGateInPlace(std::complex<double> *state, std::size_t numQubits,
       return;
     }
 
-    // Short runs: one pair at a time.
+    // Low target with free qubits right above it: the runs follow each other
+    // in memory, so process whole blocks of them at once.
+    if (target == lowest) {
+      const std::size_t next = involved.size() > 1 ? involved[1] : numQubits;
+      const std::size_t blockBits = next - target - 1;
+      if (blockBits >= 2) {
+        // Everything below `next` is inside the blocks.
+        std::vector<std::size_t> outerBits;
+        for (std::size_t qubit = 0; qubit < next; ++qubit)
+          outerBits.push_back(qubit);
+        outerBits.insert(outerBits.end(), involved.begin() + 1, involved.end());
+        const BlockKernel kernel = selectBlockKernel(target);
+        forEachSegment(
+            1ULL << (numQubits - outerBits.size()), blockBits, numThreads,
+            [&](std::size_t outer, std::size_t first, std::size_t last) {
+              const std::size_t base =
+                  insertZeroBits(outer, outerBits) | controlMask;
+              kernel(state + base + (first << (target + 1)), last - first,
+                     matrix.data());
+            });
+        return;
+      }
+    }
+
+    // Otherwise walk the longest stretch of free qubits with a fixed stride.
+    if (const auto [stretchBegin, stretchBits] =
+            longestFreeStretch(involved, numQubits);
+        stretchBits >= 2) {
+      std::vector<std::size_t> outerBits = involved;
+      for (std::size_t i = 0; i < stretchBits; ++i)
+        outerBits.push_back(stretchBegin + i);
+      std::sort(outerBits.begin(), outerBits.end());
+      const auto kernel =
+          isXGate(matrix.data()) ? swapStrided : transformStrided;
+      const std::size_t stretchStart = stretchBegin;
+      forEachSegment(
+          1ULL << (numQubits - outerBits.size()), stretchBits, numThreads,
+          [&](std::size_t outer, std::size_t first, std::size_t last) {
+            const std::size_t i0 =
+                (insertZeroBits(outer, outerBits) | controlMask) +
+                (first << stretchStart);
+            kernel(state + i0, state + i0 + targetBit, last - first,
+                   1ULL << stretchStart, matrix.data());
+          });
+      return;
+    }
+
+    // Too few qubits for either: one pair at a time.
     const auto m00 = matrix[0], m01 = matrix[1], m10 = matrix[2],
                m11 = matrix[3];
 #if defined(_OPENMP)
